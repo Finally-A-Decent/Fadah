@@ -12,6 +12,7 @@ repositories {
 
 dependencies {
     implementation project(":API")
+    implementation project(":StorageProto")
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
 
     // Support mini message format

@@ -1,0 +1,11 @@
+repositories {
+}
+
+dependencies {
+    implementation project(":StorageProto")
+}
+
+shadowJar {
+    destinationDirectory.set(file("$rootDir/target"))
+    minimize()
+}

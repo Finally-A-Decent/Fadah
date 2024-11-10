@@ -1,2 +1,5 @@
 rootProject.name = 'Fadah'
-include('Bukkit', 'API')
+include 'Bukkit'
+include 'API'
+include 'StorageService'
+include 'StorageProto'
