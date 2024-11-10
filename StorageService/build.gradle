@@ -5,6 +5,14 @@ dependencies {
     implementation project(":StorageProto")
 }
 
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'info.preva1l.fadah.StorageService'
+        )
+    }
+}
+
 shadowJar {
     destinationDirectory.set(file("$rootDir/target"))
     minimize()

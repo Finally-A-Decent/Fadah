@@ -4,3 +4,7 @@ repositories {
 dependencies {
     compileOnly 'com.google.code.gson:gson:2.8.0'
 }
+
+shadowJar {
+    destinationDirectory.set(file("${buildDir}/libs"))
+}
