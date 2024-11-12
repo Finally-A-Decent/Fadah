@@ -11,6 +11,18 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class Clients {
+    /**
+     * {@code fadah://username:password@hostname:port}
+     */
+    public ClientPool createPooled(String uri) {
+        if (!uri.startsWith("fadah://")) throw new RuntimeException("URI is not formatted to be a fadah connection!");
+        uri = uri.replace("fadah://", "");
+        String[] parts = uri.split("@");
+        String[] creds = parts[0].split(":");
+        String[] conn = parts[1].split(":");
+        return createPooled(conn[0], Integer.parseInt(conn[1]), creds[0], creds[1]);
+    }
+
     public ClientPool createPooled(String host, int port, String username, String password) {
         return createPooled(host, port, username, password, 10);
     }
