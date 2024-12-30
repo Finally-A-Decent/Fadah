@@ -29,7 +29,7 @@ allprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.32'
         annotationProcessor 'org.jetbrains:annotations:24.0.0'
 
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
         testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.4'
         testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
 
