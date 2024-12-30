@@ -51,7 +51,7 @@ dependencies {
     compileOnly 'com.willfp:libreforge:4.58.1'
     compileOnly 'com.willfp:eco:6.56.0'
     compileOnly 'com.willfp:EcoItems:5.43.1'
-    compileOnly 'com.influxdb:influxdb-client-java:3.3.0' // InfluxDB logging
+    compileOnly 'com.influxdb:influxdb-client-java:7.2.0' // InfluxDB logging
     // Currency
     compileOnly 'com.github.Emibergo02:RedisEconomy:4.3.9'
     compileOnly files('../libs/CoinsEngine-2.3.5.jar')
