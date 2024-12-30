@@ -35,7 +35,7 @@ dependencies {
     compileOnly 'com.zaxxer:HikariCP:6.0.0'
     compileOnly 'org.xerial:sqlite-jdbc:3.45.2.0'
     compileOnly 'com.mysql:mysql-connector-j:8.3.0'
-    compileOnly('org.mariadb.jdbc:mariadb-java-client:3.3.3') {
+    compileOnly('org.mariadb.jdbc:mariadb-java-client:3.5.1') {
         exclude group: '*', module: '*'
     }
     compileOnly 'org.mongodb:mongodb-driver-sync:5.0.0'
