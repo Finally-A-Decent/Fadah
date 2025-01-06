@@ -42,7 +42,7 @@ dependencies {
 
     implementation 'net.wesjd:anvilgui:1.10.4-SNAPSHOT' // Search Menu
 
-    compileOnly 'org.mozilla:rhino:1.7.15'
+    compileOnly 'org.mozilla:rhino:1.8.0'
 
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7' // Economy Hook
 
