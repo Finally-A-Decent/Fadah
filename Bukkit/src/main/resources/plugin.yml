@@ -13,7 +13,7 @@ folia-supported: true
 main: info.preva1l.fadah.Fadah
 api-version: '1.16'
 libraries:
-  - redis.clients:jedis:${jedis_version}
+  - org.redisson:redisson:${redisson_version}
   - org.apache.commons:commons-pool2:${acp2_version}
   - org.mongodb:mongodb-driver-sync:${mongo_version}
   - org.xerial:sqlite-jdbc:${sqlite_version}

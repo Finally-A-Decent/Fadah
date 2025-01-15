@@ -1,7 +1,7 @@
 package info.preva1l.fadah.guis;
 
+import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.cache.CategoryCache;
-import info.preva1l.fadah.cache.ListingCache;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.records.listing.Listing;
@@ -12,7 +12,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ActiveListingsMenu extends PaginatedFastInv {
@@ -28,7 +27,7 @@ public class ActiveListingsMenu extends PaginatedFastInv {
                 List.of(10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34));
         this.viewer = viewer;
         this.owner = owner;
-        this.listings = new ArrayList<>(ListingCache.getListings().values());
+        this.listings = CacheAccess.getListingCache().getAll();
         listings.removeIf(listing -> !listing.isOwner(owner.getUniqueId()));
 
         List<Integer> fillerSlots = getLayout().fillerSlots();
@@ -78,7 +77,7 @@ public class ActiveListingsMenu extends PaginatedFastInv {
     @Override
     protected void updatePagination() {
         this.listings.clear();
-        this.listings.addAll(ListingCache.getListings().values());
+        this.listings.addAll(CacheAccess.getListingCache().getAll());
         listings.removeIf(listing -> !listing.isOwner(owner.getUniqueId()));
         super.updatePagination();
     }

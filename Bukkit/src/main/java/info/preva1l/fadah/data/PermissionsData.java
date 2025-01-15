@@ -1,27 +1,18 @@
 package info.preva1l.fadah.data;
 
-import info.preva1l.fadah.cache.ListingCache;
+import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.config.Config;
-import info.preva1l.fadah.records.listing.Listing;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 @UtilityClass
 public class PermissionsData {
     public int getCurrentListings(Player player) {
-        Map<UUID, Listing> listings = ListingCache.getListings();
-        for (UUID key : new ArrayList<>(listings.keySet())) {
-            Listing listing = listings.get(key);
-            if (!listing.isOwner(player)) listings.remove(key);
-        }
-        return listings.size();
+        return CacheAccess.getListingCache().getAll().stream().filter(l -> l.isOwner(player)).toList().size();
     }
 
     public int getHighestInt(PermissionType type, Player player) {
@@ -36,7 +27,8 @@ public class PermissionsData {
                     currentMax = Integer.parseInt(numberStr);
                     matched = true;
                 }
-            } catch (NumberFormatException ignored) {}
+            } catch (NumberFormatException ignored) {
+            }
         }
         return matched ? currentMax : (int) type.def;
     }
@@ -53,7 +45,8 @@ public class PermissionsData {
                     currentMax = Double.parseDouble(numberStr);
                     matched = true;
                 }
-            } catch (NumberFormatException ignored) {}
+            } catch (NumberFormatException ignored) {
+            }
         }
         return matched ? currentMax : (double) type.def;
     }

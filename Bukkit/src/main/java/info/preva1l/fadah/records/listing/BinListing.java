@@ -2,8 +2,8 @@ package info.preva1l.fadah.records.listing;
 
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.api.ListingPurchaseEvent;
+import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.cache.CollectionBoxCache;
-import info.preva1l.fadah.cache.ListingCache;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.config.ListHelper;
@@ -38,7 +38,7 @@ public final class BinListing extends ActiveListing {
             buyer.sendMessage(Lang.i().getPrefix() + Lang.i().getErrors().getTooExpensive());
             return;
         }
-        if (ListingCache.getListing(this.getId()) == null) { // todo: readd strict checks
+        if (CacheAccess.getListingCache().get(this.getId()) == null) { // todo: readd strict checks
             buyer.sendMessage(Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());
             return;
         }
@@ -48,13 +48,7 @@ public final class BinListing extends ActiveListing {
         getCurrency().add(Bukkit.getOfflinePlayer(this.getOwner()), this.getPrice() - taxed);
 
         // Remove Listing
-        ListingCache.removeListing(this);
-        if (Config.i().getBroker().isEnabled()) {
-            Message.builder()
-                    .type(Message.Type.LISTING_REMOVE)
-                    .payload(Payload.withUUID(this.getId()))
-                    .build().send(Fadah.getINSTANCE().getBroker());
-        }
+        CacheAccess.getListingCache().invalidate(this);
         DatabaseManager.getInstance().delete(Listing.class, this);
 
         // Add to collection box
@@ -64,14 +58,6 @@ public final class BinListing extends ActiveListing {
         box.collectableItems().add(collectableItem);
         CollectionBoxCache.addItem(buyer.getUniqueId(), collectableItem);
         DatabaseManager.getInstance().save(CollectionBox.class, box);
-
-        // Send Cache Updates
-        if (Config.i().getBroker().isEnabled()) {
-            Message.builder()
-                    .type(Message.Type.COLLECTION_BOX_UPDATE)
-                    .payload(Payload.withUUID(buyer.getUniqueId()))
-                    .build().send(Fadah.getINSTANCE().getBroker());
-        }
 
         // Notify Both Players
         Lang.sendMessage(buyer, String.join("\n", Lang.i().getNotifications().getNewItem()));

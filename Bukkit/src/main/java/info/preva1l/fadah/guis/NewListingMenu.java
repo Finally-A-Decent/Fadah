@@ -3,8 +3,8 @@ package info.preva1l.fadah.guis;
 import com.github.puregero.multilib.MultiLib;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.api.ListingCreateEvent;
+import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.cache.CategoryCache;
-import info.preva1l.fadah.cache.ListingCache;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.config.ListHelper;
@@ -246,15 +246,8 @@ public class NewListingMenu extends FastInv {
                 return;
             }
 
-            ListingCache.addListing(listing);
-            DatabaseManager.getInstance().save(Listing.class, listing).thenRun(() -> {
-                if (Config.i().getBroker().isEnabled()) {
-                    Message.builder()
-                            .type(Message.Type.LISTING_ADD)
-                            .payload(Payload.withUUID(listing.getId()))
-                            .build().send(Fadah.getINSTANCE().getBroker());
-                }
-            });
+            CacheAccess.getListingCache().add(listing);
+            DatabaseManager.getInstance().save(Listing.class, listing);
 
             player.closeInventory();
 

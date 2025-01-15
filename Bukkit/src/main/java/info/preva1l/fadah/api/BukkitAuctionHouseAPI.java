@@ -27,7 +27,7 @@ public final class BukkitAuctionHouseAPI extends AuctionHouseAPI {
 
     @Override
     public Listing getListing(UUID uuid) {
-        return ListingCache.getListing(uuid);
+        return CacheAccess.getListingCache().get(uuid);
     }
 
     @Override

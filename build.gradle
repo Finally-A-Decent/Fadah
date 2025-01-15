@@ -11,7 +11,7 @@ ext {
     set 'configlib_version', configlib_version.toString()
     set 'rhino_version', rhino_version.toString()
     set 'acp2_version', acp2_version.toString()
-    set 'jedis_version', jedis_version.toString()
+    set 'redisson_version', redisson_version.toString()
     set 'hikari_version', hikari_version.toString()
     set 'sqlite_version', sqlite_version.toString()
     set 'mysql_version', mysql_version.toString()

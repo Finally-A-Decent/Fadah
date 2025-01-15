@@ -1,7 +1,7 @@
 package info.preva1l.fadah.guis;
 
+import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.cache.CategoryCache;
-import info.preva1l.fadah.cache.ListingCache;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.records.listing.Listing;
@@ -12,7 +12,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ViewListingsMenu extends PaginatedFastInv {
@@ -26,7 +25,7 @@ public class ViewListingsMenu extends PaginatedFastInv {
                         : owner.getName()+"'s", owner.getName()+"'s"), viewer, LayoutManager.MenuType.VIEW_LISTINGS,
                 List.of(10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34));
         this.owner = owner;
-        this.listings = new ArrayList<>(ListingCache.getListings().values());
+        this.listings = CacheAccess.getListingCache().getAll();
         listings.removeIf(listing -> !listing.isOwner(owner.getUniqueId()));
 
         List<Integer> fillerSlots = getLayout().fillerSlots();
@@ -90,7 +89,7 @@ public class ViewListingsMenu extends PaginatedFastInv {
                     return;
                 }
 
-                if (ListingCache.getListing(listing.getId()) == null) { // todo: re-add strict checks
+                if (CacheAccess.getListingCache().get(listing.getId()) == null) { // todo: re-add strict checks
                     Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());
                     return;
                 }
@@ -121,7 +120,7 @@ public class ViewListingsMenu extends PaginatedFastInv {
     @Override
     protected void updatePagination() {
         this.listings.clear();
-        this.listings.addAll(ListingCache.getListings().values());
+        this.listings.addAll(CacheAccess.getListingCache().getAll());
         listings.removeIf(listing -> !listing.isOwner(owner.getUniqueId()));
         super.updatePagination();
     }

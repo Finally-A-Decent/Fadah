@@ -22,12 +22,6 @@ public class Message {
     }
 
     public enum Type {
-        LISTING_ADD,
-        LISTING_REMOVE,
-        COLLECTION_BOX_UPDATE,
-        EXPIRED_LISTINGS_UPDATE,
-        HISTORY_UPDATE,
-
         NOTIFICATION,
         BROADCAST,
         RELOAD,

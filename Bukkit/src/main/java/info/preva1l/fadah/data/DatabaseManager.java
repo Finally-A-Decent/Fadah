@@ -1,7 +1,6 @@
 package info.preva1l.fadah.data;
 
 import info.preva1l.fadah.Fadah;
-import info.preva1l.fadah.cache.ListingCache;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.data.handler.DatabaseHandler;
 import info.preva1l.fadah.data.handler.MongoHandler;
@@ -150,7 +149,6 @@ public final class DatabaseManager {
         if (instance == null) {
             instance = new DatabaseManager();
             instance.handler.connect();
-            ListingCache.update();
         }
         return instance;
     }

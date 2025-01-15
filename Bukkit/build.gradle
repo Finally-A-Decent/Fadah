@@ -26,7 +26,7 @@ dependencies {
     implementation 'net.william278:desertwell:2.0.4' // Update Checker & About Page
 
     // Cross Server Support
-    compileOnly "redis.clients:jedis:$jedis_version"
+    compileOnly "org.redisson:redisson:$redisson_version"
     compileOnly "org.apache.commons:commons-pool2:$acp2_version"
 
     compileOnly 'me.clip:placeholderapi:2.11.6' // Placeholder support

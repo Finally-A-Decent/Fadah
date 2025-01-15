@@ -25,8 +25,6 @@ import info.preva1l.fadah.migrator.AuctionHouseMigrator;
 import info.preva1l.fadah.migrator.MigratorManager;
 import info.preva1l.fadah.migrator.zAuctionHouseMigrator;
 import info.preva1l.fadah.multiserver.Broker;
-import info.preva1l.fadah.multiserver.Message;
-import info.preva1l.fadah.multiserver.Payload;
 import info.preva1l.fadah.multiserver.RedisBroker;
 import info.preva1l.fadah.records.CollectableItem;
 import info.preva1l.fadah.records.CollectionBox;
@@ -140,17 +138,9 @@ public final class Fadah extends JavaPlugin {
 
     private Runnable listingExpiryTask() {
         return () -> {
-            for (UUID key : ListingCache.getListings().keySet()) {
-                Listing listing = ListingCache.getListing(key);
-                if (listing == null) continue;
+            for (Listing listing : CacheAccess.getListingCache().getAll()) {
                 if (Instant.now().toEpochMilli() >= listing.getDeletionDate()) {
-                    ListingCache.removeListing(listing);
-                    if (Config.i().getBroker().isEnabled()) {
-                        Message.builder()
-                                .type(Message.Type.LISTING_REMOVE)
-                                .payload(Payload.withUUID(listing.getId()))
-                                .build().send(Fadah.getINSTANCE().getBroker());
-                    }
+                    CacheAccess.getListingCache().invalidate(listing);
                     DatabaseManager.getInstance().delete(Listing.class, listing);
 
                     CollectableItem collectableItem = new CollectableItem(listing.getItemStack(), Instant.now().toEpochMilli());
@@ -158,13 +148,6 @@ public final class Fadah extends JavaPlugin {
                     items.collectableItems().add(collectableItem);
                     ExpiredListingsCache.addItem(listing.getOwner(), collectableItem);
                     DatabaseManager.getInstance().save(ExpiredItems.class, items);
-
-                    if (Config.i().getBroker().isEnabled()) {
-                        Message.builder()
-                                .type(Message.Type.EXPIRED_LISTINGS_UPDATE)
-                                .payload(Payload.withUUID(listing.getOwner()))
-                                .build().send(Fadah.getINSTANCE().getBroker());
-                    }
 
                     TransactionLogger.listingExpired(listing);
 
@@ -218,6 +201,7 @@ public final class Fadah extends JavaPlugin {
         DatabaseManager.getInstance(); // Make the connection happen during startup
         CategoryCache.update();
         DatabaseManager.getInstance().getAll(Watching.class).join().forEach(AuctionWatcher::watch);
+        DatabaseManager.getInstance().getAll(Listing.class).join().forEach(l -> CacheAccess.getListingCache().add(l));
     }
 
     private void loadHooks() {
@@ -288,7 +272,7 @@ public final class Fadah extends JavaPlugin {
         getConsole().info("Starting Metrics...");
 
         metrics = new Metrics(this, METRICS_ID);
-        metrics.addCustomChart(new Metrics.SingleLineChart("items_listed", () -> ListingCache.getListings().size()));
+        metrics.addCustomChart(new Metrics.SingleLineChart("items_listed", () -> CacheAccess.getListingCache().getAll().size()));
         metrics.addCustomChart(new Metrics.SimplePie("database_type", () -> Config.i().getDatabase().getType().getFriendlyName()));
         metrics.addCustomChart(new Metrics.SimplePie("multi_server", () -> Config.i().getBroker().isEnabled() ? Config.i().getBroker().getType().getDisplayName() : "None"));
 

@@ -1,9 +1,9 @@
 package info.preva1l.fadah.migrator;
 
 import info.preva1l.fadah.Fadah;
+import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.cache.CollectionBoxCache;
 import info.preva1l.fadah.cache.ExpiredListingsCache;
-import info.preva1l.fadah.cache.ListingCache;
 import info.preva1l.fadah.data.DatabaseManager;
 import info.preva1l.fadah.records.CollectableItem;
 import info.preva1l.fadah.records.CollectionBox;
@@ -24,7 +24,7 @@ public interface Migrator {
             List<Listing> listings = migrateListings();
 
             for (Listing listing : listings) {
-                ListingCache.addListing(listing);
+                CacheAccess.getListingCache().add(listing);
                 DatabaseManager.getInstance().save(Listing.class, listing);
                 migratedListings++;
             }

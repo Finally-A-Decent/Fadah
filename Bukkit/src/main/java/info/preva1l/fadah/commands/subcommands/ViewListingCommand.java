@@ -1,7 +1,7 @@
 package info.preva1l.fadah.commands.subcommands;
 
 import info.preva1l.fadah.Fadah;
-import info.preva1l.fadah.cache.ListingCache;
+import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.guis.ConfirmPurchaseMenu;
 import info.preva1l.fadah.records.listing.Listing;
@@ -33,7 +33,7 @@ public class ViewListingCommand extends SubCommand {
                     .replace("%command%", Lang.i().getCommands().getViewListing().getUsage()));
             return;
         }
-        Listing listing = ListingCache.getListing(listingId);
+        Listing listing = CacheAccess.getListingCache().get(listingId);
 
         if (listing == null) {
             command.reply(Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());

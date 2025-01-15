@@ -1,8 +1,8 @@
 package info.preva1l.fadah.guis;
 
 import info.preva1l.fadah.Fadah;
+import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.cache.CategoryCache;
-import info.preva1l.fadah.cache.ListingCache;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.filters.SortingDirection;
@@ -23,7 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MainMenu extends ScrollBarFastInv {
     private Category category;
@@ -38,7 +37,7 @@ public class MainMenu extends ScrollBarFastInv {
                     @Nullable SortingMethod sortingMethod, @Nullable SortingDirection sortingDirection) {
         super(LayoutManager.MenuType.MAIN.getLayout().guiSize(), LayoutManager.MenuType.MAIN.getLayout().guiTitle(), player, LayoutManager.MenuType.MAIN);
         this.category = category;
-        this.listings = new CopyOnWriteArrayList<>(ListingCache.getListings().values());
+        this.listings = CacheAccess.getListingCache().getAll();
 
         this.search = search;
         this.sortingMethod = (sortingMethod == null ? SortingMethod.AGE : sortingMethod);
@@ -201,7 +200,7 @@ public class MainMenu extends ScrollBarFastInv {
                     return;
                 }
 
-                if (ListingCache.getListing(listing.getId()) == null) { // todo: re-add strict checks
+                if (CacheAccess.getListingCache().get(listing.getId()) == null) { // todo: re-add strict checks
                     Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());
                     return;
                 }
@@ -319,7 +318,7 @@ public class MainMenu extends ScrollBarFastInv {
     @Override
     protected void updatePagination() {
         this.listings.clear();
-        this.listings.addAll(ListingCache.getListings().values());
+        this.listings.addAll(CacheAccess.getListingCache().getAll());
 
         listings.sort(this.sortingMethod.getSorter(this.sortingDirection));
 
