@@ -29,12 +29,12 @@ public abstract class ActiveListing extends Listing {
 
     @Override
     public boolean cancel(@NotNull Player canceller) {
-        if (CacheAccess.getListingCache().get(this.getId()) == null) { // todo: re-add strict checks
+        if (CacheAccess.get(Listing.class, this.getId()) == null) { // todo: re-add strict checks
             Lang.sendMessage(canceller, Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());
             return false;
         }
         Lang.sendMessage(canceller, Lang.i().getPrefix() + Lang.i().getNotifications().getCancelled());
-        CacheAccess.getListingCache().invalidate(this);
+        CacheAccess.invalidate(Listing.class, this);
         DatabaseManager.getInstance().delete(Listing.class, this);
 
 

@@ -24,7 +24,7 @@ public interface Migrator {
             List<Listing> listings = migrateListings();
 
             for (Listing listing : listings) {
-                CacheAccess.getListingCache().add(listing);
+                CacheAccess.add(Listing.class, listing);
                 DatabaseManager.getInstance().save(Listing.class, listing);
                 migratedListings++;
             }

@@ -33,7 +33,7 @@ public class ViewListingCommand extends SubCommand {
                     .replace("%command%", Lang.i().getCommands().getViewListing().getUsage()));
             return;
         }
-        Listing listing = CacheAccess.getListingCache().get(listingId);
+        Listing listing = CacheAccess.get(Listing.class, listingId);
 
         if (listing == null) {
             command.reply(Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());

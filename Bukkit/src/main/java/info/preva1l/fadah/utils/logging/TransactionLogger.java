@@ -18,7 +18,6 @@ import java.util.Optional;
 
 @UtilityClass
 public class TransactionLogger {
-
     public void listingCreated(Listing listing) {
         // In game logs
         HistoricItem historicItem = new HistoricItem(listing.getOwner(), Instant.now().toEpochMilli(), HistoricItem.LoggedAction.LISTING_START, listing.getItemStack(), listing.getPrice(), null);

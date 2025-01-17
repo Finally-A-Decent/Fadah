@@ -38,7 +38,7 @@ public final class BinListing extends ActiveListing {
             buyer.sendMessage(Lang.i().getPrefix() + Lang.i().getErrors().getTooExpensive());
             return;
         }
-        if (CacheAccess.getListingCache().get(this.getId()) == null) { // todo: readd strict checks
+        if (CacheAccess.get(Listing.class, this.getId()) == null) { // todo: readd strict checks
             buyer.sendMessage(Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());
             return;
         }
@@ -48,7 +48,7 @@ public final class BinListing extends ActiveListing {
         getCurrency().add(Bukkit.getOfflinePlayer(this.getOwner()), this.getPrice() - taxed);
 
         // Remove Listing
-        CacheAccess.getListingCache().invalidate(this);
+        CacheAccess.invalidate(Listing.class, this);
         DatabaseManager.getInstance().delete(Listing.class, this);
 
         // Add to collection box

@@ -27,7 +27,7 @@ public class ActiveListingsMenu extends PaginatedFastInv {
                 List.of(10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34));
         this.viewer = viewer;
         this.owner = owner;
-        this.listings = CacheAccess.getListingCache().getAll();
+        this.listings = CacheAccess.getAll(Listing.class);
         listings.removeIf(listing -> !listing.isOwner(owner.getUniqueId()));
 
         List<Integer> fillerSlots = getLayout().fillerSlots();
@@ -77,7 +77,7 @@ public class ActiveListingsMenu extends PaginatedFastInv {
     @Override
     protected void updatePagination() {
         this.listings.clear();
-        this.listings.addAll(CacheAccess.getListingCache().getAll());
+        this.listings.addAll(CacheAccess.getAll(Listing.class));
         listings.removeIf(listing -> !listing.isOwner(owner.getUniqueId()));
         super.updatePagination();
     }

@@ -25,7 +25,7 @@ public class ViewListingsMenu extends PaginatedFastInv {
                         : owner.getName()+"'s", owner.getName()+"'s"), viewer, LayoutManager.MenuType.VIEW_LISTINGS,
                 List.of(10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34));
         this.owner = owner;
-        this.listings = CacheAccess.getListingCache().getAll();
+        this.listings = CacheAccess.getAll(Listing.class);
         listings.removeIf(listing -> !listing.isOwner(owner.getUniqueId()));
 
         List<Integer> fillerSlots = getLayout().fillerSlots();
@@ -89,7 +89,7 @@ public class ViewListingsMenu extends PaginatedFastInv {
                     return;
                 }
 
-                if (CacheAccess.getListingCache().get(listing.getId()) == null) { // todo: re-add strict checks
+                if (CacheAccess.get(Listing.class, listing.getId()) == null) { // todo: re-add strict checks
                     Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());
                     return;
                 }
@@ -120,7 +120,7 @@ public class ViewListingsMenu extends PaginatedFastInv {
     @Override
     protected void updatePagination() {
         this.listings.clear();
-        this.listings.addAll(CacheAccess.getListingCache().getAll());
+        this.listings.addAll(CacheAccess.getAll(Listing.class));
         listings.removeIf(listing -> !listing.isOwner(owner.getUniqueId()));
         super.updatePagination();
     }

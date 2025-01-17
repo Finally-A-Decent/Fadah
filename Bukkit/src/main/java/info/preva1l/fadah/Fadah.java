@@ -138,9 +138,9 @@ public final class Fadah extends JavaPlugin {
 
     private Runnable listingExpiryTask() {
         return () -> {
-            for (Listing listing : CacheAccess.getListingCache().getAll()) {
+            for (Listing listing : CacheAccess.getAll(Listing.class)) {
                 if (Instant.now().toEpochMilli() >= listing.getDeletionDate()) {
-                    CacheAccess.getListingCache().invalidate(listing);
+                    CacheAccess.invalidate(Listing.class, listing);
                     DatabaseManager.getInstance().delete(Listing.class, listing);
 
                     CollectableItem collectableItem = new CollectableItem(listing.getItemStack(), Instant.now().toEpochMilli());
@@ -201,7 +201,7 @@ public final class Fadah extends JavaPlugin {
         DatabaseManager.getInstance(); // Make the connection happen during startup
         CategoryCache.update();
         DatabaseManager.getInstance().getAll(Watching.class).join().forEach(AuctionWatcher::watch);
-        DatabaseManager.getInstance().getAll(Listing.class).join().forEach(l -> CacheAccess.getListingCache().add(l));
+        DatabaseManager.getInstance().getAll(Listing.class).join().forEach(l -> CacheAccess.add(Listing.class, l));
     }
 
     private void loadHooks() {
@@ -272,7 +272,7 @@ public final class Fadah extends JavaPlugin {
         getConsole().info("Starting Metrics...");
 
         metrics = new Metrics(this, METRICS_ID);
-        metrics.addCustomChart(new Metrics.SingleLineChart("items_listed", () -> CacheAccess.getListingCache().getAll().size()));
+        metrics.addCustomChart(new Metrics.SingleLineChart("items_listed", () -> CacheAccess.getAll(Listing.class).size()));
         metrics.addCustomChart(new Metrics.SimplePie("database_type", () -> Config.i().getDatabase().getType().getFriendlyName()));
         metrics.addCustomChart(new Metrics.SimplePie("multi_server", () -> Config.i().getBroker().isEnabled() ? Config.i().getBroker().getType().getDisplayName() : "None"));
 

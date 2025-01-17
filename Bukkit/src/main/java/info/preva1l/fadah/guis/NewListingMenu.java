@@ -246,7 +246,7 @@ public class NewListingMenu extends FastInv {
                 return;
             }
 
-            CacheAccess.getListingCache().add(listing);
+            CacheAccess.add(Listing.class, listing);
             DatabaseManager.getInstance().save(Listing.class, listing);
 
             player.closeInventory();

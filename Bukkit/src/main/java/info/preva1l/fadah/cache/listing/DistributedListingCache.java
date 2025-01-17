@@ -30,7 +30,7 @@ public final class DistributedListingCache implements Cache<Listing> {
     @Override
     public void add(Listing obj) {
         if (obj == null) return;
-        listings.fastPut(obj.getId(), obj);
+        listings.fastPutAsync(obj.getId(), obj);
     }
 
     @Override
@@ -40,12 +40,12 @@ public final class DistributedListingCache implements Cache<Listing> {
 
     @Override
     public void invalidate(@NotNull UUID uuid) {
-        listings.fastRemove(uuid);
+        listings.fastRemoveAsync(uuid);
     }
 
     @Override
     public void invalidate(@NotNull Listing obj) {
-        listings.fastRemove(obj.getId());
+        listings.fastRemoveAsync(obj.getId());
     }
 
     @Override

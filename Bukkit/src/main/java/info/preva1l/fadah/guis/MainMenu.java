@@ -37,7 +37,7 @@ public class MainMenu extends ScrollBarFastInv {
                     @Nullable SortingMethod sortingMethod, @Nullable SortingDirection sortingDirection) {
         super(LayoutManager.MenuType.MAIN.getLayout().guiSize(), LayoutManager.MenuType.MAIN.getLayout().guiTitle(), player, LayoutManager.MenuType.MAIN);
         this.category = category;
-        this.listings = CacheAccess.getListingCache().getAll();
+        this.listings = CacheAccess.getAll(Listing.class);
 
         this.search = search;
         this.sortingMethod = (sortingMethod == null ? SortingMethod.AGE : sortingMethod);
@@ -200,7 +200,7 @@ public class MainMenu extends ScrollBarFastInv {
                     return;
                 }
 
-                if (CacheAccess.getListingCache().get(listing.getId()) == null) { // todo: re-add strict checks
+                if (CacheAccess.get(Listing.class, listing.getId()) == null) { // todo: re-add strict checks
                     Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());
                     return;
                 }
@@ -318,7 +318,7 @@ public class MainMenu extends ScrollBarFastInv {
     @Override
     protected void updatePagination() {
         this.listings.clear();
-        this.listings.addAll(CacheAccess.getListingCache().getAll());
+        this.listings.addAll(CacheAccess.getAll(Listing.class));
 
         listings.sort(this.sortingMethod.getSorter(this.sortingDirection));
 
