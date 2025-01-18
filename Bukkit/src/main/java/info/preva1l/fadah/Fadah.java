@@ -4,7 +4,10 @@ import info.preva1l.fadah.api.AuctionHouseAPI;
 import info.preva1l.fadah.api.BukkitAuctionHouseAPI;
 import info.preva1l.fadah.api.ListingEndEvent;
 import info.preva1l.fadah.api.ListingEndReason;
-import info.preva1l.fadah.cache.*;
+import info.preva1l.fadah.cache.CacheAccess;
+import info.preva1l.fadah.cache.CategoryCache;
+import info.preva1l.fadah.cache.ExpiredListingsCache;
+import info.preva1l.fadah.cache.HistoricItemsCache;
 import info.preva1l.fadah.commands.AuctionHouseCommand;
 import info.preva1l.fadah.commands.MigrateCommand;
 import info.preva1l.fadah.config.Config;
@@ -54,6 +57,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -338,7 +342,8 @@ public final class Fadah extends JavaPlugin {
             }
 
             Optional<CollectionBox> collectionBox = DatabaseManager.getInstance().get(CollectionBox.class, uuid).join();
-            collectionBox.ifPresent(list -> CollectionBoxCache.update(uuid, list.collectableItems()));
+            collectionBox.ifPresentOrElse(list -> CacheAccess.add(CollectionBox.class, list),
+                    () -> CacheAccess.add(CollectionBox.class, new CollectionBox(uuid, new ArrayList<>())));
 
             Optional<ExpiredItems> expiredItems = DatabaseManager.getInstance().get(ExpiredItems.class, uuid).join();
             expiredItems.ifPresent(list -> ExpiredListingsCache.update(uuid, list.collectableItems()));

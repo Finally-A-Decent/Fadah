@@ -2,12 +2,13 @@ package info.preva1l.fadah.listeners;
 
 import com.github.puregero.multilib.regionized.RegionizedTask;
 import info.preva1l.fadah.Fadah;
-import info.preva1l.fadah.cache.CollectionBoxCache;
+import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.cache.ExpiredListingsCache;
 import info.preva1l.fadah.cache.HistoricItemsCache;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.data.DatabaseManager;
 import info.preva1l.fadah.guis.NewListingMenu;
+import info.preva1l.fadah.records.CollectionBox;
 import info.preva1l.fadah.utils.StringUtils;
 import info.preva1l.fadah.utils.TaskManager;
 import info.preva1l.fadah.utils.guis.InventoryEventHandler;
@@ -72,7 +73,7 @@ public class PlayerListener implements Listener {
     }
 
     private void leave(UUID uuid) {
-        CollectionBoxCache.invalidate(uuid);
+        CacheAccess.invalidate(CollectionBox.class, uuid);
         ExpiredListingsCache.invalidate(uuid);
         HistoricItemsCache.invalidate(uuid);
     }

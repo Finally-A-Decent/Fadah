@@ -2,7 +2,6 @@ package info.preva1l.fadah.migrator;
 
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.cache.CacheAccess;
-import info.preva1l.fadah.cache.CollectionBoxCache;
 import info.preva1l.fadah.cache.ExpiredListingsCache;
 import info.preva1l.fadah.data.DatabaseManager;
 import info.preva1l.fadah.records.CollectableItem;
@@ -34,10 +33,9 @@ public interface Migrator {
             Map<UUID, List<CollectableItem>> collectionBoxes = migrateCollectionBoxes();
 
             for (UUID owner : collectionBoxes.keySet()) {
-                for (CollectableItem item : collectionBoxes.get(owner)) {
-                    CollectionBoxCache.addItem(owner, item);
-                    DatabaseManager.getInstance().save(CollectionBox.class, new CollectionBox(owner, collectionBoxes.get(owner)));
-                }
+                CollectionBox box = DatabaseManager.getInstance().get(CollectionBox.class, owner).join()
+                        .orElse(new CollectionBox(owner, collectionBoxes.get(owner)));
+                DatabaseManager.getInstance().save(CollectionBox.class, box);
                 migratedCollectionBoxes++;
             }
             Fadah.getConsole().info("Migrated %s collection boxes!".formatted(migratedCollectionBoxes));
