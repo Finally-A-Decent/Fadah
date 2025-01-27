@@ -40,16 +40,16 @@ allprojects {
     }
 
     dependencies {
-        compileOnly 'org.jetbrains:annotations:26.0.1'
+        compileOnly 'org.jetbrains:annotations:26.0.2'
         compileOnly 'org.projectlombok:lombok:1.18.36'
         annotationProcessor 'org.projectlombok:lombok:1.18.36'
-        annotationProcessor 'org.jetbrains:annotations:26.0.1'
+        annotationProcessor 'org.jetbrains:annotations:26.0.2'
 
         testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
         testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.4'
         testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
 
-        testCompileOnly 'org.jetbrains:annotations:26.0.1'
+        testCompileOnly 'org.jetbrains:annotations:26.0.2'
         testCompileOnly 'org.projectlombok:lombok:1.18.36'
         testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
     }
