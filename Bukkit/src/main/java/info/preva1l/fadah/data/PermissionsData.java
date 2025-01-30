@@ -46,7 +46,10 @@ public class PermissionsData {
         boolean matched = false;
         final Set<PermissionAttachmentInfo> finalEffectivePermissions = player.getEffectivePermissions(); // "Thread Safe"
         for (PermissionAttachmentInfo effectivePermission : finalEffectivePermissions) {
-            if (!effectivePermission.getPermission().startsWith(type.permissionString)) continue;
+            if (!effectivePermission.getPermission().startsWith(type.permissionString))
+                continue;
+            if(!effectivePermission.getValue())
+                continue;
             String numberStr = effectivePermission.getPermission().substring(type.permissionString.length());
             try {
                 if (currentMax < Double.parseDouble(numberStr)) {

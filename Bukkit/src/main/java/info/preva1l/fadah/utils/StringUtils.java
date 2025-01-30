@@ -93,6 +93,8 @@ public class StringUtils {
      * @return string with mini modernMessage formatting (not colorized)
      */
     public String legacyToMiniMessage(String message) {
+        message=message.replace("§","&");
+
         message = message.replace("&4", "<dark_red>");
         message = message.replace("&c", "<red>");
         message = message.replace("&6", "<gold>");
@@ -118,7 +120,7 @@ public class StringUtils {
 
         Pattern pattern = Pattern.compile("&#[a-fA-F0-9]{6}");
         Matcher match = pattern.matcher(message);
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         while (match.find()) {
             String code = match.group();
             String replacement = code.replace("&", "<") + ">";
