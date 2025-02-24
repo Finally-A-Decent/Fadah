@@ -1,6 +1,5 @@
 package info.preva1l.fadah.guis;
 
-import com.github.puregero.multilib.MultiLib;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.api.ListingCreateEvent;
 import info.preva1l.fadah.cache.CacheAccess;
@@ -91,10 +90,8 @@ public class NewListingMenu extends FastInv {
     @Override
     protected void onClose(InventoryCloseEvent event) {
         super.onClose(event);
-        MultiLib.getEntityScheduler(player).run(Fadah.getINSTANCE(), t -> {
-            if (!listingStarted) player.getInventory().setItemInMainHand(itemToSell);
-            SellSubCommand.running.remove(player.getUniqueId());
-        }, () -> player.sendMessage(StringUtils.colorize("&A critical error has occurred while trying to obtain the correct thread.")));
+        if (!listingStarted) player.getInventory().setItemInMainHand(itemToSell);
+        SellSubCommand.running.remove(player.getUniqueId());
     }
 
     private void setClock() {

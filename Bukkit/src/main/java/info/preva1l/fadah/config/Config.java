@@ -42,6 +42,11 @@ public class Config {
     private int defaultMaxListings = 3;
     private boolean logToFile = true;
     private boolean verbose = true;
+    @Comment({
+            "Minimal mode changs these functions:",
+            " - Bypass sell menu and just list the item"
+    })
+    private boolean minimalMode = false;
 
     @Comment("Enable this if you are having de-sync issues with multi-server.")
     private boolean strictChecks = false;
