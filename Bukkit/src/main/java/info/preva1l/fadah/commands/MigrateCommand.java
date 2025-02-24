@@ -25,12 +25,12 @@ public class MigrateCommand extends Command {
             return;
         }
 
-        if (!plugin.getMigratorManager().migratorExists(command.args()[0])) {
+        if (!plugin.getMigrationManager().migratorExists(command.args()[0])) {
             command.reply(Lang.i().getPrefix() + "&cMigrator does not exist!");
             return;
         }
 
-        Migrator migrator = plugin.getMigratorManager().getMigrator(command.args()[0]);
+        Migrator migrator = plugin.getMigrationManager().getMigrator(command.args()[0]);
         assert migrator != null;
 
         long start = Instant.now().toEpochMilli();
@@ -45,7 +45,7 @@ public class MigrateCommand extends Command {
     public List<String> onTabComplete(CommandArguments command) {
         List<String> completions = new ArrayList<>();
         if (command.args().length != 1) return completions;
-        StringUtil.copyPartialMatches(command.args()[0], plugin.getMigratorManager().getMigratorNames(), completions);
+        StringUtil.copyPartialMatches(command.args()[0], plugin.getMigrationManager().getMigratorNames(), completions);
         return completions;
     }
 }

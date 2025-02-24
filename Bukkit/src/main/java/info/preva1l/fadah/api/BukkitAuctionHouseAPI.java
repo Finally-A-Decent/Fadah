@@ -1,11 +1,15 @@
 package info.preva1l.fadah.api;
 
 import info.preva1l.fadah.Fadah;
-import info.preva1l.fadah.cache.*;
+import info.preva1l.fadah.cache.CacheAccess;
+import info.preva1l.fadah.cache.CategoryCache;
+import info.preva1l.fadah.cache.ExpiredListingsCache;
+import info.preva1l.fadah.cache.HistoricItemsCache;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.records.Category;
 import info.preva1l.fadah.records.CollectableItem;
+import info.preva1l.fadah.records.CollectionBox;
 import info.preva1l.fadah.records.HistoricItem;
 import info.preva1l.fadah.records.listing.Listing;
 import org.bukkit.NamespacedKey;
@@ -37,12 +41,12 @@ public final class BukkitAuctionHouseAPI extends AuctionHouseAPI {
 
     @Override
     public List<CollectableItem> getCollectionBox(OfflinePlayer offlinePlayer) {
-        return CollectionBoxCache.getCollectionBox(offlinePlayer.getUniqueId());
+        return CacheAccess.get(CollectionBox.class, offlinePlayer.getUniqueId()).collectableItems();
     }
 
     @Override
     public List<CollectableItem> getCollectionBox(UUID uuid) {
-        return CollectionBoxCache.getCollectionBox(uuid);
+        return CacheAccess.get(CollectionBox.class, uuid).collectableItems();
     }
 
     @Override

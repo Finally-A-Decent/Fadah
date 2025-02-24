@@ -3,7 +3,6 @@ package info.preva1l.fadah.records.listing;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.api.ListingPurchaseEvent;
 import info.preva1l.fadah.cache.CacheAccess;
-import info.preva1l.fadah.cache.CollectionBoxCache;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.config.ListHelper;
@@ -54,9 +53,9 @@ public final class BinListing extends ActiveListing {
         // Add to collection box
         ItemStack itemStack = this.getItemStack().clone();
         CollectableItem collectableItem = new CollectableItem(itemStack, Instant.now().toEpochMilli());
-        CollectionBox box = CollectionBox.of(buyer.getUniqueId());
-        box.collectableItems().add(collectableItem);
-        CollectionBoxCache.addItem(buyer.getUniqueId(), collectableItem);
+        CollectionBox box = CacheAccess.get(CollectionBox.class, buyer.getUniqueId());
+        box.add(collectableItem);
+        CacheAccess.add(CollectionBox.class, box);
         DatabaseManager.getInstance().save(CollectionBox.class, box);
 
         // Notify Both Players

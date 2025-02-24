@@ -1,21 +1,22 @@
 package info.preva1l.fadah.hooks.impl;
 
-import com.willfp.ecoitems.items.EcoItem;
-import com.willfp.ecoitems.items.EcoItems;
+import com.willfp.ecoitems.items.ItemUtilsKt;
 import info.preva1l.fadah.hooks.Hook;
+import info.preva1l.fadah.processor.ProcessorArgType;
+import info.preva1l.fadah.processor.ProcessorArgsRegistry;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.inventory.ItemStack;
 
 @Setter
 @Getter
 public class EcoItemsHook implements Hook {
     private boolean enabled = false;
 
-    public boolean isEcoItem(ItemStack item) {
-        for (EcoItem ecoItem : EcoItems.INSTANCE.values()) {
-            if (ecoItem.getItemStack().equals(item)) return true;
-        }
-        return false;
+    public EcoItemsHook() {
+        ProcessorArgsRegistry.register(ProcessorArgType.STRING, "ecoitems_id", item -> {
+            var ecoitem = ItemUtilsKt.getEcoItem(item);
+            if (ecoitem == null) return "";
+            return ecoitem.getID();
+        });
     }
 }

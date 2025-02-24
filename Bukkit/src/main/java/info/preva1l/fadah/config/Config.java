@@ -47,6 +47,7 @@ public class Config {
     private boolean strictChecks = false;
 
     private TimeLength maxListingLength = new TimeLength(10, ChronoUnit.DAYS);
+    private TimeLength defaultListingLength = new TimeLength(2, ChronoUnit.DAYS);
 
     private ListingPrice listingPrice = new ListingPrice();
 

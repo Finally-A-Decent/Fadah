@@ -4,15 +4,18 @@ tools:
   icon: DIAMOND_PICKAXE
   icon-model-data: 0
   description:
-    - '&fPickaxes, Axes, Hoes, etc'
+    - '&7▪ &fPickaxes'
+    - '&7▪ &fAxes'
+    - '&7▪ &fShovels'
+    - '&7▪ &fHoes'
+  matchers:
+    - '%material%.endsWith("_PICKAXE")'
+    - '%material%.endsWith("_PICKAXE")'
   materials:
     - '*_AXE'
     - '*_PICKAXE'
     - '*_HOE'
     - '*_SHOVEL'
-  custom-items: false
-  custom-item-mode: "API"
-  custom-item-ids: []
 
 combat:
   name: '&cCombat'
@@ -20,7 +23,10 @@ combat:
   icon: DIAMOND_SWORD
   icon-model-data: 0
   description:
-    - '&fSwords, Armour and Bows'
+    - '&7▪ &fSwords'
+    - '&7▪ &fArmour'
+    - '&7▪ &fBows'
+    - '&7▪ &fShields'
   materials:
     - '*_SWORD'
     - '*_BOOTS'
@@ -28,9 +34,19 @@ combat:
     - '*_CHESTPLATE'
     - '*_HELMET'
     - BOW
-  custom-items: false
-  custom-item-mode: "API"
-  custom-item-ids: []
+
+keys:
+  name: '&3Crate Keys'
+  priority: 4
+  icon: DIAMOND_PICKAXE
+  icon-model-data: 0
+  description:
+    - '&fPickaxes, Axes, Hoes, etc'
+  materials:
+    - '*_AXE'
+    - '*_PICKAXE'
+    - '*_HOE'
+    - '*_SHOVEL'
 
 spawners-and-eggs:
   name: '&5Spawners and Mob Eggs'
@@ -42,9 +58,6 @@ spawners-and-eggs:
   materials:
     - SPAWNER
     - '*_SPAWN_EGG'
-  custom-items: false
-  custom-item-mode: "API"
-  custom-item-ids: []
 
 building-blocks:
   name: '&dBuilding Blocks'
@@ -63,9 +76,6 @@ building-blocks:
     - 'GLASS'
     - '*_GLASS'
     - '*_GLASS_PANE'
-  custom-items: false
-  custom-item-mode: "API"
-  custom-item-ids: []
 
 redstone:
   name: '&cRedstone'
@@ -74,15 +84,10 @@ redstone:
   icon-model-data: 0
   description:
     - '&fRedstone components.'
-  materials:
-    - 'REDSTONE'
-    - 'REPEATER'
-    - 'COMPARATOR'
-    - '*_REDSTONE'
-    - 'REDSTONE_*'
-  custom-items: false
-  custom-item-mode: "ECO_ITEMS"
-  custom-item-ids: []
+  matchers:
+    - '%material%.includes("REDSTONE")'
+    - '%material% == "REPEATER"'
+    - '%material% == "COMPARATOR"'
 
 eco-items:
   name: '&fEco Items Example'
@@ -91,11 +96,8 @@ eco-items:
   icon-model-data: 0
   description:
     - '&fAn example usage for the ecoitems hook'
-  materials: []
-  custom-items: true
-  custom-item-mode: "ECO_ITEMS"
-  custom-item-ids:
-    - 'your_custom_item'
+  matchers:
+    - '%ecoitems_id% == "your_custom_item"'
 
 misc:
   name: '&eMisc'
@@ -104,8 +106,5 @@ misc:
   icon-model-data: 0
   description:
     - '&fItems that don''t fit under any other category.'
-  materials:
-    - '*'
-  custom-items: false
-  custom-item-mode: "API"
-  custom-item-ids: []
+  matchers: # To capture all items you can either have a matcher of true or no matchers list at all
+    - 'true'

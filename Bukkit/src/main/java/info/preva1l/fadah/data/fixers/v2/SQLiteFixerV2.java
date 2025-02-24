@@ -3,7 +3,7 @@ package info.preva1l.fadah.data.fixers.v2;
 import com.google.common.collect.Lists;
 import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadah.Fadah;
-import info.preva1l.fadah.cache.CollectionBoxCache;
+import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.cache.ExpiredListingsCache;
 import info.preva1l.fadah.data.DatabaseManager;
 import info.preva1l.fadah.records.CollectableItem;
@@ -58,7 +58,6 @@ public class SQLiteFixerV2 implements V2Fixer {
 
     @Override
     public void fixCollectionBox(UUID player) {
-        final List<CollectableItem> retrievedData = Lists.newArrayList();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
                 SELECT `itemStack`, `dateAdded`
@@ -66,14 +65,14 @@ public class SQLiteFixerV2 implements V2Fixer {
                 WHERE `playerUUID`=?;""")) {
                 statement.setString(1, player.toString());
                 final ResultSet resultSet = statement.executeQuery();
+                CollectionBox box = CacheAccess.get(CollectionBox.class, player);
                 while (resultSet.next()) {
                     final ItemStack itemStack = ItemSerializer.deserialize(resultSet.getString("itemStack"))[0];
                     final long dateAdded = resultSet.getLong("dateAdded");
-                    CollectableItem collectableItem = new CollectableItem(itemStack, dateAdded);
-                    CollectionBoxCache.addItem(player, collectableItem);
-                    retrievedData.add(collectableItem);
+                    box.add(new CollectableItem(itemStack, dateAdded));
                 }
-                DatabaseManager.getInstance().save(CollectionBox.class, CollectionBox.of(player));
+                CacheAccess.add(CollectionBox.class, box);
+                DatabaseManager.getInstance().save(CollectionBox.class, box);
             }
             try (PreparedStatement deleteStatement = connection.prepareStatement("""
                 DELETE FROM `collection_box`

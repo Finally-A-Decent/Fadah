@@ -2,6 +2,7 @@ package info.preva1l.fadah.utils.commands;
 
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Lang;
+import info.preva1l.fadah.utils.CommandMapUtil;
 import info.preva1l.fadah.utils.TaskManager;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -36,7 +37,8 @@ public abstract class Command {
 
         if (assigned != null) {
             this.executor = new CommandExecutor(assigned.name(), assigned, this.aliases);
-            plugin.getCommandManager().registerCommand(this, executor);
+            CommandMapUtil.getCommandMap(plugin.getServer());
+            CommandMapUtil.getCommandMap(plugin.getServer()).register(plugin.getDescription().getName().toLowerCase(), executor);
         }
     }
 

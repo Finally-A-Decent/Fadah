@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -132,5 +133,9 @@ public final class CurrencyRegistry {
         int previousIndex = currentIndex - 1;
         String previousCurrencyId = enumerator.get(previousIndex);
         return values.get(previousCurrencyId);
+    }
+
+    public static List<Currency> getAll() {
+        return List.copyOf(values.values());
     }
 }

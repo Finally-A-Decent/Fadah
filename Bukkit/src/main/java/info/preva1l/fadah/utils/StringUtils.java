@@ -2,6 +2,7 @@ package info.preva1l.fadah.utils;
 
 import lombok.experimental.UtilityClass;
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -18,7 +19,9 @@ import java.util.regex.Pattern;
  */
 @UtilityClass
 public class StringUtils {
+    private final LegacyComponentSerializer legacyComponentSerializer = LegacyComponentSerializer.legacyAmpersand();
     private final Pattern HEX_PATTERN = Pattern.compile("&#(\\w{5}[0-9a-fA-F])");
+    private final Pattern MM_HEX_PATTERN = Pattern.compile("<#[a-fA-F0-9]{6}>");
     private final Pattern SECTION_SYMBOL_PATTERN = Pattern.compile("§[0-9a-fA-Fk-orK-OR]");
     private final Pattern AMPERSAND_PATTERN = Pattern.compile("&[0-9a-fA-Fk-orK-OR]");
 
@@ -75,16 +78,17 @@ public class StringUtils {
         message = message.replace("<reset>", "&r");
         message = message.replace("<r>", "&r");
 
+        Matcher match = MM_HEX_PATTERN.matcher(message);
+        StringBuilder result = new StringBuilder();
 
-        Pattern pattern = Pattern.compile("<#[a-fA-F0-9]{6}>");
-        Matcher match = pattern.matcher(message);
-        String code = message;
         while (match.find()) {
-            code = message.substring(match.start(), match.end());
-            code = code.replace("<", "&");
-            code = code.replace(">", "");
+            String code = match.group();
+            String replacement = code.replace("<", "&").replace(">", "");
+            match.appendReplacement(result, replacement);
         }
-        return message.replaceAll("<#[a-fA-F0-9]{6}>", code);
+        match.appendTail(result);
+
+        return result.toString();
     }
 
     /**
@@ -93,39 +97,7 @@ public class StringUtils {
      * @return string with mini modernMessage formatting (not colorized)
      */
     public String legacyToMiniMessage(String message) {
-        message = message.replace("&4", "<dark_red>");
-        message = message.replace("&c", "<red>");
-        message = message.replace("&6", "<gold>");
-        message = message.replace("&e", "<yellow>");
-        message = message.replace("&2", "<dark_green>");
-        message = message.replace("&a", "<green>");
-        message = message.replace("&b", "<aqua>");
-        message = message.replace("&3", "<dark_aqua>");
-        message = message.replace("&1", "<dark_blue>");
-        message = message.replace("&9", "<blue>");
-        message = message.replace("&d", "<light_purple>");
-        message = message.replace("&5", "<dark_purple>");
-        message = message.replace("&f", "<white>");
-        message = message.replace("&7", "<gray>");
-        message = message.replace("&8", "<dark_gray>");
-        message = message.replace("&0", "<black>");
-        message = message.replace("&l", "<b>");
-        message = message.replace("&k", "<obf>");
-        message = message.replace("&m", "<st>");
-        message = message.replace("&n", "<u>");
-        message = message.replace("&o", "<i>");
-        message = message.replace("&r", "<reset>");
-
-        Pattern pattern = Pattern.compile("&#[a-fA-F0-9]{6}");
-        Matcher match = pattern.matcher(message);
-        StringBuffer result = new StringBuffer();
-        while (match.find()) {
-            String code = match.group();
-            String replacement = code.replace("&", "<") + ">";
-            match.appendReplacement(result, replacement);
-        }
-        match.appendTail(result);
-        return result.toString();
+        return legacyComponentSerializer.serialize(legacyComponentSerializer.deserialize(message.replace('§', '&')));
     }
 
     /**

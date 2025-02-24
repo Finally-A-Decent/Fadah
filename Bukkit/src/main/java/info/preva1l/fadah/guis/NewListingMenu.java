@@ -5,6 +5,7 @@ import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.api.ListingCreateEvent;
 import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.cache.CategoryCache;
+import info.preva1l.fadah.commands.subcommands.SellSubCommand;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.config.ListHelper;
@@ -45,7 +46,7 @@ import java.util.UUID;
 public class NewListingMenu extends FastInv {
     private final Fadah plugin = Fadah.getINSTANCE();
     private final Player player;
-    private ItemStack itemToSell;
+    private final ItemStack itemToSell;
     private long timeOffsetMillis;
     private boolean listingStarted = false;
     private boolean advertise = Config.i().getListingAdverts().isEnabledByDefault();
@@ -56,10 +57,12 @@ public class NewListingMenu extends FastInv {
         super(LayoutManager.MenuType.NEW_LISTING.getLayout().guiSize(),
                 LayoutManager.MenuType.NEW_LISTING.getLayout().guiTitle(), LayoutManager.MenuType.NEW_LISTING);
         this.player = player;
-        this.itemToSell = player.getInventory().getItemInMainHand().clone();
-        this.timeOffsetMillis = 2 * 24 * 60 * 60 * 1000;
+        var temp = player.getInventory().getItemInMainHand().clone();
+        player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+        this.itemToSell = temp;
+        this.timeOffsetMillis = Config.i().getDefaultListingLength().toMillis();
         this.currency = CurrencyRegistry.get(Config.i().getCurrency().getDefaultCurrency());
-        if (currency == null) currency = CurrencyRegistry.get("vault");
+        if (currency == null) currency = CurrencyRegistry.getAll().getFirst();
         List<Integer> fillerSlots = getLayout().fillerSlots();
         if (!fillerSlots.isEmpty()) {
             setItems(fillerSlots.stream().mapToInt(Integer::intValue).toArray(),
@@ -82,17 +85,16 @@ public class NewListingMenu extends FastInv {
         //setModeButton();
         addNavigationButtons();
 
-        MultiLib.getEntityScheduler(player).execute(plugin,
-                () -> player.getInventory().setItemInMainHand(new ItemStack(Material.AIR)),
-                () -> this.itemToSell = new ItemStack(Material.AIR),
-                0L);
         setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.LISTING_ITEM, -1), itemToSell);
     }
 
     @Override
     protected void onClose(InventoryCloseEvent event) {
         super.onClose(event);
-        if (!listingStarted) player.getInventory().setItemInMainHand(itemToSell);
+        MultiLib.getEntityScheduler(player).run(Fadah.getINSTANCE(), t -> {
+            if (!listingStarted) player.getInventory().setItemInMainHand(itemToSell);
+            SellSubCommand.running.remove(player.getUniqueId());
+        }, () -> player.sendMessage(StringUtils.colorize("&A critical error has occurred while trying to obtain the correct thread.")));
     }
 
     private void setClock() {
@@ -120,13 +122,13 @@ public class NewListingMenu extends FastInv {
 
                     if (e.isLeftClick()) {
                         if (e.isShiftClick()) {
-                            if (timeOffsetMillis + 30 * 60 * 1000 > Config.i().getMaxListingLength().toDuration().toMillis())
+                            if (timeOffsetMillis + 30 * 60 * 1000 > Config.i().getMaxListingLength().toMillis())
                                 return;
                             timeOffsetMillis += 30 * 60 * 1000;
                             setClock();
                             return;
                         }
-                        if (timeOffsetMillis + 60 * 60 * 1000 > Config.i().getMaxListingLength().toDuration().toMillis())
+                        if (timeOffsetMillis + 60 * 60 * 1000 > Config.i().getMaxListingLength().toMillis())
                             return;
                         timeOffsetMillis += 60 * 60 * 1000;
                         setClock();
@@ -221,91 +223,101 @@ public class NewListingMenu extends FastInv {
     private void startListing(long deletionDate, double price) {
         if (listingStarted) return;
         listingStarted = true;
-        String category = CategoryCache.getCategoryForItem(itemToSell);
 
-        Restrictions.isRestrictedItem(itemToSell).thenAccept(restricted -> TaskManager.Sync.run(Fadah.getINSTANCE(), () -> {
-            if (category == null || restricted) {
-                listingStarted = false;
-                player.closeInventory();
-                Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getRestricted());
-                return;
-            }
+        Restrictions.isRestrictedItem(itemToSell).thenAccept(restricted ->
+                CategoryCache.getCategoryForItem(itemToSell).thenAccept(category ->
+                        TaskManager.Sync.run(Fadah.getINSTANCE(), () -> {
+                            if (restricted) {
+                                listingStarted = false;
+                                player.closeInventory();
+                                Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getRestricted());
+                                return;
+                            }
 
-            double tax = PermissionsData.getHighestDouble(PermissionsData.PermissionType.LISTING_TAX, player);
+                            double tax = PermissionsData.getHighestDouble(PermissionsData.PermissionType.LISTING_TAX, player);
 
-            Listing listing = new BinListing(UUID.randomUUID(), player.getUniqueId(), player.getName(),
-                    itemToSell, category, currency.getId(), price, tax, Instant.now().toEpochMilli(), deletionDate, isBidding, Collections.emptyList());
+                            Listing listing = new BinListing(
+                                    UUID.randomUUID(), player.getUniqueId(), player.getName(),
+                                    itemToSell, category, currency.getId(), price, tax,
+                                    Instant.now().toEpochMilli(), deletionDate, isBidding, Collections.emptyList()
+                            );
 
-            ListingCreateEvent createEvent = new ListingCreateEvent(player, listing);
-            TaskManager.Sync.run(Fadah.getINSTANCE(), () -> Bukkit.getServer().getPluginManager().callEvent(createEvent));
+                            ListingCreateEvent createEvent = new ListingCreateEvent(player, listing);
+                            Bukkit.getServer().getPluginManager().callEvent(createEvent);
 
-            if (createEvent.isCancelled()) {
-                listingStarted = false;
-                Lang.sendMessage(player, Lang.i().getPrefix() + createEvent.getCancelReason());
-                player.closeInventory();
-                return;
-            }
+                            if (createEvent.isCancelled()) {
+                                listingStarted = false;
+                                Lang.sendMessage(player, Lang.i().getPrefix() + createEvent.getCancelReason());
+                                player.closeInventory();
+                                return;
+                            }
 
-            CacheAccess.add(Listing.class, listing);
-            DatabaseManager.getInstance().save(Listing.class, listing);
+                            CacheAccess.add(Listing.class, listing);
+                            DatabaseManager.getInstance().save(Listing.class, listing);
+                            player.closeInventory();
 
-            player.closeInventory();
+                            double taxAmount = PermissionsData.getHighestDouble(PermissionsData.PermissionType.LISTING_TAX, player);
+                            String itemName = StringUtils.extractItemName(listing.getItemStack());
+                            String message = String.join("\n", ListHelper.replace(
+                                    Lang.i().getNotifications().getNewListing(),
+                                    Tuple.of("%item%", itemName),
+                                    Tuple.of("%price%", new DecimalFormat(Config.i().getFormatting().getNumbers()).format(listing.getPrice())),
+                                    Tuple.of("%time%", TimeUtil.formatTimeUntil(listing.getDeletionDate())),
+                                    Tuple.of("%current_listings%", PermissionsData.getCurrentListings(player) + ""),
+                                    Tuple.of("%max_listings%", PermissionsData.getHighestInt(PermissionsData.PermissionType.MAX_LISTINGS, player) + ""),
+                                    Tuple.of("%tax%", taxAmount + ""),
+                                    Tuple.of("%price_after_tax%", new DecimalFormat(Config.i().getFormatting().getNumbers())
+                                            .format((taxAmount / 100) * price))
+                            ));
+                            Lang.sendMessage(player, message);
 
-            double taxAmount = PermissionsData.getHighestDouble(PermissionsData.PermissionType.LISTING_TAX, player);
-            String itemName = StringUtils.extractItemName(listing.getItemStack());
-            String message = String.join("\n", ListHelper.replace(Lang.i().getNotifications().getNewListing(),
-                    Tuple.of("%item%", itemName),
-                    Tuple.of("%price%", new DecimalFormat(Config.i().getFormatting().getNumbers()).format(listing.getPrice())),
-                    Tuple.of("%time%", TimeUtil.formatTimeUntil(listing.getDeletionDate())),
-                    Tuple.of("%current_listings%", PermissionsData.getCurrentListings(player) + ""),
-                    Tuple.of("%max_listings%", PermissionsData.getHighestInt(PermissionsData.PermissionType.MAX_LISTINGS, player) + ""),
-                    Tuple.of("%tax%", taxAmount + ""),
-                    Tuple.of("%price_after_tax%", new DecimalFormat(Config.i().getFormatting().getNumbers()).format((taxAmount / 100) * price))
-            ));
-            Lang.sendMessage(player, message);
+                            TransactionLogger.listingCreated(listing);
 
-            TransactionLogger.listingCreated(listing);
+                            Config.Hooks.Discord discConf = Config.i().getHooks().getDiscord();
+                            if ((discConf.isEnabled() && plugin.getHookManager().getHook(DiscordHook.class).isPresent()) &&
+                                    ((discConf.isEnabled() && advertise) || !discConf.isOnlySendOnAdvert())) {
+                                plugin.getHookManager().getHook(DiscordHook.class).get().send(listing);
+                            }
 
-            Config.Hooks.Discord discConf = Config.i().getHooks().getDiscord();
-            if ((discConf.isEnabled() && plugin.getHookManager().getHook(DiscordHook.class).isPresent()) &&
-                    ((discConf.isEnabled() && advertise)
-                            || !discConf.isOnlySendOnAdvert())) {
-                plugin.getHookManager().getHook(DiscordHook.class).get().send(listing);
-            }
+                            if (advertise) {
+                                double advertPrice = PermissionsData.getHighestDouble(PermissionsData.PermissionType.ADVERT_PRICE, player);
+                                if (!listing.getCurrency().canAfford(player, advertPrice)) {
+                                    Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getAdvertExpense());
+                                    return;
+                                }
 
-            if (advertise) {
-                double advertPrice = PermissionsData.getHighestDouble(PermissionsData.PermissionType.ADVERT_PRICE, player);
-                if (!listing.getCurrency().canAfford(player, advertPrice)) {
-                    Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getAdvertExpense());
-                    return;
-                }
+                                listing.getCurrency().withdraw(player, advertPrice);
 
-                listing.getCurrency().withdraw(player, advertPrice);
+                                String advertMessage = String.join("&r\n", ListHelper.replace(
+                                        Lang.i().getNotifications().getAdvert(),
+                                        Tuple.of("%player%", player.getName()),
+                                        Tuple.of("%item%", itemName),
+                                        Tuple.of("%price%", new DecimalFormat(Config.i().getFormatting().getNumbers())
+                                                .format(listing.getPrice()))
+                                ));
 
-                String advertMessage = String.join("&r\n", ListHelper.replace(Lang.i().getNotifications().getAdvert(),
-                        Tuple.of("%player%", player.getName()),
-                        Tuple.of("%item%", itemName),
-                        Tuple.of("%price%", new DecimalFormat(Config.i().getFormatting().getNumbers()).format(listing.getPrice()))
-                ));
+                                Component textComponent = MiniMessage.miniMessage().deserialize(
+                                        StringUtils.legacyToMiniMessage(advertMessage));
+                                textComponent = textComponent.clickEvent(
+                                        ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/ah view-listing " + listing.getId()));
 
-                TaskManager.Async.run(Fadah.getINSTANCE(), () -> {
-                    Component textComponent = MiniMessage.miniMessage().deserialize(StringUtils.legacyToMiniMessage(advertMessage));
-                    textComponent = textComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/ah view-listing " + listing.getId()));
-                    for (Player announce : Bukkit.getOnlinePlayers()) {
-                        Fadah.getINSTANCE().getAdventureAudience().player(announce).sendMessage(textComponent);
-                    }
-                });
+                                for (Player announce : Bukkit.getOnlinePlayers()) {
+                                    Fadah.getINSTANCE().getAdventureAudience().player(announce).sendMessage(textComponent);
+                                }
 
-                if (Config.i().getBroker().isEnabled()) {
-                    Message.builder()
-                            .type(Message.Type.BROADCAST)
-                            .payload(Payload.withBroadcast(advertMessage, "/ah view-listing " + listing.getId()))
-                            .build().send(Fadah.getINSTANCE().getBroker());
-                }
-            }
+                                if (Config.i().getBroker().isEnabled()) {
+                                    Message.builder()
+                                            .type(Message.Type.BROADCAST)
+                                            .payload(Payload.withBroadcast(advertMessage, "/ah view-listing " + listing.getId()))
+                                            .build()
+                                            .send(Fadah.getINSTANCE().getBroker());
+                                }
+                            }
 
-            TaskManager.Async.run(Fadah.getINSTANCE(), () -> AuctionWatcher.alertWatchers(listing));
-        }));
+                            TaskManager.Async.run(Fadah.getINSTANCE(), () -> AuctionWatcher.alertWatchers(listing));
+                        })
+                )
+        );
     }
 
     private void addNavigationButtons() {

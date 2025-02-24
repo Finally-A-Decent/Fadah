@@ -19,8 +19,9 @@
  * Thank your for your understanding.
  */
 
-package info.preva1l.fadah.utils;
+package info.preva1l.fadah.metrics;
 
+import info.preva1l.fadah.utils.TaskManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;

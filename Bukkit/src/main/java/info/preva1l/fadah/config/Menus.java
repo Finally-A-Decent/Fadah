@@ -103,7 +103,7 @@ public enum Menus {
 
     public List<String> toLore() {
         List<String> str = Fadah.getINSTANCE().getMenusFile().getStringList(path);
-        if (str.isEmpty() || str.get(0).equals(path)) {
+        if (str.isEmpty()) {
             List<String> ret = new ArrayList<>();
             for (String line : (List<String>) defaultValue) ret.add(StringUtils.formatPlaceholders(line));
             return StringUtils.colorizeList(ret);
@@ -118,7 +118,7 @@ public enum Menus {
 
     public List<String> toLore(Object... replacements) {
         List<String> str = Fadah.getINSTANCE().getMenusFile().getStringList(path);
-        if (str.isEmpty() || str.get(0).equals(path)) {
+        if (str.isEmpty()) {
             List<String> ret = new ArrayList<>();
             for (String line : (List<String>) defaultValue) ret.add(StringUtils.formatPlaceholders(line, replacements));
             return StringUtils.colorizeList(ret);

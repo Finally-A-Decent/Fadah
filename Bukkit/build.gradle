@@ -1,7 +1,7 @@
 repositories {
     maven { url 'https://repo.auxilor.io/repository/maven-public/' }
     maven { url 'https://oss.sonatype.org/content/groups/public/' }
-    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url 'https://repo.papermc.io/repository/maven-public/' }
     maven { url 'https://jitpack.io' }
     maven { url 'https://repo.codemc.io/repository/maven-snapshots/' }
     maven { url 'https://repo.clojars.org/' }
@@ -12,12 +12,7 @@ repositories {
 
 dependencies {
     implementation project(":API")
-    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
-
-    // Support mini message format
-    compileOnly "net.kyori:adventure-text-minimessage:$minimessage_version"
-    compileOnly "net.kyori:adventure-api:$minimessage_version"
-    compileOnly "net.kyori:adventure-platform-bukkit:$mm_platform_version"
+    compileOnly 'io.papermc.paper:paper-api:1.17-R0.1-SNAPSHOT'
 
     compileOnly "de.exlll:configlib-yaml:$configlib_version" // Configs
 

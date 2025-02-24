@@ -50,10 +50,7 @@ public final class zAuctionHouseMigrator implements Migrator {
             ItemStack itemStack = item.getItemStack();
             double price = item.getPrice();
             long expiry = item.getExpireAt();
-            String categoryId = CategoryCache.getCategoryForItem(itemStack);
-            if (categoryId == null) {
-                categoryId = CategoryCache.getCategories().get(0).id();
-            }
+            String categoryId = CategoryCache.getCategoryForItem(itemStack).join();
             String currency = item.getEconomy().getCurrency();
             if (CurrencyRegistry.get(currency) == null) currency = "vault";
             listings.add(new BinListing(id, owner, ownerName, itemStack, categoryId, currency, price, 0,

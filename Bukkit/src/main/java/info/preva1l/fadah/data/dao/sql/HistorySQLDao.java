@@ -43,7 +43,7 @@ public class HistorySQLDao implements Dao<History> {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
                         SELECT `items`
-                        FROM `historyV2`
+                        FROM `historyV3`
                         WHERE `playerUUID`=?;""")) {
                 statement.setString(1, id.toString());
                 final ResultSet resultSet = statement.executeQuery();
@@ -77,7 +77,7 @@ public class HistorySQLDao implements Dao<History> {
     public void save(History history) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
-                    INSERT INTO `historyV2`
+                    INSERT INTO `historyV3`
                         (`playerUUID`, `items`)
                     VALUES (?, ?)
                     ON DUPLICATE KEY UPDATE

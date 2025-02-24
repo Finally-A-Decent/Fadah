@@ -1,13 +1,13 @@
 plugins {
     id 'java'
-    id 'io.github.goooler.shadow' version '8.1.8'
+    id 'com.gradleup.shadow' version '8.3.0'
 }
 
 group = 'info.preva1l'
-version = "2.7.4"
+version = "2.8.3"
 
 ext {
-    set 'version', version.toString()
+    set 'version', rootProject.version.toString()
     set 'configlib_version', configlib_version.toString()
     set 'rhino_version', rhino_version.toString()
     set 'acp2_version', acp2_version.toString()
@@ -23,12 +23,12 @@ ext {
 }
 
 allprojects {
-    apply plugin: 'io.github.goooler.shadow'
+    apply plugin: 'com.gradleup.shadow'
     apply plugin: 'maven-publish'
     apply plugin: 'java'
 
-    sourceCompatibility = 17
-    targetCompatibility = 17
+    sourceCompatibility = 21
+    targetCompatibility = 21
 
     compileJava.options.encoding = 'UTF-8'
     javadoc.options.encoding = 'UTF-8'
@@ -40,16 +40,16 @@ allprojects {
     }
 
     dependencies {
-        compileOnly 'org.jetbrains:annotations:26.0.1'
+        compileOnly 'org.jetbrains:annotations:26.0.2'
         compileOnly 'org.projectlombok:lombok:1.18.36'
         annotationProcessor 'org.projectlombok:lombok:1.18.36'
-        annotationProcessor 'org.jetbrains:annotations:26.0.1'
+        annotationProcessor 'org.jetbrains:annotations:26.0.2'
 
         testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
         testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.4'
         testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
 
-        testCompileOnly 'org.jetbrains:annotations:26.0.1'
+        testCompileOnly 'org.jetbrains:annotations:26.0.2'
         testCompileOnly 'org.projectlombok:lombok:1.18.36'
         testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
     }
@@ -60,7 +60,7 @@ allprojects {
 
     processResources {
         def tokenMap = rootProject.ext.properties
-        filesMatching(['**/*.json', '**/*.yml']) {
+        filesMatching(['**/*.json', '**/plugin.yml']) {
             expand tokenMap
         }
     }
@@ -97,7 +97,7 @@ subprojects {
     }
 
     jar.dependsOn shadowJar
-    clean.delete "$rootDir/target"
+    project.delete "$rootDir/target"
 }
 
 logger.lifecycle("Building Fadah ${version}")

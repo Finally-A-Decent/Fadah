@@ -1,25 +1,29 @@
 package info.preva1l.fadah.cache;
 
 import info.preva1l.fadah.Fadah;
-import info.preva1l.fadah.config.Config;
-import info.preva1l.fadah.hooks.impl.EcoItemsHook;
+import info.preva1l.fadah.data.DatabaseManager;
+import info.preva1l.fadah.processor.JavaScriptProcessor;
 import info.preva1l.fadah.records.Category;
 import info.preva1l.fadah.utils.SetHelper;
 import info.preva1l.fadah.utils.config.BasicConfig;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.CompletableFuture;
 
 @UtilityClass
 public final class CategoryCache {
-    private List<Category> categories = new ArrayList<>();
+    private SortedSet<Category> categories = new TreeSet<>();
     private final BasicConfig categoriesFile = Fadah.getINSTANCE().getCategoriesFile();
 
     public void update() {
-        categories = fillListWithCategories();
+        categories = loadCategories();
     }
 
     public Category getCategory(String id) {
@@ -27,6 +31,9 @@ public final class CategoryCache {
     }
 
     public String getCatName(String id) {
+        if (id.equals("_none_")) {
+            return "N/A";
+        }
         Category category = getCategory(id);
         if (category == null) {
             return "N/A";
@@ -34,31 +41,29 @@ public final class CategoryCache {
         return category.name();
     }
 
-    public List<Category> getCategories() {
-        return Collections.unmodifiableList(categories);
+    public SortedSet<Category> getCategories() {
+        return Collections.unmodifiableSortedSet(categories);
     }
 
-    @Nullable
-    public String getCategoryForItem(ItemStack itemStack) {
+    public CompletableFuture<@NotNull String> getCategoryForItem(ItemStack item) {
         if (categories.isEmpty()) {
-            return "N/A";
+            return CompletableFuture.completedFuture("_none_");
         }
-        for (Category category : getCategories()) {
-            if (category.isCustomItems()) {
-                if (Config.i().getHooks().isEcoItems()
-                        && Fadah.getINSTANCE().getHookManager().getHook(EcoItemsHook.class).isPresent()) {
-                    EcoItemsHook ecoItemsHook = Fadah.getINSTANCE().getHookManager().getHook(EcoItemsHook.class).get();
-                    if (ecoItemsHook.isEcoItem(itemStack)) return category.id();
+        return CompletableFuture.supplyAsync(() -> {
+            for (Category category : categories) {
+                for (String matcher : category.matchers()) {
+                    // default to false so we don't add it to a broken category
+                    if (JavaScriptProcessor.process(matcher, false, item)) {
+                        return category.name();
+                    }
                 }
             }
-            if (category.materials() != null && category.materials().contains(itemStack.getType()))
-                return category.id();
-        }
-        return null;
+            return "_none_";
+        }, DatabaseManager.getInstance().getThreadPool());
     }
 
-    public List<Category> fillListWithCategories() {
-        List<Category> list = new ArrayList<>();
+    public SortedSet<Category> loadCategories() {
+        SortedSet<Category> set = new TreeSet<>();
         for (String key : categoriesFile.getConfiguration().getKeys(false)) {
             String name = categoriesFile.getString(key + ".name");
             Material icon = Material.getMaterial(categoriesFile.getString(key + ".icon"));
@@ -66,32 +71,31 @@ public final class CategoryCache {
             int modelData = categoriesFile.getInt(key + ".icon-model-data");
 
             List<String> description = categoriesFile.getStringList(key + ".description");
-            List<String> materialsList = categoriesFile.getStringList(key + ".materials");
-            Set<Material> materials = null;
-            if (!materialsList.isEmpty()) {
-                if (!materialsList.get(0).equals(key + ".materials"))
-                    materials = SetHelper.stringSetToMaterialSet(SetHelper.listToSet(materialsList));
-            }
+            List<String> matchers = categoriesFile.getStringList(key + ".matchers");
 
-            boolean isCustomItems = categoriesFile.getBoolean(key + ".custom-items");
-            Category.CustomItemMode customItemMode = Category.CustomItemMode.API;
-            String cim = categoriesFile.getString(key + ".custom-item-mode").toUpperCase();
-            try {
-                customItemMode = Category.CustomItemMode.valueOf(cim);
-            } catch (EnumConstantNotPresentException | IllegalArgumentException ignored) {
-                Fadah.getConsole().severe("-----------------------------");
-                Fadah.getConsole().severe("Config Incorrect!");
-                Fadah.getConsole().severe("Custom Item Mode: " + cim);
-                Fadah.getConsole().severe("Does Not Exist!");
-                Fadah.getConsole().severe("Defaulting to API");
-                Fadah.getConsole().severe("-----------------------------");
+            // legacy unused now, this is just a config fixer
+            List<String> legacyMaterials = categoriesFile.getStringList(key + ".materials");
+            if (!legacyMaterials.isEmpty()) {
+                SetHelper.listToSet(legacyMaterials);
+
+                // todo: e
+
+                categoriesFile.delete(key + ".materials");
             }
-            List<String> customItemIDs = null;
-            if (isCustomItems)
-                customItemIDs = categoriesFile.getStringList(key + ".custom-item-ids");
-            list.add(new Category(key, name, priority, modelData, (icon == null ? Material.GRASS_BLOCK : icon), description, materials, isCustomItems, customItemMode, SetHelper.listToSet(customItemIDs)));
+            // end legacy
+
+            set.add(
+                    new Category(
+                            key,
+                            name,
+                            priority,
+                            modelData,
+                            (icon == null ? Material.GRASS_BLOCK : icon),
+                            description,
+                            matchers
+                    )
+            );
         }
-        list.sort(Comparator.comparingInt(Category::priority).reversed());
-        return list;
+        return set;
     }
 }

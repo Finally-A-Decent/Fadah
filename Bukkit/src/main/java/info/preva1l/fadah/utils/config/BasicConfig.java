@@ -51,7 +51,14 @@ public class BasicConfig {
         if (this.configuration.contains(path)) {
             return this.configuration.getStringList(path);
         }
-        return Collections.singletonList(path);
+        return Collections.emptyList();
+    }
+
+    public void delete(String path) {
+        if (this.configuration.contains(path)) {
+            this.configuration.set(path, null);
+            save();
+        }
     }
 
     public void load() {

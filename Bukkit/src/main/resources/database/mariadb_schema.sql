@@ -33,10 +33,10 @@ CREATE TABLE IF NOT EXISTS listings
 ) CHARACTER SET utf8
   COLLATE utf8_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS historyV2
+CREATE TABLE IF NOT EXISTS historyV3
 (
     playerUUID VARCHAR(36) NOT NULL PRIMARY KEY,
-    items      TEXT        NOT NULL
+    items      LONGTEXT    NOT NULL
 ) CHARACTER SET utf8
   COLLATE utf8_unicode_ci;
 

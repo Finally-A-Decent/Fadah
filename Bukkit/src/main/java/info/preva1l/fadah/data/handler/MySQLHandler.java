@@ -8,6 +8,8 @@ import info.preva1l.fadah.data.dao.Dao;
 import info.preva1l.fadah.data.dao.sql.*;
 import info.preva1l.fadah.data.fixers.v2.MySQLFixerV2;
 import info.preva1l.fadah.data.fixers.v2.V2Fixer;
+import info.preva1l.fadah.data.fixers.v3.MySQLFixerV3;
+import info.preva1l.fadah.data.fixers.v3.V3Fixer;
 import info.preva1l.fadah.records.CollectionBox;
 import info.preva1l.fadah.records.ExpiredItems;
 import info.preva1l.fadah.records.History;
@@ -31,6 +33,7 @@ public class MySQLHandler implements DatabaseHandler {
     private final String driverClass;
     private HikariDataSource dataSource;
     @Getter private V2Fixer v2Fixer;
+    @Getter private V3Fixer v3Fixer;
 
     private final Config.Database conf = Config.i().getDatabase();
 
@@ -104,6 +107,7 @@ public class MySQLHandler implements DatabaseHandler {
         }
         registerDaos();
         v2Fixer = new MySQLFixerV2(dataSource);
+        v3Fixer = new MySQLFixerV3(dataSource);
     }
 
     @Override
