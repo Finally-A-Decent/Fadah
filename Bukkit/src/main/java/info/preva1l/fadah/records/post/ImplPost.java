@@ -51,55 +51,42 @@ public final class ImplPost extends Post {
     public CompletableFuture<PostResult> buildAndSubmit() {
         ExecutorService executor = DatabaseManager.getInstance().getThreadPool();
 
-        if (this.bypassTax) listingBuilder.tax(0.0);
+        if (bypassTax) listingBuilder.tax(0.0);
 
-        return listingBuilder.build()
-                .thenComposeAsync(listing ->
-                        Restrictions.isRestrictedItem(listing.getItemStack())
-                                .thenApplyAsync(restricted ->
-                                        (restricted && !this.bypassRestrictedItems) ? null : listing, executor),
-                        executor)
-                .thenComposeAsync(listing -> {
-                    if (listing == null) return CompletableFuture.completedFuture(PostResult.RESTRICTED_ITEM);
+        return listingBuilder.build().thenComposeAsync(listing ->
+                Restrictions.isRestrictedItem(listing.getItemStack()).thenApplyAsync(restricted ->
+                        (!restricted || bypassRestrictedItems) ? listing : null, executor), executor
+        ).thenComposeAsync(listing -> {
+            if (listing == null) return CompletableFuture.completedFuture(PostResult.RESTRICTED_ITEM);
 
-                    if (!this.bypassMaxListings && player != null) {
-                        int maxListings = PermissionsData.getHighestInt(PermissionsData.PermissionType.MAX_LISTINGS, player);
-                        int currentListings = PermissionsData.getCurrentListings(player);
-                        if (maxListings <= currentListings)
-                            return CompletableFuture.completedFuture(PostResult.MAX_LISTINGS);
-                    }
+            if (!bypassMaxListings && player != null &&
+                    PermissionsData.getCurrentListings(player) >= PermissionsData.getHighestInt(PermissionsData.PermissionType.MAX_LISTINGS, player)) {
+                return CompletableFuture.completedFuture(PostResult.MAX_LISTINGS);
+            }
 
-                    if (this.callEvent) {
-                        ListingCreateEvent createEvent = new ListingCreateEvent(player, listing);
-                        TaskManager.Sync.run(Fadah.getINSTANCE(),
-                                () -> Bukkit.getServer().getPluginManager().callEvent(createEvent));
+            if (callEvent) {
+                ListingCreateEvent event = new ListingCreateEvent(player, listing);
+                TaskManager.Sync.run(Fadah.getINSTANCE(), () -> Bukkit.getServer().getPluginManager().callEvent(event));
+                if (event.isCancelled()) return CompletableFuture.completedFuture(PostResult.custom(event.getCancelReason()));
+            }
 
-                        if (createEvent.isCancelled()) {
-                            return CompletableFuture.completedFuture(PostResult.custom(createEvent.getCancelReason()));
-                        }
-                    }
+            CacheAccess.add(Listing.class, listing);
+            DatabaseManager.getInstance().save(Listing.class, listing);
 
-                    CacheAccess.add(Listing.class, listing);
-                    DatabaseManager.getInstance().save(Listing.class, listing);
+            if (notifyPlayer) notifyPlayer(listing);
+            if (submitLog) TransactionLogger.listingCreated(listing);
 
-                    if (this.notifyPlayer) notifyPlayer(listing);
-                    if (this.submitLog) TransactionLogger.listingCreated(listing);
+            HookManager.i().getHook(DiscordHook.class).ifPresent(hook -> {
+                if (!(hook.getConf().isOnlySendOnAdvert() && postAdvert)) hook.send(listing);
+            });
 
-                    HookManager.i().getHook(DiscordHook.class).ifPresent(discordHook -> {
-                        if (discordHook.getConf().isOnlySendOnAdvert() && this.postAdvert) return;
-                        discordHook.send(listing);
-                    });
+            if (postAdvert && !postAdvert(listing, bypassAdvertCost)) {
+                return CompletableFuture.completedFuture(PostResult.SUCCESS_ADVERT_FAIL);
+            }
 
-                    if (this.postAdvert) {
-                        if (!postAdvert(listing, this.bypassAdvertCost)) {
-                            return CompletableFuture.completedFuture(PostResult.SUCCESS_ADVERT_FAIL);
-                        }
-                    }
-
-                    if (this.alertWatchers) AuctionWatcher.alertWatchers(listing);
-
-                    return CompletableFuture.completedFuture(PostResult.SUCCESS);
-                }, executor);
+            if (alertWatchers) AuctionWatcher.alertWatchers(listing);
+            return CompletableFuture.completedFuture(PostResult.SUCCESS);
+        }, executor);
     }
 
     private void notifyPlayer(Listing listing) {

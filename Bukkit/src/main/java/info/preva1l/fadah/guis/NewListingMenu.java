@@ -102,7 +102,7 @@ public class NewListingMenu extends FastInv {
                             .exceptionally(t -> {
                                 Fadah.getConsole().log(Level.SEVERE, t.getMessage(), t);
                                 return null;
-                            });;
+                            });
                 }
         );
         setClock();

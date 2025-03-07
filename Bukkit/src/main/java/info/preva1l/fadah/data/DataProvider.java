@@ -82,9 +82,6 @@ public interface DataProvider {
         return CacheAccess.get(type, uuid)
                 .map(value -> DatabaseManager.getInstance().save(type, value)
                         .thenRun(() -> CacheAccess.invalidate(type, value)))
-                .orElseGet(() -> {
-                    System.out.println("nigga what");
-                    return CompletableFuture.completedFuture(null);
-                });
+                .orElseGet(() -> CompletableFuture.completedFuture(null));
     }
 }
