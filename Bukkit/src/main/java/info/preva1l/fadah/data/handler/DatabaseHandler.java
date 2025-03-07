@@ -15,13 +15,14 @@ public interface DatabaseHandler extends DataHandler {
 
     V2Fixer getV2Fixer();
     V3Fixer getV3Fixer();
-    default void fixData(UUID player) {
-        getV2Fixer().fixCollectionBox(player);
-        getV2Fixer().fixExpiredItems(player);
-        getV3Fixer().fixHistory(player);
-    }
 
-    default boolean needsFixing(UUID player) {
-        return getV2Fixer().needsFixing(player) || getV3Fixer().needsFixing(player);
+    default void fixData(UUID player) {
+        if (getV2Fixer().needsFixing(player)) {
+            getV2Fixer().fixCollectionBox(player);
+            getV2Fixer().fixExpiredItems(player);
+        }
+        if (getV3Fixer().needsFixing(player)) {
+            getV3Fixer().fixHistory(player);
+        }
     }
 }

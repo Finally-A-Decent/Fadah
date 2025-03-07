@@ -1,37 +1,44 @@
 package info.preva1l.fadah.records.listing;
 
+import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.api.ListingEndEvent;
 import info.preva1l.fadah.api.ListingEndReason;
 import info.preva1l.fadah.cache.CacheAccess;
-import info.preva1l.fadah.cache.ExpiredListingsCache;
 import info.preva1l.fadah.data.DatabaseManager;
-import info.preva1l.fadah.records.CollectableItem;
-import info.preva1l.fadah.records.ExpiredItems;
+import info.preva1l.fadah.records.collection.CollectableItem;
+import info.preva1l.fadah.records.collection.ExpiredItems;
+import info.preva1l.fadah.utils.TaskManager;
 import info.preva1l.fadah.utils.logging.TransactionLogger;
 import org.bukkit.Bukkit;
-
-import java.time.Instant;
 
 public interface ListingExpiryProvider {
     default Runnable listingExpiryTask() {
         return () -> {
             for (Listing listing : CacheAccess.getAll(Listing.class)) {
-                if (Instant.now().toEpochMilli() >= listing.getDeletionDate()) {
-                    CacheAccess.invalidate(Listing.class, listing);
-                    DatabaseManager.getInstance().delete(Listing.class, listing);
+                if (System.currentTimeMillis() < listing.getDeletionDate()) continue;
 
-                    CollectableItem collectableItem = new CollectableItem(listing.getItemStack(), Instant.now().toEpochMilli());
-                    ExpiredItems items = ExpiredItems.of(listing.getOwner());
-                    items.collectableItems().add(collectableItem);
+                CacheAccess.invalidate(Listing.class, listing);
 
-                    ExpiredListingsCache.addItem(listing.getOwner(), collectableItem); // todo: update to new cache
+                CollectableItem collectableItem = new CollectableItem(listing.getItemStack(), System.currentTimeMillis());
 
-                    DatabaseManager.getInstance().save(ExpiredItems.class, items);
+                CacheAccess.get(ExpiredItems.class, listing.owner)
+                        .ifPresentOrElse(
+                                cache -> cache.add(collectableItem),
+                                () -> DatabaseManager.getInstance()
+                                        .get(ExpiredItems.class, listing.owner)
+                                        .thenCompose(items -> {
+                                            var expiredItems = items.orElseGet(() -> ExpiredItems.empty(listing.owner));
+                                            return DatabaseManager.getInstance().save(ExpiredItems.class, expiredItems);
+                                        })
+                        );
 
-                    TransactionLogger.listingExpired(listing);
+                TransactionLogger.listingExpired(listing);
 
-                    Bukkit.getServer().getPluginManager().callEvent(new ListingEndEvent(listing, ListingEndReason.EXPIRED));
-                }
+                TaskManager.Sync.run(Fadah.getINSTANCE(), () ->
+                        Bukkit.getServer().getPluginManager().callEvent(
+                                new ListingEndEvent(listing, ListingEndReason.EXPIRED)
+                        )
+                );
             }
         };
     }

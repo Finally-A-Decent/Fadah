@@ -4,8 +4,8 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import info.preva1l.fadah.data.dao.Dao;
-import info.preva1l.fadah.records.CollectableItem;
-import info.preva1l.fadah.records.ExpiredItems;
+import info.preva1l.fadah.records.collection.CollectableItem;
+import info.preva1l.fadah.records.collection.ExpiredItems;
 import info.preva1l.fadah.utils.ItemSerializer;
 import info.preva1l.fadah.utils.mongo.CollectionHelper;
 import lombok.RequiredArgsConstructor;
@@ -63,10 +63,10 @@ public class ExpiredItemsMongoDao implements Dao<ExpiredItems> {
      */
     @Override
     public void save(ExpiredItems expiredItems) {
-        for (CollectableItem item : expiredItems.collectableItems()) {
+        for (CollectableItem item : expiredItems.expiredItems()) {
             try {
                 Optional<ExpiredItems> current = get(expiredItems.owner());
-                if (current.isPresent() && current.get().collectableItems().contains(item)) continue;
+                if (current.isPresent() && current.get().expiredItems().contains(item)) continue;
                 Document document = new Document("playerUUID", expiredItems.owner())
                         .append("itemStack", ItemSerializer.serialize(item.itemStack()))
                         .append("dateAdded", item.dateAdded());

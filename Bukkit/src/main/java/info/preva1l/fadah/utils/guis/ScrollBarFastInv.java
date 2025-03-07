@@ -1,6 +1,6 @@
 package info.preva1l.fadah.utils.guis;
 
-import info.preva1l.fadah.cache.CategoryCache;
+import info.preva1l.fadah.cache.CategoryRegistry;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,15 +19,6 @@ public abstract class ScrollBarFastInv extends PaginatedFastInv {
         scrollbarSlots.put(1, 18);
         scrollbarSlots.put(2, 27);
         scrollbarSlots.put(3, 36);
-    }
-
-    protected ScrollBarFastInv(int size, @NotNull String title, @NotNull Player player, LayoutManager.MenuType menuType, List<Integer> scrollbarSlots) {
-        super(size, title, player, menuType);
-        int i = 0;
-        for (Integer num : scrollbarSlots) {
-            this.scrollbarSlots.put(i, num);
-            i++;
-        }
     }
 
     protected void setScrollbarSlots(List<Integer> integers) {
@@ -66,7 +57,7 @@ public abstract class ScrollBarFastInv extends PaginatedFastInv {
     }
 
     protected synchronized void scrollDown() {
-        if (scrollbarSlots.containsKey(CategoryCache.getCategories().size() - 1)) return;
+        if (scrollbarSlots.containsKey(CategoryRegistry.getCategories().size() - 1)) return;
         Map<Integer, Integer> newMappings = new HashMap<>();
         for (Map.Entry<Integer, Integer> entry : scrollbarSlots.entrySet()) {
             newMappings.put(entry.getKey() + 1, entry.getValue());

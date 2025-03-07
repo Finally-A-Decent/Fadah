@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.SortedSet;
 import java.util.UUID;
 
 @Getter
@@ -22,12 +22,11 @@ public abstract class Listing {
     final double tax;
     final long creationDate;
     final long deletionDate;
-    final boolean biddable;
-    final List<Bid> bids;
+    final SortedSet<Bid> bids;
 
     protected Listing(@NotNull UUID id, @NotNull UUID owner, @NotNull String ownerName,
                       @NotNull ItemStack itemStack, @NotNull String categoryID, @NotNull String currency, double price,
-                      double tax, long creationDate, long deletionDate, boolean biddable, List<Bid> bids) {
+                      double tax, long creationDate, long deletionDate, SortedSet<Bid> bids) {
         this.id = id;
         this.owner = owner;
         this.ownerName = ownerName;
@@ -38,7 +37,6 @@ public abstract class Listing {
         this.tax = tax;
         this.creationDate = creationDate;
         this.deletionDate = deletionDate;
-        this.biddable = biddable;
         this.bids = bids;
     }
 

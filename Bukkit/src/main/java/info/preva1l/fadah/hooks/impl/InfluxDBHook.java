@@ -5,22 +5,25 @@ import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApiBlocking;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
+import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.hooks.Hook;
-import lombok.Getter;
-import lombok.Setter;
+import info.preva1l.fadah.hooks.Reloadable;
 
 import java.time.Instant;
+import java.util.logging.Level;
 
-@Setter
-public class InfluxDBHook implements Hook {
-    @Getter private boolean enabled;
+@Reloadable(async = true)
+public class InfluxDBHook extends Hook {
+    private InfluxDBClient client;
+    private WriteApiBlocking writeApi;
 
-    private final InfluxDBClient client;
-    private final WriteApiBlocking writeApi;
-
-    public InfluxDBHook() {
+    @Override
+    public boolean onEnable() {
         Config.Hooks.InfluxDB conf = Config.i().getHooks().getInfluxdb();
+        if (!conf.isEnabled()) {
+            return false;
+        }
         try {
             String url = conf.getUri();
             String token = conf.getToken();
@@ -28,10 +31,10 @@ public class InfluxDBHook implements Hook {
             String bucket = conf.getBucket();
             this.client = InfluxDBClientFactory.create(url, token.toCharArray(), org, bucket);
             this.writeApi = client.getWriteApiBlocking();
-            this.enabled = true;
+            return true;
         } catch (Exception e) {
-            this.enabled = false;
-            throw new RuntimeException(e);
+            Fadah.getConsole().log(Level.SEVERE, e.getMessage(), e);
+            return false;
         }
     }
 
@@ -42,7 +45,8 @@ public class InfluxDBHook implements Hook {
         writeApi.writePoint(point);
     }
 
-    public void destroy() {
+    @Override
+    public void onDisable() {
         if (client == null) return;
         client.close();
     }

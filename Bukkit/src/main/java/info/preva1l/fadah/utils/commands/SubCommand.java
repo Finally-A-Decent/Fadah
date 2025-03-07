@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -16,7 +17,6 @@ import java.util.List;
 
 @Getter
 public abstract class SubCommand {
-
     private final SubCommandArgs assigned;
     public Fadah plugin;
     private SubCommandArguments executeArguments;
@@ -53,7 +53,11 @@ public abstract class SubCommand {
         if (this.assigned.async()) {
             TaskManager.Async.run(plugin, () -> this.execute(executeArguments));
         } else {
-            TaskManager.Sync.run(plugin, () -> this.execute(executeArguments));
+            if (sender instanceof Player p) {
+                TaskManager.Sync.run(plugin, p, () -> this.execute(executeArguments));
+            } else {
+                TaskManager.Sync.run(plugin, () -> this.execute(executeArguments));
+            }
         }
     }
 

@@ -3,6 +3,7 @@ package info.preva1l.fadah.utils;
 import com.github.puregero.multilib.MultiLib;
 import com.github.puregero.multilib.regionized.RegionizedTask;
 import lombok.experimental.UtilityClass;
+import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
 /**
@@ -24,6 +25,17 @@ public class TaskManager {
          */
         public void run(Plugin plugin, Runnable runnable) {
             MultiLib.getGlobalRegionScheduler().run(plugin,  t -> runnable.run());
+        }
+
+        /**
+         * Run a synchronous task attached to an entities thread.
+         * If it fails to get the entities thread it uses the global thread.
+         *
+         * @param plugin   The current plugin
+         * @param runnable The runnable, lambda supported yeh
+         */
+        public void run(Plugin plugin, Entity entity, Runnable runnable) {
+            MultiLib.getEntityScheduler(entity).run(plugin,  t -> runnable.run(), () -> run(plugin, runnable));
         }
 
         /**

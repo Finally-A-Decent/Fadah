@@ -2,12 +2,13 @@ package info.preva1l.fadah.guis;
 
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.cache.CacheAccess;
-import info.preva1l.fadah.cache.CategoryCache;
+import info.preva1l.fadah.cache.CategoryRegistry;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.filters.SortingDirection;
 import info.preva1l.fadah.filters.SortingMethod;
 import info.preva1l.fadah.records.Category;
+import info.preva1l.fadah.records.listing.BidListing;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.utils.CooldownManager;
 import info.preva1l.fadah.utils.StringUtils;
@@ -114,7 +115,7 @@ public class MainMenu extends ScrollBarFastInv {
 
     @Override
     public void fillScrollbarItems() {
-        for (Category cat : CategoryCache.getCategories()) {
+        for (Category cat : CategoryRegistry.getCategories()) {
             ItemBuilder itemBuilder = new ItemBuilder(cat.icon())
                     .name(StringUtils.colorize(cat.name()))
                     .addLore(StringUtils.colorizeList(cat.description()))
@@ -153,14 +154,14 @@ public class MainMenu extends ScrollBarFastInv {
                 Fadah.getConsole().severe("Cannot load listing %s because currency %s is not on this server!".formatted(listing.getId(), listing.getCurrencyId()));
                 continue;
             }
-            String buyMode = listing.isBiddable()
+            String buyMode = listing instanceof BidListing
                     ? getLang().getStringFormatted("listing.lore-buy.bidding")
                     : getLang().getStringFormatted("listing.lore-buy.buy-it-now");
 
             ItemBuilder itemStack = new ItemBuilder(listing.getItemStack().clone())
                     .addLore(getLang().getLore(player, "listing.lore-body",
                             listing.getOwnerName(),
-                            StringUtils.removeColorCodes(CategoryCache.getCatName(listing.getCategoryID())), buyMode,
+                            StringUtils.removeColorCodes(CategoryRegistry.getCatName(listing.getCategoryID())), buyMode,
                             new DecimalFormat(Config.i().getFormatting().getNumbers())
                                     .format(listing.getPrice()), TimeUtil.formatTimeUntil(listing.getDeletionDate()),
                             listing.getCurrency().getName()));
@@ -200,7 +201,7 @@ public class MainMenu extends ScrollBarFastInv {
                     return;
                 }
 
-                if (CacheAccess.get(Listing.class, listing.getId()) == null) { // todo: re-add strict checks
+                if (CacheAccess.get(Listing.class, listing.getId()).isEmpty()) {
                     Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());
                     return;
                 }

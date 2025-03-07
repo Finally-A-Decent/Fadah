@@ -1,9 +1,10 @@
 package info.preva1l.fadah.guis;
 
 import info.preva1l.fadah.cache.CacheAccess;
-import info.preva1l.fadah.cache.CategoryCache;
+import info.preva1l.fadah.cache.CategoryRegistry;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
+import info.preva1l.fadah.records.listing.BidListing;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.utils.StringUtils;
 import info.preva1l.fadah.utils.TimeUtil;
@@ -43,14 +44,14 @@ public class ViewListingsMenu extends PaginatedFastInv {
     @Override
     protected synchronized void fillPaginationItems() {
         for (Listing listing : listings) {
-            String buyMode = listing.isBiddable()
+            String buyMode = listing instanceof BidListing
                     ? getLang().getStringFormatted("listing.lore-buy.bidding")
                     : getLang().getStringFormatted("listing.lore-buy.buy-it-now");
 
             ItemBuilder itemStack = new ItemBuilder(listing.getItemStack().clone())
                     .addLore(getLang().getLore(player, "listing.lore-body",
                             listing.getOwnerName(),
-                            StringUtils.removeColorCodes(CategoryCache.getCatName(listing.getCategoryID())), buyMode,
+                            StringUtils.removeColorCodes(CategoryRegistry.getCatName(listing.getCategoryID())), buyMode,
                             new DecimalFormat(Config.i().getFormatting().getNumbers())
                                     .format(listing.getPrice()), TimeUtil.formatTimeUntil(listing.getDeletionDate())));
 
@@ -89,7 +90,7 @@ public class ViewListingsMenu extends PaginatedFastInv {
                     return;
                 }
 
-                if (CacheAccess.get(Listing.class, listing.getId()) == null) { // todo: re-add strict checks
+                if (CacheAccess.get(Listing.class, listing.getId()).isEmpty()) {
                     Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());
                     return;
                 }

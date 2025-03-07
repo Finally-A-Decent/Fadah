@@ -2,7 +2,7 @@ package info.preva1l.fadah.cache.collectionbox;
 
 import info.preva1l.fadah.cache.Cache;
 import info.preva1l.fadah.multiserver.RedisBroker;
-import info.preva1l.fadah.records.CollectionBox;
+import info.preva1l.fadah.records.collection.CollectionBox;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.redisson.api.RLocalCachedMap;
@@ -13,12 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class DistributedCollectionCache implements Cache<CollectionBox> {
-
+public final class DistributedCollectionCache implements Cache<CollectionBox> {
     private final RLocalCachedMap<UUID, CollectionBox> collectionBoxes;
 
     public DistributedCollectionCache() {
-        final LocalCachedMapOptions<UUID, CollectionBox> options = LocalCachedMapOptions.<UUID, CollectionBox>name("collectionboxes")
+        final LocalCachedMapOptions<UUID, CollectionBox> options = LocalCachedMapOptions.<UUID, CollectionBox>name("collection-boxes")
                 .cacheSize(10000)
                 .maxIdle(Duration.ofSeconds(60))
                 .timeToLive(Duration.ofSeconds(60))

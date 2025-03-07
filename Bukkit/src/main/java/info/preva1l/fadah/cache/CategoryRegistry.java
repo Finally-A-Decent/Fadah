@@ -4,7 +4,6 @@ import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.data.DatabaseManager;
 import info.preva1l.fadah.processor.JavaScriptProcessor;
 import info.preva1l.fadah.records.Category;
-import info.preva1l.fadah.utils.SetHelper;
 import info.preva1l.fadah.utils.config.BasicConfig;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Material;
@@ -16,15 +15,12 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @UtilityClass
-public final class CategoryCache {
-    private SortedSet<Category> categories = new TreeSet<>();
+public final class CategoryRegistry {
+    private final SortedSet<Category> categories = new TreeSet<>();
     private final BasicConfig categoriesFile = Fadah.getINSTANCE().getCategoriesFile();
-
-    public void update() {
-        categories = loadCategories();
-    }
 
     public Category getCategory(String id) {
         return categories.stream().filter(category -> category.id().equals(id)).findFirst().orElse(null);
@@ -62,7 +58,8 @@ public final class CategoryCache {
         }, DatabaseManager.getInstance().getThreadPool());
     }
 
-    public SortedSet<Category> loadCategories() {
+    public void loadCategories() {
+        Fadah.getINSTANCE().getCategoriesFile().load();
         SortedSet<Category> set = new TreeSet<>();
         for (String key : categoriesFile.getConfiguration().getKeys(false)) {
             String name = categoriesFile.getString(key + ".name");
@@ -76,10 +73,7 @@ public final class CategoryCache {
             // legacy unused now, this is just a config fixer
             List<String> legacyMaterials = categoriesFile.getStringList(key + ".materials");
             if (!legacyMaterials.isEmpty()) {
-                SetHelper.listToSet(legacyMaterials);
-
-                // todo: e
-
+                matchers.addAll(legacyMaterialsListToMatcherList(legacyMaterials));
                 categoriesFile.delete(key + ".materials");
             }
             // end legacy
@@ -96,6 +90,26 @@ public final class CategoryCache {
                     )
             );
         }
-        return set;
+        categories.removeAll(set);
+        categories.addAll(set);
+    }
+
+    public boolean registerCategory(@NotNull Category category) {
+        return categories.add(category);
+    }
+
+    public boolean unregisterCategory(@NotNull String id) {
+        return categories.removeIf(category -> category.id().equals(id));
+    }
+
+    private List<String> legacyMaterialsListToMatcherList(List<String> strings) {
+        return strings.stream()
+                .map(s -> {
+                    if (s.startsWith("*_")) return "%material%.endsWith(\"" + s.replace("*", "") + "\")";
+                    else if (s.endsWith("_*")) return "%material%.startsWith(\"" + s.replace("*", "") + "\")";
+                    else if (s.equals("*")) return "true";
+                    else return "%material% == \"" + s + "\"";
+                })
+                .collect(Collectors.toList());
     }
 }

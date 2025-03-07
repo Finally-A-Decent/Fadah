@@ -5,10 +5,11 @@ import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 public final class ListingPurchaseEvent extends Event {
-    private final HandlerList handlers = new HandlerList();
+    @Getter private static final HandlerList handlerList = new HandlerList();
     private final Listing listing;
     private final Player buyer;
 
@@ -16,5 +17,9 @@ public final class ListingPurchaseEvent extends Event {
         super();
         this.listing = listing;
         this.buyer = buyer;
+    }
+
+    public @NotNull HandlerList getHandlers() {
+        return handlerList;
     }
 }

@@ -6,9 +6,9 @@ import fr.maxlego08.zauctionhouse.api.AuctionManager;
 import fr.maxlego08.zauctionhouse.api.AuctionPlugin;
 import fr.maxlego08.zauctionhouse.api.enums.StorageType;
 import info.preva1l.fadah.Fadah;
-import info.preva1l.fadah.cache.CategoryCache;
+import info.preva1l.fadah.cache.CategoryRegistry;
 import info.preva1l.fadah.currency.CurrencyRegistry;
-import info.preva1l.fadah.records.CollectableItem;
+import info.preva1l.fadah.records.collection.CollectableItem;
 import info.preva1l.fadah.records.listing.BinListing;
 import info.preva1l.fadah.records.listing.Listing;
 import lombok.Getter;
@@ -50,11 +50,11 @@ public final class zAuctionHouseMigrator implements Migrator {
             ItemStack itemStack = item.getItemStack();
             double price = item.getPrice();
             long expiry = item.getExpireAt();
-            String categoryId = CategoryCache.getCategoryForItem(itemStack).join();
+            String categoryId = CategoryRegistry.getCategoryForItem(itemStack).join();
             String currency = item.getEconomy().getCurrency();
             if (CurrencyRegistry.get(currency) == null) currency = "vault";
             listings.add(new BinListing(id, owner, ownerName, itemStack, categoryId, currency, price, 0,
-                    Instant.now().toEpochMilli(), expiry, false, List.of()));
+                    Instant.now().toEpochMilli(), expiry, new TreeSet<>()));
         }
         return listings;
     }
@@ -86,6 +86,7 @@ public final class zAuctionHouseMigrator implements Migrator {
     private <T> T getProvider(Class<T> clazz) {
         RegisteredServiceProvider<T> provider = Bukkit.getServicesManager().getRegistration(clazz);
         if (provider == null) return null;
-        return provider.getProvider() != null ? (T) provider.getProvider() : null;
+        provider.getProvider();
+        return provider.getProvider();
     }
 }

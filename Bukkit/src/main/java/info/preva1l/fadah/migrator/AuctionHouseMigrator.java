@@ -3,8 +3,8 @@ package info.preva1l.fadah.migrator;
 import com.spawnchunk.auctionhouse.AuctionHouse;
 import com.spawnchunk.auctionhouse.modules.ListingType;
 import info.preva1l.fadah.Fadah;
-import info.preva1l.fadah.cache.CategoryCache;
-import info.preva1l.fadah.records.CollectableItem;
+import info.preva1l.fadah.cache.CategoryRegistry;
+import info.preva1l.fadah.records.collection.CollectableItem;
 import info.preva1l.fadah.records.listing.BinListing;
 import info.preva1l.fadah.records.listing.Listing;
 import lombok.Getter;
@@ -37,9 +37,9 @@ public final class AuctionHouseMigrator implements Migrator {
             String ownerName = listing.getSellerName();
             ItemStack itemStack = listing.getItem();
             double price = listing.getPrice();
-            String categoryId = CategoryCache.getCategoryForItem(itemStack).join();
+            String categoryId = CategoryRegistry.getCategoryForItem(itemStack).join();
             listings.add(new BinListing(id, owner, ownerName, itemStack, categoryId, "vault", price, 0,
-                    Instant.now().toEpochMilli(), expiry, false, List.of()));
+                    Instant.now().toEpochMilli(), expiry, new TreeSet<>()));
         }
         return listings;
     }

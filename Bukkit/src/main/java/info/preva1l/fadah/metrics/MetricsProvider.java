@@ -27,7 +27,7 @@ public interface MetricsProvider {
         Fadah.getConsole().info("Metrics Logging Started!");
     }
 
-    default void shutDownMetrics() {
+    default void shutdownMetrics() {
         if (getMetrics() != null) {
             getMetrics().shutdown();
             Fadah.getConsole().info("Metrics Logging Stopped!");

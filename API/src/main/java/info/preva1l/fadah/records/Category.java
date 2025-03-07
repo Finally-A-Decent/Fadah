@@ -18,4 +18,17 @@ public record Category(
     public int compareTo(@NotNull Category o) {
         return Integer.compare(o.priority, this.priority);
     }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Category category = (Category) o;
+        return id.equals(category.id);
+    }
 }

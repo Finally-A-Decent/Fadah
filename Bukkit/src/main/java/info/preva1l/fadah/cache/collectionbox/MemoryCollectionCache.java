@@ -1,7 +1,7 @@
 package info.preva1l.fadah.cache.collectionbox;
 
 import info.preva1l.fadah.cache.Cache;
-import info.preva1l.fadah.records.CollectionBox;
+import info.preva1l.fadah.records.collection.CollectionBox;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class MemoryCollectionCache implements Cache<CollectionBox> {
+public final class MemoryCollectionCache implements Cache<CollectionBox> {
     private final Map<UUID, CollectionBox> collectionBoxes = new ConcurrentHashMap<>();
 
     @Override

@@ -1,14 +1,11 @@
 package info.preva1l.fadah.data.fixers.v2;
 
-import com.google.common.collect.Lists;
 import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadah.Fadah;
-import info.preva1l.fadah.cache.CacheAccess;
-import info.preva1l.fadah.cache.ExpiredListingsCache;
 import info.preva1l.fadah.data.DatabaseManager;
-import info.preva1l.fadah.records.CollectableItem;
-import info.preva1l.fadah.records.CollectionBox;
-import info.preva1l.fadah.records.ExpiredItems;
+import info.preva1l.fadah.records.collection.CollectableItem;
+import info.preva1l.fadah.records.collection.CollectionBox;
+import info.preva1l.fadah.records.collection.ExpiredItems;
 import info.preva1l.fadah.utils.ItemSerializer;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.inventory.ItemStack;
@@ -17,7 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -26,7 +23,6 @@ public class MySQLFixerV2 implements V2Fixer {
 
     @Override
     public void fixExpiredItems(UUID player) {
-        final List<CollectableItem> retrievedData = Lists.newArrayList();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
                 SELECT `itemStack`, `dateAdded`
@@ -34,14 +30,14 @@ public class MySQLFixerV2 implements V2Fixer {
                 WHERE `playerUUID`=?;""")) {
                 statement.setString(1, player.toString());
                 final ResultSet resultSet = statement.executeQuery();
+                ExpiredItems expiredItems = ExpiredItems.empty(player);
                 while (resultSet.next()) {
                     final ItemStack itemStack = ItemSerializer.deserialize(resultSet.getString("itemStack"))[0];
                     final long dateAdded = resultSet.getLong("dateAdded");
-                    CollectableItem collectableItem = new CollectableItem(itemStack, dateAdded);
-                    retrievedData.add(collectableItem);
-                    ExpiredListingsCache.addItem(player, collectableItem);
+                    expiredItems.add(new CollectableItem(itemStack, dateAdded));
                 }
-                DatabaseManager.getInstance().save(ExpiredItems.class, ExpiredItems.of(player));
+
+                DatabaseManager.getInstance().save(ExpiredItems.class, expiredItems).join();
             }
 
             try (PreparedStatement deleteStatement = connection.prepareStatement("""
@@ -65,15 +61,14 @@ public class MySQLFixerV2 implements V2Fixer {
                 WHERE `playerUUID`=?;""")) {
                 statement.setString(1, player.toString());
                 final ResultSet resultSet = statement.executeQuery();
-                CollectionBox box = CacheAccess.get(CollectionBox.class, player);
+                CollectionBox box = new CollectionBox(player, new ArrayList<>());
                 while (resultSet.next()) {
                     final ItemStack itemStack = ItemSerializer.deserialize(resultSet.getString("itemStack"))[0];
                     final long dateAdded = resultSet.getLong("dateAdded");
                     box.add(new CollectableItem(itemStack, dateAdded));
                 }
 
-                CacheAccess.add(CollectionBox.class, box);
-                DatabaseManager.getInstance().save(CollectionBox.class, box);
+                DatabaseManager.getInstance().save(CollectionBox.class, box).join();
             }
             try (PreparedStatement deleteStatement = connection.prepareStatement("""
                 DELETE FROM `collection_box`

@@ -101,7 +101,7 @@ public class ProfileMenu extends FastInv {
                                 ? Lang.i().getWords().getYour() : owner.getName() + "'s")).build(), e -> {
                     if ((viewer.getUniqueId() != owner.getUniqueId() && viewer.hasPermission("fadah.manage.expired-listings"))
                             || viewer.getUniqueId() == owner.getUniqueId()) {
-                        new ExpiredListingsMenu(viewer, owner, 0).open(viewer);
+                        new ExpiredListingsMenu(viewer, owner).open(viewer);
                     }
                 });
     }

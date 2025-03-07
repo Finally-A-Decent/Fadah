@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,6 +28,10 @@ public class AuctionWatcher {
 
     public void watch(@NotNull Watching watching) {
         watchingListings.put(watching.getPlayer(), watching);
+    }
+
+    public Optional<Watching> get(@NotNull UUID uuid) {
+        return Optional.ofNullable(watchingListings.get(uuid));
     }
 
     @Blocking

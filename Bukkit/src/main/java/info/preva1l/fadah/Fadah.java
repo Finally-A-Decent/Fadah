@@ -9,17 +9,13 @@ import info.preva1l.fadah.config.Menus;
 import info.preva1l.fadah.currency.CurrencyProvider;
 import info.preva1l.fadah.data.DataProvider;
 import info.preva1l.fadah.data.DatabaseManager;
-import info.preva1l.fadah.data.DatabaseType;
-import info.preva1l.fadah.hooks.HookManager;
 import info.preva1l.fadah.hooks.HookProvider;
-import info.preva1l.fadah.hooks.impl.InfluxDBHook;
 import info.preva1l.fadah.listeners.PlayerListener;
 import info.preva1l.fadah.metrics.Metrics;
 import info.preva1l.fadah.metrics.MetricsProvider;
 import info.preva1l.fadah.migrator.MigrationProvider;
 import info.preva1l.fadah.migrator.MigratorManager;
 import info.preva1l.fadah.multiserver.Broker;
-import info.preva1l.fadah.multiserver.RedisBroker;
 import info.preva1l.fadah.processor.DefaultProcessorArgsProvider;
 import info.preva1l.fadah.records.listing.ListingExpiryProvider;
 import info.preva1l.fadah.utils.StringUtils;
@@ -28,18 +24,14 @@ import info.preva1l.fadah.utils.config.BasicConfig;
 import info.preva1l.fadah.utils.guis.FastInvManager;
 import info.preva1l.fadah.utils.guis.LayoutManager;
 import info.preva1l.fadah.utils.logging.LoggingProvider;
-import info.preva1l.fadah.watcher.AuctionWatcher;
-import info.preva1l.fadah.watcher.Watching;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.desertwell.util.UpdateChecker;
 import net.william278.desertwell.util.Version;
 import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -47,15 +39,12 @@ public final class Fadah extends JavaPlugin implements MigrationProvider, Curren
         CommandProvider, MetricsProvider, LoggingProvider, HookProvider, DataProvider, DefaultProcessorArgsProvider {
     private static final int SPIGOT_ID = 116157;
     @Getter private static Fadah INSTANCE;
-    @Getter @Setter private static NamespacedKey customItemKey;
     @Getter private static Logger console;
     @Getter private final Logger transactionLogger = Logger.getLogger("AuctionHouse-Transactions");
     private Version pluginVersion;
     @Getter private BasicConfig categoriesFile;
     @Getter private BasicConfig menusFile;
 
-    @Getter private Broker broker;
-    @Getter private HookManager hookManager;
     @Getter private LayoutManager layoutManager;
 
     @Getter private BukkitAudiences adventureAudience;
@@ -63,14 +52,18 @@ public final class Fadah extends JavaPlugin implements MigrationProvider, Curren
 
     @Getter @Setter private Metrics metrics;
 
+    @Getter private UpdateChecker.Completed checked;
+
     @Override
-    public void onEnable() {
+    public void onLoad() {
         INSTANCE = this;
         pluginVersion = Version.fromString(getDescription().getVersion());
         console = getLogger();
-        hookManager = new HookManager();
         adventureAudience = BukkitAudiences.create(this);
+    }
 
+    @Override
+    public void onEnable() {
         getConsole().info("Enabling the API...");
         AuctionHouseAPI.setInstance(new BukkitAuctionHouseAPI());
         getConsole().info("API Enabled!");
@@ -86,9 +79,7 @@ public final class Fadah extends JavaPlugin implements MigrationProvider, Curren
         TaskManager.Async.runTask(this, listingExpiryTask(), 10L);
         FastInvManager.register(this);
 
-        loadBroker();
-
-        customItemKey = NamespacedKey.minecraft("auctionhouse");
+        Broker.getInstance().load();
 
         loadHooks();
         loadMigrators();
@@ -107,15 +98,10 @@ public final class Fadah extends JavaPlugin implements MigrationProvider, Curren
     @Override
     public void onDisable() {
         FastInvManager.closeAll(this);
-        AuctionWatcher.getWatchingListings().values()
-                .forEach(watching -> DatabaseManager.getInstance().save(Watching.class, watching));
+        disableHooks();
         DatabaseManager.getInstance().shutdown();
-        if (broker != null) broker.destroy();
-        if (metrics != null) metrics.shutdown();
-        Optional<InfluxDBHook> hook = Fadah.getINSTANCE().getHookManager().getHook(InfluxDBHook.class);
-        if (Config.i().getHooks().getInfluxdb().isEnabled() && hook.isPresent() && hook.get().isEnabled()) {
-            hook.get().destroy();
-        }
+        Broker.getInstance().destroy();
+        shutdownMetrics();
     }
 
     private void loadFiles() {
@@ -150,28 +136,6 @@ public final class Fadah extends JavaPlugin implements MigrationProvider, Curren
         ).forEach(layoutManager::loadLayout);
     }
 
-    private void loadBroker() {
-        Config.Broker settings = Config.i().getBroker();
-        if (settings.isEnabled()) {
-            getConsole().info("Connecting to Broker...");
-            getConsole().info("Broker Type: %s".formatted(settings.getType().getDisplayName()));
-            if (Config.i().getDatabase().getType() == DatabaseType.SQLITE) {
-                getConsole().severe("------------------------------------------");
-                getConsole().severe("Broker has not been enabled as the selected");
-                getConsole().severe("       database is not compatible!");
-                getConsole().severe("------------------------------------------");
-                return;
-            }
-            broker = switch (settings.getType()) {
-                case REDIS -> new RedisBroker(this);
-            };
-            broker.connect();
-            getConsole().info("Successfully connected to broker!");
-            return;
-        }
-        getConsole().info("Not connecting to broker. (Not Enabled)");
-    }
-
     private void checkForUpdates() {
         final UpdateChecker checker = UpdateChecker.builder()
                 .currentVersion(pluginVersion)
@@ -182,6 +146,7 @@ public final class Fadah extends JavaPlugin implements MigrationProvider, Curren
             if (checked.isUpToDate()) {
                 return;
             }
+            this.checked = checked;
             Bukkit.getConsoleSender().sendMessage(StringUtils.colorize("&f[Fadah] Fadah is &#D63C3COUTDATED&f! " +
                     "&7Current: &#D63C3C%s &7Latest: &#18D53A%s".formatted(checked.getCurrentVersion(), checked.getLatestVersion())));
         });

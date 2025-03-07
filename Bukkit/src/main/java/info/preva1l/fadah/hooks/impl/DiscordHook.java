@@ -3,6 +3,7 @@ package info.preva1l.fadah.hooks.impl;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.hooks.Hook;
+import info.preva1l.fadah.hooks.Reloadable;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.utils.StringUtils;
 import info.preva1l.fadah.utils.TaskManager;
@@ -16,17 +17,25 @@ import javax.net.ssl.HttpsURLConnection;
 import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-@Setter
 @Getter
-public class DiscordHook implements Hook {
+@Reloadable
+public class DiscordHook extends Hook {
     private Config.Hooks.Discord conf = Config.i().getHooks().getDiscord();
-    private boolean enabled = false;
+    private DecimalFormat df = new DecimalFormat("#.##");
+
+    @Override
+    public boolean onEnable() {
+        conf = Config.i().getHooks().getDiscord();
+        df = new DecimalFormat(Config.i().getFormatting().getNumbers());
+        return conf.isEnabled();
+    }
 
     public void send(Listing listing) {
         TaskManager.Async.run(Fadah.getINSTANCE(), () -> {
@@ -75,11 +84,11 @@ public class DiscordHook implements Hook {
         return StringUtils.colorize(str
                 .replace("%player%", listing.getOwnerName())
                 .replace("%item%", StringUtils.removeColorCodes(StringUtils.extractItemName(listing.getItemStack())))
-                .replace("%price%", new DecimalFormat(Config.i().getFormatting().getNumbers()).format(listing.getPrice())));
+                .replace("%price%", df.format(listing.getPrice())));
     }
 
     private String getImageUrlForItem(Material material) {
-        return "https://mcapi.marveldc.me/item/%s?version=1.20&width=200&height=200".formatted(material.name());
+        return "https://minecraft-api.vercel.app/images/items/%s.png".formatted(material.getKey().value());
     }
 
     public enum Mode {
@@ -204,7 +213,7 @@ public class DiscordHook implements Hook {
                 json.put("embeds", embedObjects.toArray());
             }
 
-            URL url = new URL(this.url);
+            URL url = URI.create(this.url).toURL();
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             connection.addRequestProperty("Content-Type", "application/json");
             connection.addRequestProperty("User-Agent", "Fadah-Discord-Webhook");

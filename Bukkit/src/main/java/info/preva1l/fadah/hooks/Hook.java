@@ -1,11 +1,20 @@
 package info.preva1l.fadah.hooks;
 
+public abstract class Hook {
+    protected boolean enabled = false;
 
-public interface Hook {
-    default void enable() {
-        setEnabled(true);
+    public boolean enable() {
+        enabled = onEnable();
+        return enabled;
     }
 
-    void setEnabled(boolean enabled);
-    boolean isEnabled();
+    public void disable() {
+        enabled = false;
+        onDisable();
+    }
+
+    protected abstract boolean onEnable();
+
+    protected void onDisable() {
+    }
 }

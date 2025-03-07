@@ -3,6 +3,7 @@ package info.preva1l.fadah.commands.subcommands;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
+import info.preva1l.fadah.multiserver.Broker;
 import info.preva1l.fadah.multiserver.Message;
 import info.preva1l.fadah.utils.commands.SubCommand;
 import info.preva1l.fadah.utils.commands.SubCommandArgs;
@@ -17,8 +18,10 @@ public class ToggleSubCommand extends SubCommand {
 
     @SubCommandArgs(name = "toggle", inGameOnly = false, permission = "fadah.toggle-status")
     public void execute(@NotNull SubCommandArguments command) {
-        if (Fadah.getINSTANCE().getBroker() != null) {
-            Message.builder().type(Message.Type.TOGGLE).build().send(Fadah.getINSTANCE().getBroker());
+        if (Broker.getInstance().isConnected()) {
+            Message.builder()
+                    .type(Message.Type.TOGGLE)
+                    .build().send(Broker.getInstance());
         }
         FastInvManager.closeAll(plugin);
         boolean enabled = Config.i().isEnabled();

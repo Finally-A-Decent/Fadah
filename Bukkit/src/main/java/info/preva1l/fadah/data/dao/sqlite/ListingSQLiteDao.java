@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.data.dao.Dao;
+import info.preva1l.fadah.records.listing.BidListing;
 import info.preva1l.fadah.records.listing.BinListing;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.utils.ItemSerializer;
@@ -17,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -34,7 +36,9 @@ public class ListingSQLiteDao implements Dao<Listing> {
     public Optional<Listing> get(UUID id) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
-                        SELECT  `ownerUUID`, `ownerName`, `category`, `creationDate`, `deletionDate`, `price`, `tax`, `itemStack`, `biddable`, `bids`
+                        SELECT  `ownerUUID`, `ownerName`, `category`,
+                                `creationDate`, `deletionDate`, `price`, 
+                                `tax`, `itemStack`, `biddable`, `bids`
                         FROM `listings`
                         WHERE `uuid`=?;""")) {
                 statement.setString(1, id.toString());
@@ -59,7 +63,31 @@ public class ListingSQLiteDao implements Dao<Listing> {
                     final double tax = resultSet.getDouble("tax");
                     final ItemStack itemStack = ItemSerializer.deserialize(resultSet.getString("itemStack"))[0];
                     final boolean biddable = resultSet.getBoolean("biddable");
-                    return Optional.of(new BinListing(id, ownerUUID, ownerName, itemStack, categoryID, currency, price, tax, creationDate, deletionDate, biddable, List.of()));
+
+                    final Listing listing;
+                    if (biddable) {
+                        listing = new BidListing(
+                                id,
+                                ownerUUID, ownerName,
+                                itemStack,
+                                categoryID,
+                                currency, price, tax,
+                                creationDate, deletionDate,
+                                new TreeSet<>()
+                        );
+                    } else {
+                        listing = new BinListing(
+                                id,
+                                ownerUUID, ownerName,
+                                itemStack,
+                                categoryID,
+                                currency, price, tax,
+                                creationDate, deletionDate,
+                                new TreeSet<>()
+                        );
+                    }
+
+                    return Optional.of(listing);
                 }
             }
         } catch (SQLException e) {
@@ -78,7 +106,9 @@ public class ListingSQLiteDao implements Dao<Listing> {
         final List<Listing> retrievedData = Lists.newArrayList();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
-                        SELECT  `uuid`, `ownerUUID`, `ownerName`, `category`, `creationDate`, `deletionDate`, `price`, `tax`, `itemStack`, `biddable`, `bids`
+                        SELECT  `uuid`, `ownerUUID`, `ownerName`, `category`,
+                                `creationDate`, `deletionDate`, `price`, `tax`,
+                                `itemStack`, `biddable`, `bids`
                         FROM `listings`;""")) {
                 final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
@@ -102,7 +132,31 @@ public class ListingSQLiteDao implements Dao<Listing> {
                     final double tax = resultSet.getDouble("tax");
                     final ItemStack itemStack = ItemSerializer.deserialize(resultSet.getString("itemStack"))[0];
                     final boolean biddable = resultSet.getBoolean("biddable");
-                    retrievedData.add(new BinListing(id, ownerUUID, ownerName, itemStack, categoryID, currency, price, tax, creationDate, deletionDate, biddable, List.of()));
+
+                    final Listing listing;
+                    if (biddable) {
+                        listing = new BidListing(
+                                id,
+                                ownerUUID, ownerName,
+                                itemStack,
+                                categoryID,
+                                currency, price, tax,
+                                creationDate, deletionDate,
+                                new TreeSet<>()
+                        );
+                    } else {
+                        listing = new BinListing(
+                                id,
+                                ownerUUID, ownerName,
+                                itemStack,
+                                categoryID,
+                                currency, price, tax,
+                                creationDate, deletionDate,
+                                new TreeSet<>()
+                        );
+                    }
+
+                    retrievedData.add(listing);
                 }
                 return retrievedData;
             }
@@ -122,7 +176,9 @@ public class ListingSQLiteDao implements Dao<Listing> {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
                         INSERT INTO `listings`
-                        (`uuid`,`ownerUUID`,`ownerName`, `category`, `creationDate`, `deletionDate`, `price`, `tax`, `itemStack`, `biddable`, `bids`)
+                        (`uuid`,`ownerUUID`,`ownerName`, `category`,
+                         `creationDate`, `deletionDate`, `price`, `tax`,
+                         `itemStack`, `biddable`, `bids`)
                         VALUES (?,?,?,?,?,?,?,?,?,?,?);""")) {
                 statement.setString(1, listing.getId().toString());
                 statement.setString(2, listing.getOwner().toString());

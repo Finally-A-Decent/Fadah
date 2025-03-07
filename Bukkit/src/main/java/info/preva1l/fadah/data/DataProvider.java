@@ -2,22 +2,20 @@ package info.preva1l.fadah.data;
 
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.cache.CacheAccess;
-import info.preva1l.fadah.cache.CategoryCache;
-import info.preva1l.fadah.cache.ExpiredListingsCache;
-import info.preva1l.fadah.cache.HistoricItemsCache;
+import info.preva1l.fadah.cache.CategoryRegistry;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
-import info.preva1l.fadah.records.CollectionBox;
-import info.preva1l.fadah.records.ExpiredItems;
-import info.preva1l.fadah.records.History;
+import info.preva1l.fadah.records.collection.CollectionBox;
+import info.preva1l.fadah.records.collection.ExpiredItems;
+import info.preva1l.fadah.records.history.History;
 import info.preva1l.fadah.utils.guis.FastInvManager;
 import info.preva1l.fadah.utils.guis.LayoutManager;
 import info.preva1l.fadah.watcher.AuctionWatcher;
 import info.preva1l.fadah.watcher.Watching;
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 public interface DataProvider {
     default void reload(Fadah plugin) {
@@ -25,41 +23,62 @@ public interface DataProvider {
         Config.reload();
         Lang.reload();
         Fadah.getINSTANCE().getMenusFile().load();
-        Fadah.getINSTANCE().getLayoutManager().reloadLayout(LayoutManager.MenuType.MAIN);
-        Fadah.getINSTANCE().getLayoutManager().reloadLayout(LayoutManager.MenuType.NEW_LISTING);
-        Fadah.getINSTANCE().getLayoutManager().reloadLayout(LayoutManager.MenuType.PROFILE);
-        Fadah.getINSTANCE().getLayoutManager().reloadLayout(LayoutManager.MenuType.EXPIRED_LISTINGS);
-        Fadah.getINSTANCE().getLayoutManager().reloadLayout(LayoutManager.MenuType.ACTIVE_LISTINGS);
-        Fadah.getINSTANCE().getLayoutManager().reloadLayout(LayoutManager.MenuType.COLLECTION_BOX);
-        Fadah.getINSTANCE().getLayoutManager().reloadLayout(LayoutManager.MenuType.CONFIRM_PURCHASE);
-        Fadah.getINSTANCE().getLayoutManager().reloadLayout(LayoutManager.MenuType.HISTORY);
-        Fadah.getINSTANCE().getLayoutManager().reloadLayout(LayoutManager.MenuType.WATCH);
-        Fadah.getINSTANCE().getCategoriesFile().load();
-        CategoryCache.update();
+        Stream.of(
+                LayoutManager.MenuType.MAIN,
+                LayoutManager.MenuType.NEW_LISTING,
+                LayoutManager.MenuType.PROFILE,
+                LayoutManager.MenuType.EXPIRED_LISTINGS,
+                LayoutManager.MenuType.ACTIVE_LISTINGS,
+                LayoutManager.MenuType.COLLECTION_BOX,
+                LayoutManager.MenuType.CONFIRM_PURCHASE,
+                LayoutManager.MenuType.HISTORY,
+                LayoutManager.MenuType.WATCH
+        ).forEach(Fadah.getINSTANCE().getLayoutManager()::reloadLayout);
+        CategoryRegistry.loadCategories();
     }
 
     default void loadDataAndPopulateCaches() {
         DatabaseManager.getInstance(); // Make the connection happen during startup
-        CategoryCache.update();
-        DatabaseManager.getInstance().getAll(Watching.class).join().forEach(AuctionWatcher::watch);
+        CacheAccess.init();
+        CategoryRegistry.loadCategories();
     }
 
     default CompletableFuture<Void> loadPlayerData(UUID uuid) {
-        return CompletableFuture.supplyAsync(() -> {
-            boolean needsFixing = DatabaseManager.getInstance().needsFixing(uuid).join();
-            if (needsFixing) {
-                DatabaseManager.getInstance().fixPlayerData(uuid).join();
-            }
+        DatabaseManager db = DatabaseManager.getInstance();
 
-            Optional<CollectionBox> collectionBox = DatabaseManager.getInstance().get(CollectionBox.class, uuid).join();
-            collectionBox.ifPresent(list -> CacheAccess.add(CollectionBox.class, list));
+        return db.fixPlayerData(uuid)
+                .thenCompose(ignored -> CompletableFuture.allOf(
+                        loadAndCache(CollectionBox.class, uuid),
+                        loadAndCache(ExpiredItems.class, uuid),
+                        loadAndCache(History.class, uuid),
+                        db.get(Watching.class, uuid)
+                                .thenAccept(opt -> opt.ifPresent(AuctionWatcher::watch))
+                ));
+    }
 
-            Optional<ExpiredItems> expiredItems = DatabaseManager.getInstance().get(ExpiredItems.class, uuid).join();
-            expiredItems.ifPresent(list -> ExpiredListingsCache.update(uuid, list.collectableItems()));
+    default CompletableFuture<Void> invalidateAndSavePlayerData(UUID uuid) {
+        DatabaseManager db = DatabaseManager.getInstance();
 
-            Optional<History> history = DatabaseManager.getInstance().get(History.class, uuid).join();
-            history.ifPresent(list -> HistoricItemsCache.update(uuid, list.collectableItems()));
-            return null;
-        }, DatabaseManager.getInstance().getThreadPool());
+        return CompletableFuture.allOf(
+                saveAndInvalidate(CollectionBox.class, uuid),
+                saveAndInvalidate(ExpiredItems.class, uuid),
+                saveAndInvalidate(History.class, uuid),
+                AuctionWatcher.get(uuid)
+                        .map(w -> db.save(Watching.class, w))
+                        .orElseGet(() -> CompletableFuture.completedFuture(null))
+        );
+    }
+
+    private <T> CompletableFuture<Void> loadAndCache(Class<T> type, UUID uuid) {
+        return DatabaseManager.getInstance()
+                .get(type, uuid)
+                .thenAccept(opt -> opt.ifPresent(item -> CacheAccess.add(type, item)));
+    }
+
+    private <T> CompletableFuture<Void> saveAndInvalidate(Class<T> type, UUID uuid) {
+        return CacheAccess.get(type, uuid)
+                .map(value -> DatabaseManager.getInstance().save(type, value)
+                        .thenRun(() -> CacheAccess.invalidate(type, value)))
+                .orElseGet(() -> CompletableFuture.completedFuture(null));
     }
 }

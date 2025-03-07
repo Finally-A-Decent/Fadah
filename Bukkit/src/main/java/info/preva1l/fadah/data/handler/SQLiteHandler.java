@@ -9,9 +9,9 @@ import info.preva1l.fadah.data.dao.sqlite.*;
 import info.preva1l.fadah.data.fixers.v2.SQLiteFixerV2;
 import info.preva1l.fadah.data.fixers.v2.V2Fixer;
 import info.preva1l.fadah.data.fixers.v3.V3Fixer;
-import info.preva1l.fadah.records.CollectionBox;
-import info.preva1l.fadah.records.ExpiredItems;
-import info.preva1l.fadah.records.History;
+import info.preva1l.fadah.records.collection.CollectionBox;
+import info.preva1l.fadah.records.collection.ExpiredItems;
+import info.preva1l.fadah.records.history.History;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.watcher.Watching;
 import lombok.Getter;
@@ -33,7 +33,6 @@ public class SQLiteHandler implements DatabaseHandler {
     @Getter private boolean connected = false;
 
     private static final String DATABASE_FILE_NAME = "FadahData.db";
-    private File databaseFile;
     private HikariDataSource dataSource;
     @Getter private V2Fixer v2Fixer;
     @Getter private V3Fixer v3Fixer;
@@ -42,7 +41,7 @@ public class SQLiteHandler implements DatabaseHandler {
     @Blocking
     public void connect() {
         try {
-            databaseFile = new File(Fadah.getINSTANCE().getDataFolder(), DATABASE_FILE_NAME);
+            File databaseFile = new File(Fadah.getINSTANCE().getDataFolder(), DATABASE_FILE_NAME);
             if (databaseFile.createNewFile()) {
                 Fadah.getConsole().info("Created the SQLite database file");
             }

@@ -41,15 +41,11 @@ public class Config {
 
     private int defaultMaxListings = 3;
     private boolean logToFile = true;
-    private boolean verbose = true;
     @Comment({
-            "Minimal mode changs these functions:",
+            "Minimal mode changes these functions:",
             " - Bypass sell menu and just list the item"
     })
     private boolean minimalMode = false;
-
-    @Comment("Enable this if you are having de-sync issues with multi-server.")
-    private boolean strictChecks = false;
 
     private TimeLength maxListingLength = new TimeLength(10, ChronoUnit.DAYS);
     private TimeLength defaultListingLength = new TimeLength(2, ChronoUnit.DAYS);
@@ -253,7 +249,7 @@ public class Config {
         private String host = "localhost";
         private int port = 6379;
         private String password = "myAwesomePassword";
-        private String channel = "fadah.cache";
+        private String channel = "fadah:cache";
     }
 
     public void save() {

@@ -11,6 +11,7 @@ tools:
   matchers:
     - '%material%.endsWith("_PICKAXE")'
     - '%material%.endsWith("_PICKAXE")'
+    - '%material%.endsWith("_PICKAXE")'
   materials:
     - '*_AXE'
     - '*_PICKAXE'

@@ -7,6 +7,8 @@ import org.jetbrains.annotations.Nullable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
+import java.util.logging.Level;
+
 /**
  * Created on 20/02/2025
  *
@@ -42,17 +44,17 @@ public class JavaScriptProcessor {
                     """
                     Unable to process expression: '%s'
                     This is likely related to a category matcher or a item blacklist.
-                    DO NOT REPORT THIS TO Fadah SUPPORT, THIS IS NOT A BUG, THIS IS A CONFIGURATION PROBLEM
+                    DO NOT REPORT THIS TO Fadah SUPPORT, THIS IS NOT A BUG, THIS IS A CONFIGURATION PROBLEM.
                     """.stripIndent().formatted(expression)
             );
             return def;
-        } catch (Exception e){
-            Fadah.getConsole().severe(
+        } catch (Exception e) {
+            Fadah.getConsole().log(Level.SEVERE,
                     """
                     Unable to process expression: '%s'
                     (Report this to Fadah support)
-                    """.stripIndent().formatted(expression)
-            );
+                    """.stripIndent().formatted(expression),
+                    e);
             return def;
         }
 

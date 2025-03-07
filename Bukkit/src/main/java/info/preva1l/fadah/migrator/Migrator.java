@@ -2,11 +2,10 @@ package info.preva1l.fadah.migrator;
 
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.cache.CacheAccess;
-import info.preva1l.fadah.cache.ExpiredListingsCache;
 import info.preva1l.fadah.data.DatabaseManager;
-import info.preva1l.fadah.records.CollectableItem;
-import info.preva1l.fadah.records.CollectionBox;
-import info.preva1l.fadah.records.ExpiredItems;
+import info.preva1l.fadah.records.collection.CollectableItem;
+import info.preva1l.fadah.records.collection.CollectionBox;
+import info.preva1l.fadah.records.collection.ExpiredItems;
 import info.preva1l.fadah.records.listing.Listing;
 
 import java.util.List;
@@ -45,8 +44,7 @@ public interface Migrator {
 
             for (UUID owner : expiredItems.keySet()) {
                 for (CollectableItem item : expiredItems.get(owner)) {
-                    ExpiredListingsCache.addItem(owner, item);
-                    DatabaseManager.getInstance().save(ExpiredItems.class, ExpiredItems.of(owner));
+                    CacheAccess.getNotNull(ExpiredItems.class, owner).add(item);
                 }
                 migratedExpiredItems++;
             }

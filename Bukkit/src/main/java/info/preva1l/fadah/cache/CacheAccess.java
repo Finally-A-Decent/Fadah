@@ -1,32 +1,40 @@
 package info.preva1l.fadah.cache;
 
-import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.cache.collectionbox.DistributedCollectionCache;
 import info.preva1l.fadah.cache.collectionbox.MemoryCollectionCache;
+import info.preva1l.fadah.cache.expired.DistributedExpiredCache;
+import info.preva1l.fadah.cache.expired.MemoryExpiredCache;
+import info.preva1l.fadah.cache.history.DistributedHistoryCache;
+import info.preva1l.fadah.cache.history.MemoryHistoryCache;
 import info.preva1l.fadah.cache.listing.DistributedListingCache;
 import info.preva1l.fadah.cache.listing.MemoryListingCache;
-import info.preva1l.fadah.config.Config;
-import info.preva1l.fadah.records.CollectionBox;
+import info.preva1l.fadah.multiserver.Broker;
+import info.preva1l.fadah.records.collection.CollectionBox;
+import info.preva1l.fadah.records.collection.ExpiredItems;
+import info.preva1l.fadah.records.history.History;
 import info.preva1l.fadah.records.listing.Listing;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class CacheAccess {
     private static final Map<Class<?>, Cache<?>> cacheMap = new ConcurrentHashMap<>();
 
-    static {
+    public static void init() {
         registerCache(Listing.class, MemoryListingCache::new, DistributedListingCache::new);
         registerCache(CollectionBox.class, MemoryCollectionCache::new, DistributedCollectionCache::new);
+        registerCache(ExpiredItems.class, MemoryExpiredCache::new, DistributedExpiredCache::new);
+        registerCache(History.class, MemoryHistoryCache::new, DistributedHistoryCache::new);
     }
 
     private static <T> void registerCache(Class<T> clazz, CacheFactory<T> memoryCache, CacheFactory<T> distributedCache) {
         Cache<T> cache;
-        if (Config.i().getBroker().isEnabled() && Fadah.getINSTANCE().getBroker() != null) {
+        if (Broker.getInstance().isConnected()) {
             cache = distributedCache.create();
         } else {
             cache = memoryCache.create();
@@ -47,8 +55,20 @@ public final class CacheAccess {
         getCacheForClass(clazz).add(obj);
     }
 
-    public static <T> @Nullable T get(Class<T> clazz, UUID uuid) {
+    public static <T> Optional<T> get(Class<T> clazz, UUID uuid) {
+        return Optional.ofNullable(getCacheForClass(clazz).get(uuid));
+    }
+
+    public static <T> @Nullable T getNullable(Class<T> clazz, UUID uuid) {
         return getCacheForClass(clazz).get(uuid);
+    }
+
+    public static <T> @NotNull T getNotNull(Class<T> clazz, UUID uuid) {
+        var cached = getCacheForClass(clazz).get(uuid);
+        if (cached != null) {
+            return cached;
+        }
+        throw new NullPointerException("No cached item found for class %s with identifier %s".formatted(clazz.getName(), uuid));
     }
 
     public static <T> void invalidate(Class<T> clazz, @NotNull UUID uuid) {

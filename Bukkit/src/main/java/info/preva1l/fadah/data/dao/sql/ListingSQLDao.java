@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.data.dao.Dao;
+import info.preva1l.fadah.records.listing.BidListing;
 import info.preva1l.fadah.records.listing.BinListing;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.utils.ItemSerializer;
@@ -17,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -59,7 +61,31 @@ public class ListingSQLDao implements Dao<Listing> {
                     final double tax = resultSet.getDouble("tax");
                     final ItemStack itemStack = ItemSerializer.deserialize(resultSet.getString("itemStack"))[0];
                     final boolean biddable = resultSet.getBoolean("biddable");
-                    return Optional.of(new BinListing(id, ownerUUID, ownerName, itemStack, categoryID, currency, price, tax, creationDate, deletionDate, biddable, List.of()));
+
+                    final Listing listing;
+                    if (biddable) {
+                        listing = new BidListing(
+                                id,
+                                ownerUUID, ownerName,
+                                itemStack,
+                                categoryID,
+                                currency, price, tax,
+                                creationDate, deletionDate,
+                                new TreeSet<>()
+                        );
+                    } else {
+                        listing = new BinListing(
+                                id,
+                                ownerUUID, ownerName,
+                                itemStack,
+                                categoryID,
+                                currency, price, tax,
+                                creationDate, deletionDate,
+                                new TreeSet<>()
+                        );
+                    }
+
+                    return Optional.of(listing);
                 }
             }
         } catch (SQLException e) {
@@ -102,7 +128,31 @@ public class ListingSQLDao implements Dao<Listing> {
                     final double tax = resultSet.getDouble("tax");
                     final ItemStack itemStack = ItemSerializer.deserialize(resultSet.getString("itemStack"))[0];
                     final boolean biddable = resultSet.getBoolean("biddable");
-                    retrievedData.add(new BinListing(id, ownerUUID, ownerName, itemStack, categoryID, currency, price, tax, creationDate, deletionDate, biddable, List.of()));
+
+                    final Listing listing;
+                    if (biddable) {
+                        listing = new BidListing(
+                                id,
+                                ownerUUID, ownerName,
+                                itemStack,
+                                categoryID,
+                                currency, price, tax,
+                                creationDate, deletionDate,
+                                new TreeSet<>()
+                        );
+                    } else {
+                        listing = new BinListing(
+                                id,
+                                ownerUUID, ownerName,
+                                itemStack,
+                                categoryID,
+                                currency, price, tax,
+                                creationDate, deletionDate,
+                                new TreeSet<>()
+                        );
+                    }
+
+                    retrievedData.add(listing);
                 }
                 return retrievedData;
             }

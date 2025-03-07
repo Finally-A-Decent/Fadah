@@ -4,6 +4,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import info.preva1l.fadah.data.dao.Dao;
 import info.preva1l.fadah.records.listing.Bid;
+import info.preva1l.fadah.records.listing.BidListing;
 import info.preva1l.fadah.records.listing.BinListing;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.utils.ItemSerializer;
@@ -13,10 +14,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.bson.Document;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RequiredArgsConstructor
 public class ListingMongoDao implements Dao<Listing> {
@@ -53,8 +51,31 @@ public class ListingMongoDao implements Dao<Listing> {
             final double tax = doc.getDouble("tax");
             final ItemStack itemStack = ItemSerializer.deserialize(doc.getString("itemStack"))[0];
             final boolean biddable = doc.getBoolean("biddable");
-            final List<Bid> bids = List.of();
-            return Optional.of(new BinListing(id, owner, ownerName, itemStack, category, currency, price, tax, creationDate, deletionDate, biddable, bids));
+            final SortedSet<Bid> bids = new TreeSet<>();
+
+            final Listing listing;
+            if (biddable) {
+                listing = new BidListing(
+                        id,
+                        owner, ownerName,
+                        itemStack,
+                        category,
+                        currency, price, tax,
+                        creationDate, deletionDate,
+                        new TreeSet<>()
+                );
+            } else {
+                listing = new BinListing(
+                        id,
+                        owner, ownerName,
+                        itemStack,
+                        category,
+                        currency, price, tax,
+                        creationDate, deletionDate,
+                        new TreeSet<>()
+                );
+            }
+            return Optional.of(listing);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -92,8 +113,32 @@ public class ListingMongoDao implements Dao<Listing> {
                 final double tax = doc.getDouble("tax");
                 final ItemStack itemStack = ItemSerializer.deserialize(doc.getString("itemStack"))[0];
                 final boolean biddable = doc.getBoolean("biddable");
-                final List<Bid> bids = List.of();
-                list.add(new BinListing(id, owner, ownerName, itemStack, category, currency, price, tax, creationDate, deletionDate, biddable, bids));
+                final SortedSet<Bid> bids = new TreeSet<>();
+
+                final Listing listing;
+                if (biddable) {
+                    listing = new BidListing(
+                            id,
+                            owner, ownerName,
+                            itemStack,
+                            category,
+                            currency, price, tax,
+                            creationDate, deletionDate,
+                            bids
+                    );
+                } else {
+                    listing = new BinListing(
+                            id,
+                            owner, ownerName,
+                            itemStack,
+                            category,
+                            currency, price, tax,
+                            creationDate, deletionDate,
+                            bids
+                    );
+                }
+
+                list.add(listing);
             }
             return list;
         } catch (Exception e) {

@@ -30,7 +30,7 @@ public final class DatabaseManager {
 
     private DatabaseManager() {
         Fadah.getConsole().info("Connecting to Database and populating caches...");
-        threadPool = Executors.newCachedThreadPool();
+        threadPool = Executors.newVirtualThreadPerTaskExecutor();
         databaseHandlers.put(DatabaseType.SQLITE, SQLiteHandler.class);
         databaseHandlers.put(DatabaseType.MARIADB, MySQLHandler.class);
         databaseHandlers.put(DatabaseType.MYSQL, MySQLHandler.class);
@@ -98,14 +98,6 @@ public final class DatabaseManager {
             handler.deleteSpecific(clazz, t, o);
             return null;
         }, threadPool);
-    }
-
-    public CompletableFuture<Boolean> needsFixing(UUID player) {
-        if (!isConnected()) {
-            Fadah.getConsole().severe("Tried to perform database action when the database is not connected!");
-            return CompletableFuture.completedFuture(null);
-        }
-        return CompletableFuture.supplyAsync(() -> handler.needsFixing(player), threadPool);
     }
 
     public CompletableFuture<Void> fixPlayerData(UUID player) {

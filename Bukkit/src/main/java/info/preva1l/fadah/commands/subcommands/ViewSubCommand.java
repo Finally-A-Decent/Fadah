@@ -1,7 +1,6 @@
 package info.preva1l.fadah.commands.subcommands;
 
 import info.preva1l.fadah.Fadah;
-import info.preva1l.fadah.cache.HistoricItemsCache;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.guis.ViewListingsMenu;
@@ -19,6 +18,7 @@ public class ViewSubCommand extends SubCommand {
 
     @SubCommandArgs(name = "view", permission = "fadah.view")
     public void execute(@NotNull SubCommandArguments command) {
+        assert command.getPlayer() != null;
         if (!Config.i().isEnabled()) {
             command.reply(Lang.i().getPrefix() + Lang.i().getErrors().getDisabled());
             return;
@@ -28,9 +28,8 @@ public class ViewSubCommand extends SubCommand {
                     .replace("%command%", Lang.i().getCommands().getView().getUsage()));
             return;
         }
-        assert command.getPlayer() != null;
-        OfflinePlayer owner = Bukkit.getOfflinePlayer(command.args()[0]);
-        if (owner.getUniqueId() != command.getPlayer().getUniqueId() && !HistoricItemsCache.playerExists(owner.getUniqueId())) {
+        OfflinePlayer owner = Bukkit.getOfflinePlayerIfCached(command.args()[0]);
+        if (owner == null) {
             command.reply(Lang.i().getPrefix() + Lang.i().getErrors().getPlayerNotFound()
                     .replace("%player%", command.args()[0]));
             return;

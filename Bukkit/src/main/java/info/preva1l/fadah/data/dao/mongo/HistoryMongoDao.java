@@ -4,8 +4,8 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import info.preva1l.fadah.data.dao.Dao;
-import info.preva1l.fadah.records.HistoricItem;
-import info.preva1l.fadah.records.History;
+import info.preva1l.fadah.records.history.HistoricItem;
+import info.preva1l.fadah.records.history.History;
 import info.preva1l.fadah.utils.ItemSerializer;
 import info.preva1l.fadah.utils.mongo.CollectionHelper;
 import lombok.RequiredArgsConstructor;
@@ -65,16 +65,16 @@ public class HistoryMongoDao implements Dao<History> {
      */
     @Override
     public void save(History history) {
-        for (HistoricItem item : history.collectableItems()) {
+        for (HistoricItem item : history.historicItems()) {
             try {
-                Optional<History> current = get(item.getOwnerUUID());
-                if (current.isPresent() && current.get().collectableItems().contains(item)) continue;
+                Optional<History> current = get(item.ownerUUID());
+                if (current.isPresent() && current.get().historicItems().contains(item)) continue;
                 Document document = new Document("playerUUID", history.owner())
-                        .append("itemStack", ItemSerializer.serialize(item.getItemStack()))
-                        .append("loggedDate", item.getLoggedDate())
-                        .append("loggedAction", item.getAction().ordinal())
-                        .append("price", item.getPrice())
-                        .append("purchaserUUID", item.getPurchaserUUID());
+                        .append("itemStack", ItemSerializer.serialize(item.itemStack()))
+                        .append("loggedDate", item.loggedDate())
+                        .append("loggedAction", item.action().ordinal())
+                        .append("price", item.price())
+                        .append("purchaserUUID", item.purchaserUUID());
                 collectionHelper.insertDocument("history", document);
             } catch (Exception e) {
                 e.printStackTrace();

@@ -10,9 +10,9 @@ import info.preva1l.fadah.data.fixers.v2.MySQLFixerV2;
 import info.preva1l.fadah.data.fixers.v2.V2Fixer;
 import info.preva1l.fadah.data.fixers.v3.MySQLFixerV3;
 import info.preva1l.fadah.data.fixers.v3.V3Fixer;
-import info.preva1l.fadah.records.CollectionBox;
-import info.preva1l.fadah.records.ExpiredItems;
-import info.preva1l.fadah.records.History;
+import info.preva1l.fadah.records.collection.CollectionBox;
+import info.preva1l.fadah.records.collection.ExpiredItems;
+import info.preva1l.fadah.records.history.History;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.watcher.Watching;
 import lombok.Getter;
@@ -88,7 +88,7 @@ public class MySQLHandler implements DatabaseHandler {
         );
         dataSource.setDataSourceProperties(properties);
 
-        try (Connection connection = dataSource.getConnection()) {
+        try (Connection connection = getConnection()) {
             final String[] databaseSchema = getSchemaStatements(String.format("database/%s_schema.sql", conf.getType().getId()));
             try (Statement statement = connection.createStatement()) {
                 for (String tableCreationStatement : databaseSchema) {

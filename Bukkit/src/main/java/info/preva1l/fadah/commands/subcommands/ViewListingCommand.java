@@ -10,6 +10,7 @@ import info.preva1l.fadah.utils.commands.SubCommandArgs;
 import info.preva1l.fadah.utils.commands.SubCommandArguments;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class ViewListingCommand extends SubCommand {
@@ -33,19 +34,19 @@ public class ViewListingCommand extends SubCommand {
                     .replace("%command%", Lang.i().getCommands().getViewListing().getUsage()));
             return;
         }
-        Listing listing = CacheAccess.get(Listing.class, listingId);
+        Optional<Listing> listing = CacheAccess.get(Listing.class, listingId);
 
-        if (listing == null) {
+        if (listing.isEmpty()) {
             command.reply(Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());
             return;
         }
 
-        if (listing.isOwner(command.getPlayer())) {
+        if (listing.get().isOwner(command.getPlayer())) {
             command.reply(Lang.i().getPrefix() + Lang.i().getErrors().getOwnListings());
             return;
         }
 
-        new ConfirmPurchaseMenu(listing, command.getPlayer(), null, null, null,
+        new ConfirmPurchaseMenu(listing.get(), command.getPlayer(), null, null, null,
                 null, false, null).open(command.getPlayer());
     }
 }

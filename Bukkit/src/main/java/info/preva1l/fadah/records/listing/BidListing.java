@@ -4,14 +4,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.SortedSet;
 import java.util.UUID;
 
 public final class BidListing extends ActiveListing {
     public BidListing(@NotNull UUID id, @NotNull UUID owner, @NotNull String ownerName,
                       @NotNull ItemStack itemStack, @NotNull String categoryID, @NotNull String currency, double price,
-                      double tax, long creationDate, long deletionDate, boolean biddable, List<Bid> bids) {
-        super(id, owner, ownerName, itemStack, categoryID, currency, price, tax, creationDate, deletionDate, biddable, bids);
+                      double tax, long creationDate, long deletionDate, SortedSet<Bid> bids) {
+        super(id, owner, ownerName, itemStack, categoryID, currency, price, tax, creationDate, deletionDate, bids);
     }
 
     @Override

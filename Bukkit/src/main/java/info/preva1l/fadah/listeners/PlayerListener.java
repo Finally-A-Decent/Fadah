@@ -2,13 +2,9 @@ package info.preva1l.fadah.listeners;
 
 import com.github.puregero.multilib.regionized.RegionizedTask;
 import info.preva1l.fadah.Fadah;
-import info.preva1l.fadah.cache.CacheAccess;
-import info.preva1l.fadah.cache.ExpiredListingsCache;
-import info.preva1l.fadah.cache.HistoricItemsCache;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.data.DatabaseManager;
 import info.preva1l.fadah.guis.NewListingMenu;
-import info.preva1l.fadah.records.CollectionBox;
 import info.preva1l.fadah.utils.StringUtils;
 import info.preva1l.fadah.utils.TaskManager;
 import info.preva1l.fadah.utils.guis.InventoryEventHandler;
@@ -36,10 +32,10 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        invalidateIfNoJoin.put(e.getUniqueId(), TaskManager.Sync.runLater(Fadah.getINSTANCE(), () -> {
-            leave(e.getUniqueId());
-            invalidateIfNoJoin.remove(e.getUniqueId());
-        }, 1200L));
+        invalidateIfNoJoin.put(e.getUniqueId(), TaskManager.Sync.runLater(Fadah.getINSTANCE(),
+                () -> Fadah.getINSTANCE()
+                        .invalidateAndSavePlayerData(e.getUniqueId())
+                        .thenRun(() -> invalidateIfNoJoin.remove(e.getUniqueId())), 1200L));
         Fadah.getINSTANCE().loadPlayerData(e.getUniqueId()).join();
     }
 
@@ -53,7 +49,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void leaveListener(PlayerQuitEvent e) {
-        leave(e.getPlayer().getUniqueId());
+        Fadah.getINSTANCE().invalidateAndSavePlayerData(e.getPlayer().getUniqueId());
     }
 
     @EventHandler
@@ -70,11 +66,5 @@ public class PlayerListener implements Listener {
         if (task != null) {
             task.cancel();
         }
-    }
-
-    private void leave(UUID uuid) {
-        CacheAccess.invalidate(CollectionBox.class, uuid);
-        ExpiredListingsCache.invalidate(uuid);
-        HistoricItemsCache.invalidate(uuid);
     }
 }

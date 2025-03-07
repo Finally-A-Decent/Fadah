@@ -350,6 +350,7 @@ public class Lang {
         private String advertExpense = "&cYour advert failed to post because you did not have enough money!";
         private String databaseLoading = "&cDatabase not connected! Please Wait";
         private String cooldown = "&cPlease wait &f%time%&c!";
+        private String other = "&cListing this item failed! (%ex%)";
     }
 
     private Words words = new Words();

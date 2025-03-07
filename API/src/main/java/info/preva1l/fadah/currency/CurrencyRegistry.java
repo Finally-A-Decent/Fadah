@@ -1,6 +1,5 @@
 package info.preva1l.fadah.currency;
 
-import info.preva1l.fadah.api.AuctionHouseAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Blocking;
@@ -19,12 +18,7 @@ public final class CurrencyRegistry {
     public static void registerMulti(MultiCurrency currency) {
         if (!currency.getRequiredPlugin().isEmpty()) {
             Plugin requiredPlugin = Bukkit.getPluginManager().getPlugin(currency.getRequiredPlugin());
-            if (requiredPlugin == null || !requiredPlugin.isEnabled()) {
-                AuctionHouseAPI.getInstance()
-                        .verboseWarning("Tried enabling currency %s but the required plugin %s is not found/enabled!"
-                                .formatted(currency.getId().toLowerCase(), currency.getRequiredPlugin()));
-                return;
-            }
+            if (requiredPlugin == null || !requiredPlugin.isEnabled()) return;
         }
 
         if (!currency.preloadChecks()) {

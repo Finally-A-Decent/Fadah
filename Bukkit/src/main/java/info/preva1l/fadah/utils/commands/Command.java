@@ -19,7 +19,6 @@ import java.util.List;
 
 @Getter
 public abstract class Command {
-
     public Fadah plugin;
     private CommandExecutor executor;
     private CommandArgs assigned;
@@ -94,7 +93,6 @@ public abstract class Command {
     }
 
     public class CommandExecutor extends BukkitCommand {
-
         private final boolean inGameOnly;
         private final boolean async;
         private CommandArguments executeArguments;

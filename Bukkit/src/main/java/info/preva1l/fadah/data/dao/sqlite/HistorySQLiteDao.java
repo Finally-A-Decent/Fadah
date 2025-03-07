@@ -7,8 +7,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.data.dao.Dao;
 import info.preva1l.fadah.data.gson.BukkitSerializableAdapter;
-import info.preva1l.fadah.records.HistoricItem;
-import info.preva1l.fadah.records.History;
+import info.preva1l.fadah.records.history.HistoricItem;
+import info.preva1l.fadah.records.history.History;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -83,7 +83,7 @@ public class HistorySQLiteDao implements Dao<History> {
                     ON CONFLICT(`playerUUID`) DO UPDATE SET
                         `items` = excluded.`items`;""")) {
                 statement.setString(1, history.owner().toString());
-                statement.setString(2, GSON.toJson(history.collectableItems(), HISTORY_LIST_TYPE));
+                statement.setString(2, GSON.toJson(history.historicItems(), HISTORY_LIST_TYPE));
                 statement.executeUpdate();
             } catch (Exception e) {
                 e.printStackTrace();

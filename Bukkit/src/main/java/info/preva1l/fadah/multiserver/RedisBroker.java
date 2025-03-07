@@ -2,13 +2,13 @@ package info.preva1l.fadah.multiserver;
 
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Config;
+import info.preva1l.fadah.utils.GsonCodec;
 import lombok.Getter;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 import org.redisson.Redisson;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
-import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.SingleServerConfig;
 
 public final class RedisBroker extends Broker {
@@ -41,14 +41,15 @@ public final class RedisBroker extends Broker {
     }
 
     @NotNull
-    private static RedissonClient initReddison() {
+    private RedissonClient initReddison() {
         Config.Broker conf = Config.i().getBroker();
         final String password = conf.getPassword();
         final String host = conf.getHost();
         final int port = conf.getPort();
         CHANNEL = conf.getChannel();
 
-        org.redisson.config.Config config = new org.redisson.config.Config().setCodec(JsonJacksonCodec.INSTANCE);
+        org.redisson.config.Config config = new org.redisson.config.Config()
+                .setCodec(new GsonCodec(gson));
         SingleServerConfig ssc = config.useSingleServer()
                 .setAddress("redis://%s:%s".formatted(host, port));
         if (!password.isEmpty()) ssc.setPassword(password);

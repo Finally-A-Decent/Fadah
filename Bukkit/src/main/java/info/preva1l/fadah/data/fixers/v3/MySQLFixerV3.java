@@ -7,8 +7,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.data.DatabaseManager;
 import info.preva1l.fadah.data.gson.BukkitSerializableAdapter;
-import info.preva1l.fadah.records.HistoricItem;
-import info.preva1l.fadah.records.History;
+import info.preva1l.fadah.records.history.HistoricItem;
+import info.preva1l.fadah.records.history.History;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 

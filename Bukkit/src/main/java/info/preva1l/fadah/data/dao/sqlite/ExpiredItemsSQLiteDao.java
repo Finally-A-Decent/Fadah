@@ -7,8 +7,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.data.dao.Dao;
 import info.preva1l.fadah.data.gson.BukkitSerializableAdapter;
-import info.preva1l.fadah.records.CollectableItem;
-import info.preva1l.fadah.records.ExpiredItems;
+import info.preva1l.fadah.records.collection.CollectableItem;
+import info.preva1l.fadah.records.collection.ExpiredItems;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -83,7 +83,7 @@ public class ExpiredItemsSQLiteDao implements Dao<ExpiredItems> {
                     ON CONFLICT(`playerUUID`) DO UPDATE SET
                         `items` = excluded.`items`;""")) {
                 statement.setString(1, collectableList.owner().toString());
-                statement.setString(2, GSON.toJson(collectableList.collectableItems(), EXPIRED_LIST_TYPE));
+                statement.setString(2, GSON.toJson(collectableList.expiredItems(), EXPIRED_LIST_TYPE));
                 statement.executeUpdate();
             } catch (Exception e) {
                 e.printStackTrace();
