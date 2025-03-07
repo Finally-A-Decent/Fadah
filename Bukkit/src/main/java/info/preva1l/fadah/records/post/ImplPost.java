@@ -50,9 +50,7 @@ public final class ImplPost extends Post {
     public CompletableFuture<PostResult> buildAndSubmit() {
         ExecutorService executor = DatabaseManager.getInstance().getThreadPool();
 
-        if (this.bypassTax) {
-            listingBuilder.tax(0.0);
-        }
+        if (this.bypassTax) listingBuilder.tax(0.0);
 
         return listingBuilder.build()
                 .thenCompose(listing ->
@@ -60,9 +58,7 @@ public final class ImplPost extends Post {
                                 .thenApplyAsync(restricted ->
                                         (restricted && !this.bypassRestrictedItems) ? null : listing, executor))
                 .thenComposeAsync(listing -> {
-                    if (listing == null) {
-                        return CompletableFuture.completedFuture(PostResult.RESTRICTED_ITEM);
-                    }
+                    if (listing == null) return CompletableFuture.completedFuture(PostResult.RESTRICTED_ITEM);
 
                     if (!this.bypassMaxListings && player != null) {
                         int maxListings = PermissionsData.getHighestInt(PermissionsData.PermissionType.MAX_LISTINGS, player);
@@ -83,13 +79,8 @@ public final class ImplPost extends Post {
                     CacheAccess.add(Listing.class, listing);
                     DatabaseManager.getInstance().save(Listing.class, listing);
 
-                    if (this.notifyPlayer) {
-                        notifyPlayer(listing);
-                    }
-
-                    if (this.submitLog) {
-                        TransactionLogger.listingCreated(listing);
-                    }
+                    if (this.notifyPlayer) notifyPlayer(listing);
+                    if (this.submitLog) TransactionLogger.listingCreated(listing);
 
                     HookManager.i().getHook(DiscordHook.class).ifPresent(discordHook -> {
                         if (discordHook.getConf().isOnlySendOnAdvert() && this.postAdvert) return;
@@ -102,9 +93,7 @@ public final class ImplPost extends Post {
                         }
                     }
 
-                    if (this.alertWatchers) {
-                        AuctionWatcher.alertWatchers(listing);
-                    }
+                    if (this.alertWatchers) AuctionWatcher.alertWatchers(listing);
 
                     return CompletableFuture.completedFuture(PostResult.SUCCESS);
                 }, executor);
