@@ -10,10 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -50,7 +47,7 @@ public final class CategoryRegistry {
                 for (String matcher : category.matchers()) {
                     // default to false so we don't add it to a broken category
                     if (JavaScriptProcessor.process(matcher, false, item)) {
-                        return category.name();
+                        return category.id();
                     }
                 }
             }
@@ -68,13 +65,15 @@ public final class CategoryRegistry {
             int modelData = categoriesFile.getInt(key + ".icon-model-data");
 
             List<String> description = categoriesFile.getStringList(key + ".description");
-            List<String> matchers = categoriesFile.getStringList(key + ".matchers");
+            List<String> matchers = new ArrayList<>(categoriesFile.getStringList(key + ".matchers"));
 
             // legacy unused now, this is just a config fixer
             List<String> legacyMaterials = categoriesFile.getStringList(key + ".materials");
             if (!legacyMaterials.isEmpty()) {
                 matchers.addAll(legacyMaterialsListToMatcherList(legacyMaterials));
                 categoriesFile.delete(key + ".materials");
+                categoriesFile.setStringList(key + ".matchers", matchers);
+                categoriesFile.save();
             }
             // end legacy
 

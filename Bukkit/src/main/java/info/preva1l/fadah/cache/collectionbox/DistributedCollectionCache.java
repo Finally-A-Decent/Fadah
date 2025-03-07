@@ -18,7 +18,7 @@ public final class DistributedCollectionCache implements Cache<CollectionBox> {
 
     public DistributedCollectionCache() {
         final LocalCachedMapOptions<UUID, CollectionBox> options = LocalCachedMapOptions.<UUID, CollectionBox>name("collection-boxes")
-                .cacheSize(10000)
+                .cacheSize(100000)
                 .maxIdle(Duration.ofSeconds(60))
                 .timeToLive(Duration.ofSeconds(60))
                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.WEAK)
@@ -41,12 +41,12 @@ public final class DistributedCollectionCache implements Cache<CollectionBox> {
 
     @Override
     public void invalidate(@NotNull UUID uuid) {
-        collectionBoxes.fastRemove(uuid);
+        collectionBoxes.fastRemoveAsync(uuid);
     }
 
     @Override
     public void invalidate(@NotNull CollectionBox obj) {
-        collectionBoxes.fastRemove(obj.owner());
+        collectionBoxes.fastRemoveAsync(obj.owner());
     }
 
     @Override

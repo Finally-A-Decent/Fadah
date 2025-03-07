@@ -18,6 +18,7 @@ import info.preva1l.fadah.multiserver.Payload;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.records.listing.ListingBuilder;
 import info.preva1l.fadah.utils.StringUtils;
+import info.preva1l.fadah.utils.TaskManager;
 import info.preva1l.fadah.utils.TimeUtil;
 import info.preva1l.fadah.utils.logging.TransactionLogger;
 import info.preva1l.fadah.watcher.AuctionWatcher;
@@ -53,23 +54,25 @@ public final class ImplPost extends Post {
         if (this.bypassTax) listingBuilder.tax(0.0);
 
         return listingBuilder.build()
-                .thenCompose(listing ->
+                .thenComposeAsync(listing ->
                         Restrictions.isRestrictedItem(listing.getItemStack())
                                 .thenApplyAsync(restricted ->
-                                        (restricted && !this.bypassRestrictedItems) ? null : listing, executor))
+                                        (restricted && !this.bypassRestrictedItems) ? null : listing, executor),
+                        executor)
                 .thenComposeAsync(listing -> {
                     if (listing == null) return CompletableFuture.completedFuture(PostResult.RESTRICTED_ITEM);
 
                     if (!this.bypassMaxListings && player != null) {
                         int maxListings = PermissionsData.getHighestInt(PermissionsData.PermissionType.MAX_LISTINGS, player);
                         int currentListings = PermissionsData.getCurrentListings(player);
-                        if (maxListings >= currentListings)
+                        if (maxListings <= currentListings)
                             return CompletableFuture.completedFuture(PostResult.MAX_LISTINGS);
                     }
 
                     if (this.callEvent) {
                         ListingCreateEvent createEvent = new ListingCreateEvent(player, listing);
-                        Bukkit.getServer().getPluginManager().callEvent(createEvent);
+                        TaskManager.Sync.run(Fadah.getINSTANCE(),
+                                () -> Bukkit.getServer().getPluginManager().callEvent(createEvent));
 
                         if (createEvent.isCancelled()) {
                             return CompletableFuture.completedFuture(PostResult.custom(createEvent.getCancelReason()));

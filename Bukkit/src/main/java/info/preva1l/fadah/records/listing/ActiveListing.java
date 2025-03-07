@@ -39,7 +39,7 @@ public abstract class ActiveListing extends Listing {
 
         boolean isAdmin = !this.isOwner(canceller);
         TransactionLogger.listingRemoval(this, isAdmin);
-        TaskManager.Async.run(Fadah.getINSTANCE(), () ->
+        TaskManager.Sync.run(Fadah.getINSTANCE(), () ->
                 Bukkit.getServer().getPluginManager().callEvent(
                         new ListingEndEvent(this, isAdmin
                                 ? ListingEndReason.CANCELLED_ADMIN

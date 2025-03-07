@@ -37,7 +37,9 @@ public final class RedisBroker extends Broker {
     @Override
     @Blocking
     public void destroy() {
-        getRedisson().shutdown();
+        if (getRedisson() != null) {
+            getRedisson().shutdown();
+        }
     }
 
     @NotNull

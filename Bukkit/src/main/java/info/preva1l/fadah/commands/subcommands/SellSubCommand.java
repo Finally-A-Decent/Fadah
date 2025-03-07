@@ -4,7 +4,9 @@ import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.currency.CurrencyRegistry;
+import info.preva1l.fadah.data.DatabaseManager;
 import info.preva1l.fadah.data.PermissionsData;
+import info.preva1l.fadah.guis.NewListingMenu;
 import info.preva1l.fadah.records.listing.ImplListingBuilder;
 import info.preva1l.fadah.records.post.PostResult;
 import info.preva1l.fadah.utils.StringUtils;
@@ -20,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class SellSubCommand extends SubCommand {
     public static List<UUID> running = new ArrayList<>();
@@ -72,7 +75,11 @@ public class SellSubCommand extends SubCommand {
             return;
         }
 
-        handleSell(command, price);
+        if (Config.i().isMinimalMode()) {
+            handleSell(command, price);
+        } else {
+            new NewListingMenu(command.getPlayer(), price).open(command.getPlayer());
+        }
     }
 
     private void handleSell(SubCommandArguments command, double price) {
@@ -87,21 +94,38 @@ public class SellSubCommand extends SubCommand {
                 .itemStack(item)
                 .length(Config.i().getDefaultListingLength().toMillis())
                 .toPost()
-                .buildAndSubmit().thenAccept(result -> TaskManager.Sync.run(plugin, player, () -> {
+                .buildAndSubmit().thenAcceptAsync(result -> TaskManager.Sync.run(plugin, player, () -> {
                     if (result == PostResult.RESTRICTED_ITEM) {
                         player.getInventory().setItemInMainHand(item);
                         Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getRestricted());
+                        running.remove(player.getUniqueId());
+                        return;
                     }
 
                     if (result == PostResult.MAX_LISTINGS) {
                         player.getInventory().setItemInMainHand(item);
-                        Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getCommands().getSell().getMaxListings());
+                        Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getCommands().getSell().getMaxListings()
+                                .replace("%max%", String.valueOf(PermissionsData.getHighestInt(
+                                        PermissionsData.PermissionType.MAX_LISTINGS,
+                                        player))
+                                )
+                                .replace("%current%", String.valueOf(PermissionsData.getCurrentListings(player)))
+                        );
+                        running.remove(player.getUniqueId());
+                        return;
                     }
 
-                    if (result != PostResult.SUCCESS) {
+                    if (!result.successful()) {
                         player.getInventory().setItemInMainHand(item);
                         Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getOther().replace("%ex%", result.message()));
                     }
-                }));
+
+                    running.remove(player.getUniqueId());
+                }), DatabaseManager.getInstance().getThreadPool())
+                .exceptionally(t -> {
+                    Fadah.getConsole().log(Level.SEVERE, t.getMessage(), t);
+                    running.remove(player.getUniqueId());
+                    return null;
+                });
     }
 }

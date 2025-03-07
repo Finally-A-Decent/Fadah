@@ -33,7 +33,22 @@ public class WatchersSQLDao implements Dao<Watching> {
      */
     @Override
     public Optional<Watching> get(UUID id) {
-        throw new NotImplementedException();
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("""
+                    SELECT `watching`
+                    FROM `watchers`
+                    WHERE `playerUUID` = ?;""")) {
+                statement.setString(1, id.toString());
+                ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    Watching item = GSON.fromJson(resultSet.getString("watching"), Watching.class);
+                    return Optional.of(item);
+                }
+            }
+        } catch (SQLException e) {
+            Fadah.getConsole().log(Level.SEVERE, "Failed to fetch all items from watchers!", e);
+        }
+        return Optional.empty();
     }
 
     /**

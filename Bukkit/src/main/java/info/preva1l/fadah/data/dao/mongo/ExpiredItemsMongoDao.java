@@ -1,18 +1,21 @@
 package info.preva1l.fadah.data.dao.mongo;
 
-import com.mongodb.client.FindIterable;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import info.preva1l.fadah.data.dao.Dao;
+import info.preva1l.fadah.data.gson.BukkitSerializableAdapter;
 import info.preva1l.fadah.records.collection.CollectableItem;
 import info.preva1l.fadah.records.collection.ExpiredItems;
-import info.preva1l.fadah.utils.ItemSerializer;
 import info.preva1l.fadah.utils.mongo.CollectionHelper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.NotImplementedException;
 import org.bson.Document;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +23,10 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 public class ExpiredItemsMongoDao implements Dao<ExpiredItems> {
+    private static final Gson GSON = new GsonBuilder()
+            .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new BukkitSerializableAdapter())
+            .serializeNulls().disableHtmlEscaping().create();
+    private static final Type EXPIRED_LIST_TYPE = new TypeToken<ArrayList<CollectableItem>>() {}.getType();
     private final CollectionHelper collectionHelper;
 
     /**
@@ -31,15 +38,13 @@ public class ExpiredItemsMongoDao implements Dao<ExpiredItems> {
     @Override
     public Optional<ExpiredItems> get(UUID id) {
         try {
-            List<CollectableItem> list = new ArrayList<>();
             MongoCollection<Document> collection = collectionHelper.getCollection("expired_items");
-            final FindIterable<Document> documents = collection.find().filter(Filters.eq("playerUUID", id));
-            for (Document document : documents) {
-                long dateAdded = document.getLong("dateAdded");
-                ItemStack itemStack = ItemSerializer.deserialize(document.getString("itemStack"))[0];
-                list.add(new CollectableItem(itemStack, dateAdded));
-            }
-            return Optional.of(new ExpiredItems(id, list));
+            final Document document = collection.find().filter(Filters.eq("playerUUID", id)).first();
+            if (document == null) return Optional.empty();
+
+            ArrayList<CollectableItem> items = GSON.fromJson(document.getString("items"), EXPIRED_LIST_TYPE);
+            if (items == null) items = new ArrayList<>();
+            return Optional.of(new ExpiredItems(id, items));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -63,17 +68,12 @@ public class ExpiredItemsMongoDao implements Dao<ExpiredItems> {
      */
     @Override
     public void save(ExpiredItems expiredItems) {
-        for (CollectableItem item : expiredItems.expiredItems()) {
-            try {
-                Optional<ExpiredItems> current = get(expiredItems.owner());
-                if (current.isPresent() && current.get().expiredItems().contains(item)) continue;
-                Document document = new Document("playerUUID", expiredItems.owner())
-                        .append("itemStack", ItemSerializer.serialize(item.itemStack()))
-                        .append("dateAdded", item.dateAdded());
-                collectionHelper.insertDocument("expired_items", document);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        try {
+            Document document = new Document("playerUUID", expiredItems.owner())
+                    .append("items", GSON.toJson(expiredItems.expiredItems(), EXPIRED_LIST_TYPE));
+            collectionHelper.insertDocument("expired_items", document);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -96,20 +96,5 @@ public class ExpiredItemsMongoDao implements Dao<ExpiredItems> {
     @Override
     public void delete(ExpiredItems expiredItems) {
         throw new NotImplementedException();
-    }
-
-    @Override
-    public void deleteSpecific(ExpiredItems expiredItems, Object o) {
-        try {
-            if (!(o instanceof CollectableItem item))
-                throw new IllegalStateException("Specific object must be a collectable item");
-            MongoCollection<Document> collection = collectionHelper.getCollection("expired_items");
-            final Document listingDocument = collection.find().filter(Filters.eq("playerUUID", expiredItems.owner()))
-                    .filter(Filters.eq("itemStack", ItemSerializer.serialize(item.itemStack()))).first();
-            if (listingDocument == null) return;
-            collectionHelper.deleteDocument("expired_items", listingDocument);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

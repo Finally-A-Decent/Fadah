@@ -13,8 +13,10 @@ import info.preva1l.fadah.utils.guis.LayoutManager;
 import info.preva1l.fadah.watcher.AuctionWatcher;
 import info.preva1l.fadah.watcher.Watching;
 
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public interface DataProvider {
@@ -22,7 +24,7 @@ public interface DataProvider {
         FastInvManager.closeAll(plugin);
         Config.reload();
         Lang.reload();
-        Fadah.getINSTANCE().getMenusFile().load();
+        plugin.getMenusFile().load();
         Stream.of(
                 LayoutManager.MenuType.MAIN,
                 LayoutManager.MenuType.NEW_LISTING,
@@ -33,8 +35,9 @@ public interface DataProvider {
                 LayoutManager.MenuType.CONFIRM_PURCHASE,
                 LayoutManager.MenuType.HISTORY,
                 LayoutManager.MenuType.WATCH
-        ).forEach(Fadah.getINSTANCE().getLayoutManager()::reloadLayout);
+        ).forEach(plugin.getLayoutManager()::reloadLayout);
         CategoryRegistry.loadCategories();
+        plugin.loadHooks();
     }
 
     default void loadDataAndPopulateCaches() {
@@ -48,9 +51,9 @@ public interface DataProvider {
 
         return db.fixPlayerData(uuid)
                 .thenCompose(ignored -> CompletableFuture.allOf(
-                        loadAndCache(CollectionBox.class, uuid),
-                        loadAndCache(ExpiredItems.class, uuid),
-                        loadAndCache(History.class, uuid),
+                        loadAndCache(CollectionBox.class, uuid, () -> new CollectionBox(uuid, new ArrayList<>())),
+                        loadAndCache(ExpiredItems.class, uuid, () -> new ExpiredItems(uuid, new ArrayList<>())),
+                        loadAndCache(History.class, uuid, () -> new History(uuid, new ArrayList<>())),
                         db.get(Watching.class, uuid)
                                 .thenAccept(opt -> opt.ifPresent(AuctionWatcher::watch))
                 ));
@@ -69,16 +72,19 @@ public interface DataProvider {
         );
     }
 
-    private <T> CompletableFuture<Void> loadAndCache(Class<T> type, UUID uuid) {
+    private <T> CompletableFuture<Void> loadAndCache(Class<T> type, UUID uuid, Supplier<T> supplier) {
         return DatabaseManager.getInstance()
                 .get(type, uuid)
-                .thenAccept(opt -> opt.ifPresent(item -> CacheAccess.add(type, item)));
+                .thenAccept(opt -> CacheAccess.add(type, opt.orElse(supplier.get())));
     }
 
     private <T> CompletableFuture<Void> saveAndInvalidate(Class<T> type, UUID uuid) {
         return CacheAccess.get(type, uuid)
                 .map(value -> DatabaseManager.getInstance().save(type, value)
                         .thenRun(() -> CacheAccess.invalidate(type, value)))
-                .orElseGet(() -> CompletableFuture.completedFuture(null));
+                .orElseGet(() -> {
+                    System.out.println("nigga what");
+                    return CompletableFuture.completedFuture(null);
+                });
     }
 }

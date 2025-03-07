@@ -59,11 +59,11 @@ public final class Fadah extends JavaPlugin implements MigrationProvider, Curren
         INSTANCE = this;
         pluginVersion = Version.fromString(getDescription().getVersion());
         console = getLogger();
-        adventureAudience = BukkitAudiences.create(this);
     }
 
     @Override
     public void onEnable() {
+        adventureAudience = BukkitAudiences.create(this);
         getConsole().info("Enabling the API...");
         AuctionHouseAPI.setInstance(new BukkitAuctionHouseAPI());
         getConsole().info("API Enabled!");
@@ -100,7 +100,7 @@ public final class Fadah extends JavaPlugin implements MigrationProvider, Curren
         FastInvManager.closeAll(this);
         disableHooks();
         DatabaseManager.getInstance().shutdown();
-        Broker.getInstance().destroy();
+        if (Config.i().getBroker().isEnabled()) Broker.getInstance().destroy();
         shutdownMetrics();
     }
 

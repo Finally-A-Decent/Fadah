@@ -32,7 +32,18 @@ public class WatchersMongoDao implements Dao<Watching> {
      */
     @Override
     public Optional<Watching> get(UUID id) {
-        throw new NotImplementedException();
+        try {
+            MongoCollection<Document> collection = collectionHelper.getCollection("watchers");
+            Document document = collection.find(Filters.eq("playerUUID", id.toString())).first();
+            if (document == null) {
+                return Optional.empty();
+            }
+            Watching watching = GSON.fromJson(document.getString("watching"), Watching.class);
+            return Optional.of(watching);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
     }
 
     /**

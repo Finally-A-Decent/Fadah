@@ -6,10 +6,10 @@ import info.preva1l.fadah.hooks.impl.EcoItemsHook;
 import info.preva1l.fadah.hooks.impl.InfluxDBHook;
 import info.preva1l.fadah.hooks.impl.PapiHook;
 
-import java.util.stream.Stream;
+import java.util.List;
 
 public interface HookProvider {
-    Stream<Class<? extends Hook>> allHooks = Stream.of(
+    List<Class<? extends Hook>> allHooks = List.of(
             EcoItemsHook.class,
             DiscordHook.class,
             PapiHook.class,

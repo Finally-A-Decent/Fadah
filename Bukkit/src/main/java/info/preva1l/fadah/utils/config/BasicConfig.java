@@ -54,6 +54,10 @@ public class BasicConfig {
         return Collections.emptyList();
     }
 
+    public void setStringList(String path, List<String> value) {
+        this.configuration.set(path, value);
+    }
+
     public void delete(String path) {
         if (this.configuration.contains(path)) {
             this.configuration.set(path, null);

@@ -39,6 +39,7 @@ public class JavaScriptProcessor {
         try (Context cx = Context.enter()) {
             Scriptable scope = cx.initSafeStandardObjects();
             result = (Boolean) cx.evaluateString(scope, expression, "Fadah", 1, null);
+            return result;
         } catch (ClassCastException e) {
             Fadah.getConsole().severe(
                     """
@@ -57,8 +58,6 @@ public class JavaScriptProcessor {
                     e);
             return def;
         }
-
-        return result;
     }
 
     private static String escape(String input) {

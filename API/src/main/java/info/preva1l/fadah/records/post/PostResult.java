@@ -33,6 +33,10 @@ public class PostResult {
         return message;
     }
 
+    public boolean successful() {
+        return ordinal == PostResult.SUCCESS.ordinal() || ordinal == PostResult.SUCCESS_ADVERT_FAIL.ordinal();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

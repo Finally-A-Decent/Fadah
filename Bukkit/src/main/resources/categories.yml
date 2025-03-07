@@ -9,14 +9,10 @@ tools:
     - '&7▪ &fShovels'
     - '&7▪ &fHoes'
   matchers:
+    - '%material%.endsWith("_AXE")'
     - '%material%.endsWith("_PICKAXE")'
-    - '%material%.endsWith("_PICKAXE")'
-    - '%material%.endsWith("_PICKAXE")'
-  materials:
-    - '*_AXE'
-    - '*_PICKAXE'
-    - '*_HOE'
-    - '*_SHOVEL'
+    - '%material%.endsWith("_HOE")'
+    - '%material%.endsWith("_SHOVEL")'
 
 combat:
   name: '&cCombat'

@@ -10,5 +10,4 @@ public interface DataHandler {
     <T> void save(Class<T> clazz, T t);
     <T> void update(Class<T> clazz, T t, String[] params);
     <T> void delete(Class<T> clazz, T t);
-    <T> void deleteSpecific(Class<T> clazz, T t, Object o);
 }

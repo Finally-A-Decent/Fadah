@@ -17,7 +17,7 @@ public final class DistributedListingCache implements Cache<Listing> {
 
     public DistributedListingCache() {
         final LocalCachedMapOptions<UUID, Listing> options = LocalCachedMapOptions.<UUID, Listing>name("listings")
-                .cacheSize(10000)
+                .cacheSize(1000000)
                 .maxIdle(Duration.ofSeconds(60))
                 .timeToLive(Duration.ofSeconds(60))
                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.WEAK)

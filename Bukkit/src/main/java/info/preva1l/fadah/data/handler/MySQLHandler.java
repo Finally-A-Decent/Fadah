@@ -149,11 +149,6 @@ public class MySQLHandler implements DatabaseHandler {
         getDao(clazz).delete(t);
     }
 
-    @Override
-    public <T> void deleteSpecific(Class<T> clazz, T t, Object o) {
-        getDao(clazz).deleteSpecific(t, o);
-    }
-
     /**
      * Gets the DAO for a specific class.
      *

@@ -18,7 +18,7 @@ public final class DistributedHistoryCache implements Cache<History> {
 
     public DistributedHistoryCache() {
         final LocalCachedMapOptions<UUID, History> options = LocalCachedMapOptions.<UUID, History>name("expired-listings")
-                .cacheSize(10000)
+                .cacheSize(100000)
                 .maxIdle(Duration.ofSeconds(60))
                 .timeToLive(Duration.ofSeconds(60))
                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.WEAK)
@@ -41,12 +41,12 @@ public final class DistributedHistoryCache implements Cache<History> {
 
     @Override
     public void invalidate(@NotNull UUID uuid) {
-        historicItems.fastRemove(uuid);
+        historicItems.fastRemoveAsync(uuid);
     }
 
     @Override
     public void invalidate(@NotNull History obj) {
-        historicItems.fastRemove(obj.owner());
+        historicItems.fastRemoveAsync(obj.owner());
     }
 
     @Override

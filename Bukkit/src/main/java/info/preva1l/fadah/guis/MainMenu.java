@@ -24,10 +24,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class MainMenu extends ScrollBarFastInv {
     private Category category;
     private final List<Listing> listings;
+    private final Lock lock = new ReentrantLock();
 
     // Filters
     private final String search;
@@ -44,6 +47,7 @@ public class MainMenu extends ScrollBarFastInv {
         this.sortingMethod = (sortingMethod == null ? SortingMethod.AGE : sortingMethod);
         this.sortingDirection = (sortingDirection == null ? SortingDirection.ASCENDING : sortingDirection);
 
+        lock.lock();
         listings.sort(this.sortingMethod.getSorter(this.sortingDirection));
 
         if (category != null) {
@@ -52,6 +56,7 @@ public class MainMenu extends ScrollBarFastInv {
         if (search != null) {
             listings.removeIf(listing -> !(StringUtils.doesItemHaveString(search, listing.getItemStack()) || doesBookHaveEnchant(search, listing.getItemStack())));
         }
+        lock.unlock();
 
         fillers();
         setScrollbarSlots(getLayout().scrollbarSlots());
@@ -119,6 +124,7 @@ public class MainMenu extends ScrollBarFastInv {
 
     @Override
     protected synchronized void fillPaginationItems() {
+        lock.lock();
         for (Listing listing : listings) {
             if (listing.getCurrency() == null) {
                 Fadah.getConsole().severe("Cannot load listing %s because currency %s is not on this server!".formatted(listing.getId(), listing.getCurrencyId()));
@@ -167,6 +173,7 @@ public class MainMenu extends ScrollBarFastInv {
                         sortingMethod, sortingDirection, false, null).open(player);
             }));
         }
+        lock.unlock();
     }
 
     private void addNavigationButtons() {

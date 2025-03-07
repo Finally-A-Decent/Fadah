@@ -25,10 +25,12 @@ public class AboutSubCommand extends SubCommand {
                 .description(Component.text("Fadah is the fast, modern and advanced auction house plugin that you have been looking for!"))
                 .credits("Author",
                         AboutMenu.Credit.of("Preva1l")
-                                .description("Click to visit website").url("https://please.vote-preva1l.today/"))
+                                .description("Click to visit website").url("https://docs.preva1l.info/"))
                 .credits("Contributors",
                         AboutMenu.Credit.of("WuzzyLV"),
-                        AboutMenu.Credit.of("asdevjava"))
+                        AboutMenu.Credit.of("asdevjava"),
+                        AboutMenu.Credit.of("InvadedLands")
+                        )
                 .buttons(AboutMenu.Link.of("https://discord.gg/4KcF7S94HF").text("Discord Support").icon("⭐"))
                 .themeColor(TextColor.fromHexString("#9555FF"))
                 .secondaryColor(TextColor.fromHexString("#bba4e0"))

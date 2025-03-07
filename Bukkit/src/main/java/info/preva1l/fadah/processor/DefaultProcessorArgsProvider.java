@@ -1,5 +1,7 @@
 package info.preva1l.fadah.processor;
 
+import info.preva1l.fadah.utils.StringUtils;
+
 import java.util.ArrayList;
 
 import static info.preva1l.fadah.processor.ProcessorArgType.INTEGER;
@@ -14,8 +16,7 @@ public interface DefaultProcessorArgsProvider {
     default void registerDefaultProcessorArgs() {
         ProcessorArgsRegistry.register(STRING, "material", item -> item.getType().toString());
 
-        ProcessorArgsRegistry.register(STRING, "name",
-                item -> item.getItemMeta().getDisplayName().replace('§', '&'));
+        ProcessorArgsRegistry.register(STRING, "name", StringUtils::extractItemName);
 
         ProcessorArgsRegistry.register(INTEGER, "amount", item -> String.valueOf(item.getAmount()));
 

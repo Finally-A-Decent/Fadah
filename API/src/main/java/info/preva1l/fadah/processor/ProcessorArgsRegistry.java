@@ -25,12 +25,7 @@ public final class ProcessorArgsRegistry {
                 new ProcessorArg(
                         argType,
                         "%" + placeholder + "%",
-                        item -> {
-                            return switch (argType) {
-                                case STRING -> parser.apply(item);
-                                case INTEGER -> parser.apply(item);
-                            };
-                        }
+                        parser
                 )
         );
     }

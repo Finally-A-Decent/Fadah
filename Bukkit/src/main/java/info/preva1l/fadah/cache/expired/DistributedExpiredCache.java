@@ -18,7 +18,7 @@ public final class DistributedExpiredCache implements Cache<ExpiredItems> {
 
     public DistributedExpiredCache() {
         final LocalCachedMapOptions<UUID, ExpiredItems> options = LocalCachedMapOptions.<UUID, ExpiredItems>name("expired-listings")
-                .cacheSize(10000)
+                .cacheSize(100000)
                 .maxIdle(Duration.ofSeconds(60))
                 .timeToLive(Duration.ofSeconds(60))
                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.WEAK)
@@ -41,12 +41,12 @@ public final class DistributedExpiredCache implements Cache<ExpiredItems> {
 
     @Override
     public void invalidate(@NotNull UUID uuid) {
-        expiredItems.fastRemove(uuid);
+        expiredItems.fastRemoveAsync(uuid);
     }
 
     @Override
     public void invalidate(@NotNull ExpiredItems obj) {
-        expiredItems.fastRemove(obj.owner());
+        expiredItems.fastRemoveAsync(obj.owner());
     }
 
     @Override
