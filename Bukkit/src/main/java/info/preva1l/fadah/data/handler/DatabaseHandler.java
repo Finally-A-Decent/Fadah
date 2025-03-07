@@ -10,7 +10,9 @@ public interface DatabaseHandler extends DataHandler {
     void connect();
     void destroy();
     void registerDaos();
-    void wipeDatabase();
+    default void wipeDatabase() {
+        throw new UnsupportedOperationException();
+    }
 
 
     V2Fixer getV2Fixer();

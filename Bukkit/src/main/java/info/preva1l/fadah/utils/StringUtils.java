@@ -1,5 +1,6 @@
 package info.preva1l.fadah.utils;
 
+import info.preva1l.fadah.config.Config;
 import lombok.experimental.UtilityClass;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -234,5 +235,30 @@ public class StringUtils {
             builder.append(capitalize(s)).append(" ");
         }
         return builder.toString().trim().replace("§", "&");
+    }
+
+    /**
+     * @return true if the item contains the search
+     */
+    public boolean doesItemHaveString(String toCheck, ItemStack item) {
+        if (Config.i().getSearch().isType()) {
+            if (item.getType().name().toUpperCase().contains(toCheck.toUpperCase())
+                    || item.getType().name().toUpperCase().contains(toCheck.replace(" ", "_").toUpperCase())) {
+                return true;
+            }
+        }
+
+        if (item.getItemMeta() != null) {
+            if (Config.i().getSearch().isName()) {
+                if (item.getItemMeta().getDisplayName().toUpperCase().contains(toCheck.toUpperCase())) {
+                    return true;
+                }
+            }
+
+            if (Config.i().getSearch().isLore()) {
+                return item.getItemMeta().getLore() != null && item.getItemMeta().getLore().contains(toCheck.toUpperCase());
+            }
+        }
+        return false;
     }
 }

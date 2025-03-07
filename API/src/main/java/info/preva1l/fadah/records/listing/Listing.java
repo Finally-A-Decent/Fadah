@@ -64,4 +64,6 @@ public abstract class Listing {
     public abstract boolean newBid(@NotNull Player bidder, double bidAmount);
 
     public abstract boolean cancel(@NotNull Player canceller);
+
+    public abstract boolean canBuy(@NotNull Player player);
 }

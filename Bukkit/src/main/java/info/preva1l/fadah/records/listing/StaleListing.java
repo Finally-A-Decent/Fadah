@@ -28,4 +28,9 @@ public final class StaleListing extends Listing {
     public boolean cancel(@NotNull Player canceller) {
         throw new IllegalStateException("Cancelling a listing is not possible when the listing is in a stale state!");
     }
+
+    @Override
+    public boolean canBuy(@NotNull Player player) {
+        return false;
+    }
 }

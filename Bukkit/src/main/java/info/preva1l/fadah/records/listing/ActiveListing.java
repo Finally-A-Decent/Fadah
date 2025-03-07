@@ -49,6 +49,26 @@ public abstract class ActiveListing extends Listing {
         return true;
     }
 
+    @Override
+    public boolean canBuy(@NotNull Player player) {
+        if (isOwner(player)) {
+            Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getOwnListings());
+            return false;
+        }
+
+        if (!getCurrency().canAfford(player, getPrice())) {
+            Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getTooExpensive());
+            return false;
+        }
+
+        if (CacheAccess.get(Listing.class, getId()).isEmpty()) {
+            Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());
+            return false;
+        }
+
+        return true;
+    }
+
     public StaleListing getAsStale() {
         return new StaleListing(id, owner, ownerName, itemStack, categoryID, currencyId, price, tax, creationDate, deletionDate, bids);
     }

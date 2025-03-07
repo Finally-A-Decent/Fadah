@@ -21,7 +21,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.text.DecimalFormat;
 import java.time.Instant;
-import java.util.List;
 
 public class NewListingMenu extends FastInv {
     private final Fadah plugin = Fadah.getINSTANCE();
@@ -45,12 +44,8 @@ public class NewListingMenu extends FastInv {
         this.timeOffsetMillis = Config.i().getDefaultListingLength().toMillis();
         this.currency = CurrencyRegistry.get(Config.i().getCurrency().getDefaultCurrency());
         if (currency == null) currency = CurrencyRegistry.getAll().getFirst();
-        List<Integer> fillerSlots = getLayout().fillerSlots();
-        if (!fillerSlots.isEmpty()) {
-            setItems(fillerSlots.stream().mapToInt(Integer::intValue).toArray(),
-                    GuiHelper.constructButton(GuiButtonType.BORDER));
-        }
 
+        fillers();
         setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.LISTING_START, -1),
                 new ItemBuilder(getLang().getAsMaterial("create.icon", Material.EMERALD))
                         .name(getLang().getStringFormatted("create.name", "&aClick to create listing!"))

@@ -3,7 +3,9 @@ package info.preva1l.fadah.guis;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.utils.StringUtils;
-import info.preva1l.fadah.utils.guis.*;
+import info.preva1l.fadah.utils.guis.FastInv;
+import info.preva1l.fadah.utils.guis.ItemBuilder;
+import info.preva1l.fadah.utils.guis.LayoutManager;
 import info.preva1l.fadah.watcher.AuctionWatcher;
 import info.preva1l.fadah.watcher.Watching;
 import org.bukkit.Material;
@@ -12,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 
 import java.text.DecimalFormat;
-import java.util.List;
 
 public class WatchMenu extends FastInv {
     private final Watching watching;
@@ -23,12 +24,7 @@ public class WatchMenu extends FastInv {
         this.player = player;
         this.watching = AuctionWatcher.getWatchingListings().getOrDefault(player.getUniqueId(), Watching.base(player));
 
-        List<Integer> fillerSlots = getLayout().fillerSlots();
-        if (!fillerSlots.isEmpty()) {
-            setItems(fillerSlots.stream().mapToInt(Integer::intValue).toArray(),
-                    GuiHelper.constructButton(GuiButtonType.BORDER));
-        }
-
+        fillers();
         buttons();
     }
 

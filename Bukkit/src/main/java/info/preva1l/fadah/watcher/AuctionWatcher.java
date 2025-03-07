@@ -39,7 +39,7 @@ public class AuctionWatcher {
         for (Map.Entry<UUID, Watching> entry : watchingListings.entrySet()) {
             Watching watching = entry.getValue();
             if (watching.getSearch() != null) {
-                if (checkForStringInItem(watching.getSearch().toUpperCase(), listing.getItemStack())
+                if (StringUtils.doesItemHaveString(watching.getSearch().toUpperCase(), listing.getItemStack())
                         || checkForEnchantmentOnBook(watching.getSearch().toUpperCase(), listing.getItemStack())) {
                     if (priceCheck(listing, watching)) {
                         sendAlert(entry.getKey(), listing);
@@ -80,28 +80,6 @@ public class AuctionWatcher {
         if (enchantedBook.getType() == Material.ENCHANTED_BOOK) {
             for (Enchantment enchantment : enchantedBook.getEnchantments().keySet()) {
                 if (enchantment.getKey().getKey().toUpperCase().contains(enchant)) return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean checkForStringInItem(String toCheck, ItemStack item) {
-        if (Config.i().getSearch().isType()) {
-            if (item.getType().name().toUpperCase().contains(toCheck.toUpperCase())
-                    || item.getType().name().toUpperCase().contains(toCheck.replace(" ", "_").toUpperCase())) {
-                return true;
-            }
-        }
-
-        if (item.getItemMeta() != null) {
-            if (Config.i().getSearch().isName()) {
-                if (item.getItemMeta().getDisplayName().toUpperCase().contains(toCheck.toUpperCase())) {
-                    return true;
-                }
-            }
-
-            if (Config.i().getSearch().isLore()) {
-                return item.getItemMeta().getLore() != null && item.getItemMeta().getLore().contains(toCheck.toUpperCase());
             }
         }
         return false;

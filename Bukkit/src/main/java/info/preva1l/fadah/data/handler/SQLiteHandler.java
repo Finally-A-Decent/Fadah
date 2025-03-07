@@ -118,11 +118,6 @@ public class SQLiteHandler implements DatabaseHandler {
     }
 
     @Override
-    public void wipeDatabase() {
-        // nothing yet
-    }
-
-    @Override
     public <T> List<T> getAll(Class<T> clazz) {
         return (List<T>) getDao(clazz).getAll();
     }

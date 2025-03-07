@@ -50,15 +50,10 @@ public class MainMenu extends ScrollBarFastInv {
             listings.removeIf(listing -> !listing.getCategoryID().equals(category.id()));
         }
         if (search != null) {
-            listings.removeIf(listing -> !(doesItemHaveString(search, listing.getItemStack()) || doesBookHaveEnchant(search, listing.getItemStack())));
+            listings.removeIf(listing -> !(StringUtils.doesItemHaveString(search, listing.getItemStack()) || doesBookHaveEnchant(search, listing.getItemStack())));
         }
 
-        List<Integer> fillerSlots = getLayout().fillerSlots();
-        if (!fillerSlots.isEmpty()) {
-            setItems(fillerSlots.stream().mapToInt(Integer::intValue).toArray(),
-                    GuiHelper.constructButton(GuiButtonType.BORDER));
-        }
-
+        fillers();
         setScrollbarSlots(getLayout().scrollbarSlots());
         setPaginationMappings(getLayout().paginationSlots());
 
@@ -83,31 +78,6 @@ public class MainMenu extends ScrollBarFastInv {
         if (enchantedBook.getType() == Material.ENCHANTED_BOOK) {
             for (Enchantment enchantment : enchantedBook.getEnchantments().keySet()) {
                 if (enchantment.getKey().getKey().toUpperCase().contains(enchant.toUpperCase())) return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @return true if the item contains the search
-     */
-    private boolean doesItemHaveString(String toCheck, ItemStack item) {
-        if (Config.i().getSearch().isType()) {
-            if (item.getType().name().toUpperCase().contains(toCheck.toUpperCase())
-                    || item.getType().name().toUpperCase().contains(toCheck.replace(" ", "_").toUpperCase())) {
-                return true;
-            }
-        }
-
-        if (item.getItemMeta() != null) {
-            if (Config.i().getSearch().isName()) {
-                if (item.getItemMeta().getDisplayName().toUpperCase().contains(toCheck.toUpperCase())) {
-                    return true;
-                }
-            }
-
-            if (Config.i().getSearch().isLore()) {
-                return item.getItemMeta().getLore() != null && item.getItemMeta().getLore().contains(toCheck.toUpperCase());
             }
         }
         return false;
@@ -191,41 +161,11 @@ public class MainMenu extends ScrollBarFastInv {
                     return;
                 }
 
-                if (listing.isOwner(player)) {
-                    Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getOwnListings());
-                    return;
-                }
-
-                if (!listing.getCurrency().canAfford(player, listing.getPrice())) {
-                    Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getTooExpensive());
-                    return;
-                }
-
-                if (CacheAccess.get(Listing.class, listing.getId()).isEmpty()) {
-                    Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());
-                    return;
-                }
+                if (!listing.canBuy(player)) return;
 
                 new ConfirmPurchaseMenu(listing, player, category, search,
                         sortingMethod, sortingDirection, false, null).open(player);
             }));
-        }
-    }
-
-    @Override
-    protected void addPaginationControls() {
-        setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_ONE, -1),
-                GuiHelper.constructButton(GuiButtonType.BORDER));
-        setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_TWO,-1),
-                GuiHelper.constructButton(GuiButtonType.BORDER));
-        if (page > 0) {
-            setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_ONE, -1),
-                    GuiHelper.constructButton(GuiButtonType.PREVIOUS_PAGE), e -> previousPage());
-        }
-
-        if (listings != null && listings.size() >= index + 1) {
-            setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_TWO,-1),
-                    GuiHelper.constructButton(GuiButtonType.NEXT_PAGE), e -> nextPage());
         }
     }
 
@@ -327,7 +267,7 @@ public class MainMenu extends ScrollBarFastInv {
             listings.removeIf(listing -> !listing.getCategoryID().equals(category.id()));
         }
         if (search != null) {
-            listings.removeIf(listing -> !(doesItemHaveString(search, listing.getItemStack()) || doesBookHaveEnchant(search, listing.getItemStack())));
+            listings.removeIf(listing -> !(StringUtils.doesItemHaveString(search, listing.getItemStack()) || doesBookHaveEnchant(search, listing.getItemStack())));
         }
 
         super.updatePagination();

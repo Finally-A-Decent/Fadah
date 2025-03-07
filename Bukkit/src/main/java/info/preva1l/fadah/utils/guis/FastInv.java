@@ -79,6 +79,14 @@ public class FastInv implements InventoryHolder {
     protected void onClose(InventoryCloseEvent event) {
     }
 
+    protected void fillers() {
+        List<Integer> fillerSlots = getLayout().fillerSlots();
+        if (!fillerSlots.isEmpty()) {
+            setItems(fillerSlots.stream().mapToInt(Integer::intValue).toArray(),
+                    GuiHelper.constructButton(GuiButtonType.BORDER));
+        }
+    }
+
     /**
      * Add an {@link ItemStack} to the inventory on the first empty slot.
      *

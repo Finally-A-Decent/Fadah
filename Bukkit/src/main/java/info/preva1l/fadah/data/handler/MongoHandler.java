@@ -66,12 +66,6 @@ public class MongoHandler implements DatabaseHandler {
         daos.put(Watching.class, new WatchersMongoDao(collectionHelper));
     }
 
-
-    @Override
-    public void wipeDatabase() {
-        // nothing yet
-    }
-
     @Override
     public <T> List<T> getAll(Class<T> clazz) {
         return (List<T>) getDao(clazz).getAll();

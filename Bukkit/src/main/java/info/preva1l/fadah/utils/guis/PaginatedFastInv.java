@@ -106,7 +106,21 @@ public abstract class PaginatedFastInv extends FastInv {
 
     protected abstract void fillPaginationItems();
 
-    protected abstract void addPaginationControls();
+    protected void addPaginationControls() {
+        setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_ONE, -1),
+                GuiHelper.constructButton(GuiButtonType.BORDER));
+        setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_TWO,-1),
+                GuiHelper.constructButton(GuiButtonType.BORDER));
+        if (page > 0) {
+            setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_ONE, -1),
+                    GuiHelper.constructButton(GuiButtonType.PREVIOUS_PAGE), e -> previousPage());
+        }
+
+        if (paginatedItems != null && paginatedItems.size() >= index + 1) {
+            setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_TWO,-1),
+                    GuiHelper.constructButton(GuiButtonType.NEXT_PAGE), e -> nextPage());
+        }
+    }
 
     protected void addPaginationItem(PaginatedItem item) {
         paginatedItems.add(item);

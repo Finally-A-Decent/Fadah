@@ -4,13 +4,13 @@ import info.preva1l.fadah.filters.SortingDirection;
 import info.preva1l.fadah.filters.SortingMethod;
 import info.preva1l.fadah.records.Category;
 import info.preva1l.fadah.records.listing.Listing;
-import info.preva1l.fadah.utils.guis.*;
+import info.preva1l.fadah.utils.guis.FastInv;
+import info.preva1l.fadah.utils.guis.ItemBuilder;
+import info.preva1l.fadah.utils.guis.LayoutManager;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public class ConfirmPurchaseMenu extends FastInv {
     public ConfirmPurchaseMenu(Listing listing,
@@ -25,12 +25,7 @@ public class ConfirmPurchaseMenu extends FastInv {
                 LayoutManager.MenuType.CONFIRM_PURCHASE.getLayout().guiTitle(),
                 LayoutManager.MenuType.CONFIRM_PURCHASE);
 
-        List<Integer> fillerSlots = getLayout().fillerSlots();
-        if (!fillerSlots.isEmpty()) {
-            setItems(fillerSlots.stream().mapToInt(Integer::intValue).toArray(),
-                    GuiHelper.constructButton(GuiButtonType.BORDER));
-        }
-
+        fillers();
         setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.CONFIRM, -1),
                 new ItemBuilder(getLang().getAsMaterial("confirm.icon", Material.LIME_CONCRETE))
                         .name(getLang().getStringFormatted("confirm.name", "&a&lCONFIRM"))

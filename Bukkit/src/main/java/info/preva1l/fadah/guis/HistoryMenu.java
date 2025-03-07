@@ -37,11 +37,7 @@ public class HistoryMenu extends PaginatedFastInv {
             this.historicItems.removeIf(historicItem -> !TimeUtil.formatTimeToVisualDate(historicItem.loggedDate()).contains(dateSearch));
         }
 
-        List<Integer> fillerSlots = getLayout().fillerSlots();
-        if (!fillerSlots.isEmpty()) {
-            setItems(fillerSlots.stream().mapToInt(Integer::intValue).toArray(),
-                    GuiHelper.constructButton(GuiButtonType.BORDER));
-        }
+        fillers();
         setPaginationMappings(getLayout().paginationSlots());
 
         addNavigationButtons();
@@ -81,23 +77,6 @@ public class HistoryMenu extends PaginatedFastInv {
                 ));
             }
             addPaginationItem(new PaginatedItem(itemStack.build(), (e) -> {}));
-        }
-    }
-
-    @Override
-    protected void addPaginationControls() {
-        setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_ONE, -1),
-                GuiHelper.constructButton(GuiButtonType.BORDER));
-        setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_TWO,-1),
-                GuiHelper.constructButton(GuiButtonType.BORDER));
-        if (page > 0) {
-            setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_ONE, -1),
-                    GuiHelper.constructButton(GuiButtonType.PREVIOUS_PAGE), e -> previousPage());
-        }
-
-        if (historicItems != null && historicItems.size() >= index + 1) {
-            setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_TWO,-1),
-                    GuiHelper.constructButton(GuiButtonType.NEXT_PAGE), e -> nextPage());
         }
     }
 

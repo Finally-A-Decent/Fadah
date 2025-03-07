@@ -29,11 +29,7 @@ public class ViewListingsMenu extends PaginatedFastInv {
         this.listings = CacheAccess.getAll(Listing.class);
         listings.removeIf(listing -> !listing.isOwner(owner.getUniqueId()));
 
-        List<Integer> fillerSlots = getLayout().fillerSlots();
-        if (!fillerSlots.isEmpty()) {
-            setItems(fillerSlots.stream().mapToInt(Integer::intValue).toArray(),
-                    GuiHelper.constructButton(GuiButtonType.BORDER));
-        }
+        fillers();
         addNavigationButtons();
         fillPaginationItems();
         populatePage();
@@ -80,41 +76,11 @@ public class ViewListingsMenu extends PaginatedFastInv {
                     return;
                 }
 
-                if (listing.isOwner(player)) {
-                    Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getOwnListings());
-                    return;
-                }
-
-                if (!listing.getCurrency().canAfford(player, listing.getPrice())) {
-                    Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getTooExpensive());
-                    return;
-                }
-
-                if (CacheAccess.get(Listing.class, listing.getId()).isEmpty()) {
-                    Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());
-                    return;
-                }
+                if (!listing.canBuy(player)) return;
 
                 new ConfirmPurchaseMenu(listing, player, null, null,
                         null, null, true, owner).open(player);
             }));
-        }
-    }
-
-    @Override
-    protected void addPaginationControls() {
-        setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_ONE, -1),
-                GuiHelper.constructButton(GuiButtonType.BORDER));
-        setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_TWO,-1),
-                GuiHelper.constructButton(GuiButtonType.BORDER));
-        if (page > 0) {
-            setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_ONE, -1),
-                    GuiHelper.constructButton(GuiButtonType.PREVIOUS_PAGE), e -> previousPage());
-        }
-
-        if (listings != null && listings.size() >= index + 1) {
-            setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.PAGINATION_CONTROL_TWO,-1),
-                    GuiHelper.constructButton(GuiButtonType.NEXT_PAGE), e -> nextPage());
         }
     }
 
