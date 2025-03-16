@@ -26,6 +26,6 @@ public class SearchSubCommand extends SubCommand {
                     .replace("%command%", Lang.i().getCommands().getSearch().getUsage()));
             return;
         }
-        new MainMenu(null, command.getPlayer(), command.args()[0], null, null).open(command.getPlayer());
+        new MainMenu(null, command.getPlayer(), String.join(" ", command.args()), null, null).open(command.getPlayer());
     }
 }
