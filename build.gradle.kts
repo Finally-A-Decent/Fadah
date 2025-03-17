@@ -5,7 +5,7 @@ plugins {
     java
     `maven-publish`
     id("org.ajoberstar.grgit") version "5.3.0"
-    id("com.gradleup.shadow") version "8.3.0"
+    id("com.gradleup.shadow") version "8.3.6"
 }
 
 var currentBranch: String = grgit.branch.current().name
