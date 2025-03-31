@@ -6,6 +6,8 @@ import info.preva1l.fadah.data.DatabaseManager;
 import info.preva1l.fadah.hooks.impl.InfluxDBHook;
 import info.preva1l.fadah.records.history.HistoricItem;
 import info.preva1l.fadah.records.history.History;
+import info.preva1l.fadah.records.listing.BidListing;
+import info.preva1l.fadah.records.listing.BinListing;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.hooker.Hooker;
 import lombok.experimental.UtilityClass;
@@ -17,13 +19,23 @@ import java.util.UUID;
 @UtilityClass
 public class TransactionLogger {
     public void listingCreated(Listing listing) {
+        boolean bidding = false;
+        double price;
+        if (listing instanceof BinListing bin) {
+            price = bin.getPrice();
+        } else if (listing instanceof BidListing bid) {
+            bidding = true;
+            price = bid.getCurrentBid().bidAmount();
+        } else throw new IllegalArgumentException("Invalid listing class: " + listing);
+
         // In game logs
         HistoricItem historicItem = new HistoricItem(
                 System.currentTimeMillis(),
                 HistoricItem.LoggedAction.LISTING_START,
                 listing.getItemStack(),
-                listing.getPrice(),
-                null
+                price,
+                null,
+                bidding
         );
 
         CacheAccess.getNotNull(History.class, listing.getOwner()).add(historicItem);
@@ -32,7 +44,7 @@ public class TransactionLogger {
         String logMessage = "[NEW LISTING] Seller: %s (%s), Price: %.2f, ItemStack: %s".formatted(
                 Bukkit.getOfflinePlayer(listing.getOwner()).getName(),
                 Bukkit.getOfflinePlayer(listing.getOwner()).getUniqueId().toString(),
-                listing.getPrice(),
+                price,
                 listing.getItemStack().toString());
 
         Fadah.getInstance().getTransactionLogger().info(logMessage);
@@ -41,13 +53,23 @@ public class TransactionLogger {
     }
 
     public void listingSold(Listing listing, Player buyer) {
+        boolean bidding = false;
+        double price;
+        if (listing instanceof BinListing bin) {
+            price = bin.getPrice();
+        } else if (listing instanceof BidListing bid) {
+            bidding = true;
+            price = bid.getCurrentBid().bidAmount();
+        } else throw new IllegalArgumentException("Invalid listing class: " + listing);
+
         // In Game logs
         HistoricItem historicItemSeller = new HistoricItem(
                 System.currentTimeMillis(),
                 HistoricItem.LoggedAction.LISTING_SOLD,
                 listing.getItemStack(),
-                listing.getPrice(),
-                buyer.getUniqueId()
+                price,
+                buyer.getUniqueId(),
+                bidding
         );
 
         CacheAccess.get(History.class, listing.getOwner())
@@ -60,11 +82,16 @@ public class TransactionLogger {
                 System.currentTimeMillis(),
                 HistoricItem.LoggedAction.LISTING_PURCHASED,
                 listing.getItemStack(),
-                listing.getPrice(),
-                listing.getOwner()
+                price,
+                listing.getOwner(),
+                bidding
         );
 
-        CacheAccess.getNotNull(History.class, buyer.getUniqueId()).add(historicItemBuyer);
+        CacheAccess.get(History.class, buyer.getUniqueId())
+                .ifPresentOrElse(
+                        cache -> cache.add(historicItemBuyer),
+                        () -> fetchAndSaveHistory(buyer.getUniqueId(), historicItemBuyer)
+                );
 
         // Log file logs
         String logMessage = "[LISTING SOLD] Seller: %s (%s), Buyer: %s (%s), Price: %.2f, ItemStack: %s".formatted(
@@ -72,7 +99,7 @@ public class TransactionLogger {
                 listing.getOwner(),
                 buyer.getName(),
                 buyer.getUniqueId(),
-                listing.getPrice(),
+                price,
                 listing.getItemStack()
         );
 
@@ -82,13 +109,16 @@ public class TransactionLogger {
     }
 
     public void listingRemoval(Listing listing, boolean isAdmin) {
+        boolean bidding = listing instanceof BidListing;
+
         // In game logs
         HistoricItem historicItem = new HistoricItem(
                 System.currentTimeMillis(),
                 isAdmin ? HistoricItem.LoggedAction.LISTING_ADMIN_CANCEL : HistoricItem.LoggedAction.LISTING_CANCEL,
                 listing.getItemStack(),
                 null,
-                null
+                null,
+                bidding
         );
 
         CacheAccess.get(History.class, listing.getOwner())
@@ -98,10 +128,9 @@ public class TransactionLogger {
                 );
 
         // Log file logs
-        String logMessage = "[LISTING REMOVED] Seller: %s (%s), Price: %.2f, ItemStack: %s".formatted(
+        String logMessage = "[LISTING REMOVED] Seller: %s (%s), ItemStack: %s".formatted(
                 Bukkit.getOfflinePlayer(listing.getOwner()).getName(),
                 Bukkit.getOfflinePlayer(listing.getOwner()).getUniqueId().toString(),
-                listing.getPrice(),
                 listing.getItemStack().toString()
         );
 
@@ -111,13 +140,16 @@ public class TransactionLogger {
     }
 
     public void listingExpired(Listing listing) {
+        boolean bidding = listing instanceof BidListing;
+
         // In game logs
         HistoricItem historicItem = new HistoricItem(
                 System.currentTimeMillis(),
                 HistoricItem.LoggedAction.LISTING_EXPIRE,
                 listing.getItemStack(),
                 null,
-                null
+                null,
+                bidding
         );
         CacheAccess.get(History.class, listing.getOwner())
                 .ifPresentOrElse(
@@ -126,10 +158,9 @@ public class TransactionLogger {
                 );
 
         // Log file logs
-        String logMessage = "[LISTING EXPIRED] Seller: %s (%s), Price: %.2f, ItemStack: %s".formatted(
+        String logMessage = "[LISTING EXPIRED] Seller: %s (%s), ItemStack: %s".formatted(
                 Bukkit.getOfflinePlayer(listing.getOwner()).getName(),
                 Bukkit.getOfflinePlayer(listing.getOwner()).getUniqueId().toString(),
-                listing.getPrice(),
                 listing.getItemStack().toString()
         );
 

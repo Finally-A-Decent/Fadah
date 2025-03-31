@@ -71,7 +71,7 @@ public class NewListingMenu extends FastInv {
         setClock();
         setAdvertButton();
         setCurrencyButton();
-        //setModeButton();
+        setModeButton();
         addNavigationButtons();
 
         setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.LISTING_ITEM, -1), itemToSell);
@@ -231,7 +231,6 @@ public class NewListingMenu extends FastInv {
                 });
     }
 
-    // Not Used (For future bidding update)
     private void setModeButton() {
         Component bidding = Text.replace(isBidding
                         ? getLang().getStringFormatted("mode.options.selected", "&8> &e%option%")

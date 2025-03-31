@@ -15,14 +15,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.SortedSet;
 import java.util.UUID;
 
-public abstract class ActiveListing extends Listing {
+public abstract class ActiveListing extends BaseListing {
     protected ActiveListing(@NotNull UUID id, @NotNull UUID owner, @NotNull String ownerName,
                             @NotNull ItemStack itemStack, @NotNull String categoryID, @NotNull String currency,
-                            double price, double tax, long creationDate, long deletionDate, SortedSet<Bid> bids) {
-        super(id, owner, ownerName, itemStack, categoryID, currency, price, tax, creationDate, deletionDate, bids);
+                            double tax, long creationDate, long deletionDate) {
+        super(id, owner, ownerName, itemStack, categoryID, currency, tax, creationDate, deletionDate);
     }
 
     @Override
@@ -56,11 +55,6 @@ public abstract class ActiveListing extends Listing {
             return false;
         }
 
-        if (!getCurrency().canAfford(player, getPrice())) {
-            Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getTooExpensive());
-            return false;
-        }
-
         if (CacheAccess.get(Listing.class, getId()).isEmpty()) {
             Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist());
             return false;
@@ -74,7 +68,5 @@ public abstract class ActiveListing extends Listing {
         return true;
     }
 
-    public StaleListing getAsStale() {
-        return new StaleListing(id, owner, ownerName, itemStack, categoryID, currencyId, price, tax, creationDate, deletionDate, bids);
-    }
+    public abstract StaleListing getAsStale();
 }

@@ -14,9 +14,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * Created on 7/03/2025
@@ -60,22 +60,7 @@ public final class ImplListingBuilder extends ListingBuilder {
         return CategoryRegistry.getCategoryForItem(itemStack)
                 .thenApplyAsync(category -> {
                     if (biddable) {
-                        throw new IllegalStateException("Bidding is not implemented yet!");
-//                        return new BidListing(
-//                                UUID.randomUUID(),
-//                                ownerUuid,
-//                                ownerName,
-//                                itemStack,
-//                                category,
-//                                currency.getId(),
-//                                price,
-//                                tax,
-//                                System.currentTimeMillis(),
-//                                Instant.now().plus(length, ChronoUnit.MILLIS).toEpochMilli(),
-//                                new TreeSet<>()
-//                        );
-                    } else {
-                        return new BinListing(
+                        return new ImplBidListing(
                                 UUID.randomUUID(),
                                 ownerUuid,
                                 ownerName,
@@ -86,7 +71,20 @@ public final class ImplListingBuilder extends ListingBuilder {
                                 tax,
                                 System.currentTimeMillis(),
                                 Instant.now().plus(length, ChronoUnit.MILLIS).toEpochMilli(),
-                                new TreeSet<>()
+                                new ConcurrentSkipListSet<>()
+                        );
+                    } else {
+                        return new ImplBinListing(
+                                UUID.randomUUID(),
+                                ownerUuid,
+                                ownerName,
+                                itemStack,
+                                category,
+                                currency.getId(),
+                                price,
+                                tax,
+                                System.currentTimeMillis(),
+                                Instant.now().plus(length, ChronoUnit.MILLIS).toEpochMilli()
                         );
                     }
                 }, DatabaseManager.getInstance().getThreadPool());

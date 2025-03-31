@@ -82,9 +82,13 @@ public class CollectionMenu extends PaginatedFastInv {
                     HistoricItem.LoggedAction action = expired
                             ? isAdmin ? HistoricItem.LoggedAction.EXPIRED_ITEM_ADMIN_CLAIM : HistoricItem.LoggedAction.EXPIRED_ITEM_CLAIM
                             : isAdmin ? HistoricItem.LoggedAction.COLLECTION_BOX_ADMIN_CLAIM : HistoricItem.LoggedAction.COLLECTION_BOX_CLAIM;
-                    HistoricItem historicItem = new HistoricItem(Instant.now().toEpochMilli(),
+                    HistoricItem historicItem = new HistoricItem(
+                            Instant.now().toEpochMilli(),
                             action,
-                            expiredItem.itemStack(), null, null);
+                            expiredItem.itemStack(),
+                            null,
+                            null,
+                            null);
                     CacheAccess.getNotNull(History.class, owner.getUniqueId()).add(historicItem);
                 }, null, 0L);
             }));

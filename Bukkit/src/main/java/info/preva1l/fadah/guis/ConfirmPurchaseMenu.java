@@ -2,7 +2,7 @@ package info.preva1l.fadah.guis;
 
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.misc.Tuple;
-import info.preva1l.fadah.records.listing.Listing;
+import info.preva1l.fadah.records.listing.BinListing;
 import info.preva1l.fadah.utils.guis.FastInv;
 import info.preva1l.fadah.utils.guis.ItemBuilder;
 import info.preva1l.fadah.utils.guis.LayoutManager;
@@ -10,7 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 public class ConfirmPurchaseMenu extends FastInv {
-    public ConfirmPurchaseMenu(Listing listing,
+    public ConfirmPurchaseMenu(BinListing listing,
                                Player player,
                                Runnable returnFunction) {
         super(LayoutManager.MenuType.CONFIRM_PURCHASE.getLayout().guiSize(),

@@ -17,6 +17,7 @@ import java.util.UUID;
  */
 public record Bid(
         UUID bidder,
+        String bidderName,
         @SerializedName("bid_amount")
         double bidAmount,
         long timestamp
@@ -24,5 +25,13 @@ public record Bid(
     @Override
     public int compareTo(@NotNull Bid o) {
         return Long.compare(o.timestamp, this.timestamp);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Bid bid = (Bid) o;
+        return bidder.equals(bid.bidder) && timestamp == bid.timestamp;
     }
 }

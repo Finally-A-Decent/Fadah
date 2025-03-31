@@ -1,26 +1,33 @@
 package info.preva1l.fadah.data.dao.mongo;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.data.dao.Dao;
-import info.preva1l.fadah.records.listing.Bid;
-import info.preva1l.fadah.records.listing.BidListing;
-import info.preva1l.fadah.records.listing.BinListing;
-import info.preva1l.fadah.records.listing.Listing;
+import info.preva1l.fadah.records.listing.*;
 import info.preva1l.fadah.utils.ItemSerializer;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.NotImplementedException;
 import org.bson.Document;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Level;
 
 @RequiredArgsConstructor
 public class ListingMongoDao implements Dao<Listing> {
     private final MongoDatabase database;
+    protected static final Gson GSON = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
+    protected static final Type BIDS_TYPE = new TypeToken<ConcurrentSkipListSet<Bid>>(){}.getType();
 
     /**
      * Get an object from the database by its id.
@@ -82,7 +89,7 @@ public class ListingMongoDao implements Dao<Listing> {
                     .append("tax", listing.getTax())
                     .append("itemStack", ItemSerializer.serialize(listing.getItemStack()))
                     .append("biddable", false)
-                    .append("bids", "");
+                    .append("bids", listing instanceof BidListing bid ? GSON.toJson(bid.getBids(), BIDS_TYPE) : "");
             database.getCollection("listings").insertOne(document);
         } catch (Exception e) {
             Fadah.getConsole().log(Level.SEVERE, e.getMessage(), e);
@@ -134,28 +141,33 @@ public class ListingMongoDao implements Dao<Listing> {
         final double tax = doc.getDouble("tax");
         final ItemStack itemStack = ItemSerializer.deserialize(doc.getString("itemStack"))[0];
         final boolean biddable = doc.getBoolean("biddable");
-        final SortedSet<Bid> bids = new TreeSet<>();
+        final String bidString = doc.getString("bids");
+        final ConcurrentSkipListSet<Bid> bids;
+        if (bidString.isEmpty()) {
+            bids = new ConcurrentSkipListSet<>();
+        } else {
+            bids = GSON.fromJson(bidString, BIDS_TYPE);
+        }
 
         final Listing listing;
         if (biddable) {
-            listing = new BidListing(
+            listing = new ImplBidListing(
                     id,
                     owner, ownerName,
                     itemStack,
                     category,
                     currency, price, tax,
                     creationDate, deletionDate,
-                    new TreeSet<>()
+                    bids
             );
         } else {
-            listing = new BinListing(
+            listing = new ImplBinListing(
                     id,
                     owner, ownerName,
                     itemStack,
                     category,
                     currency, price, tax,
-                    creationDate, deletionDate,
-                    new TreeSet<>()
+                    creationDate, deletionDate
             );
         }
         return listing;

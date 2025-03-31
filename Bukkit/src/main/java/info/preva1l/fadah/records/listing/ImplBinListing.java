@@ -13,6 +13,7 @@ import info.preva1l.fadah.records.collection.CollectableItem;
 import info.preva1l.fadah.records.collection.CollectionBox;
 import info.preva1l.fadah.utils.Text;
 import info.preva1l.fadah.utils.logging.TransactionLogger;
+import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -20,14 +21,33 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
-import java.util.SortedSet;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
 
-public final class BinListing extends ActiveListing {
-    public BinListing(@NotNull UUID id, @NotNull UUID owner, @NotNull String ownerName,
-                      @NotNull ItemStack itemStack, @NotNull String categoryID, @NotNull String currency, double price,
-                      double tax, long creationDate, long deletionDate, SortedSet<Bid> bids) {
-        super(id, owner, ownerName, itemStack, categoryID, currency, price, tax, creationDate, deletionDate, bids);
+@Getter
+public final class ImplBinListing extends ActiveListing implements BinListing {
+    private final double price;
+
+    public ImplBinListing(@NotNull UUID id, @NotNull UUID owner, @NotNull String ownerName,
+                          @NotNull ItemStack itemStack, @NotNull String categoryID, @NotNull String currency, double price,
+                          double tax, long creationDate, long deletionDate) {
+        super(id, owner, ownerName, itemStack, categoryID, currency, tax, creationDate, deletionDate);
+        this.price = price;
+    }
+
+    @Override
+    public boolean canBuy(@NotNull Player player) {
+        if (!getCurrency().canAfford(player, getPrice())) {
+            Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getTooExpensive());
+            return false;
+        }
+
+        return super.canBuy(player);
+    }
+
+    @Override
+    public StaleListing getAsStale() {
+        return new StaleListing(id, owner, ownerName, itemStack, categoryID, currencyId, price, tax, creationDate, deletionDate, new ConcurrentSkipListSet<>());
     }
 
     @Override
@@ -72,10 +92,5 @@ public final class BinListing extends ActiveListing {
         TransactionLogger.listingSold(this, buyer);
 
         Bukkit.getServer().getPluginManager().callEvent(new ListingPurchaseEvent(this.getAsStale(), buyer));
-    }
-
-    @Override
-    public boolean newBid(@NotNull Player bidder, double bidAmount) {
-        throw new IllegalStateException("Tried to bid on a Buy listing.");
     }
 }

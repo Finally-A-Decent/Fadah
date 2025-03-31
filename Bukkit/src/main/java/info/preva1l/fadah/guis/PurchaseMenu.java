@@ -9,6 +9,7 @@ import info.preva1l.fadah.config.misc.Tuple;
 import info.preva1l.fadah.filters.SortingDirection;
 import info.preva1l.fadah.filters.SortingMethod;
 import info.preva1l.fadah.records.listing.BidListing;
+import info.preva1l.fadah.records.listing.BinListing;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.utils.CooldownManager;
 import info.preva1l.fadah.utils.Text;
@@ -135,7 +136,9 @@ public abstract class PurchaseMenu extends ScrollBarFastInv {
 
                 if (!listing.canBuy(player)) return;
 
-                new ConfirmPurchaseMenu(listing, player, () -> open(player)).open(player);
+                if (listing instanceof BinListing bin) {
+                    new ConfirmPurchaseMenu(bin, player, () -> open(player)).open(player);
+                }
             }));
         }
     }

@@ -1,25 +1,27 @@
 package info.preva1l.fadah.data.dao.common_sql;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.data.dao.Dao;
-import info.preva1l.fadah.records.listing.BidListing;
-import info.preva1l.fadah.records.listing.BinListing;
-import info.preva1l.fadah.records.listing.Listing;
+import info.preva1l.fadah.records.listing.*;
 import info.preva1l.fadah.utils.ItemSerializer;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.inventory.ItemStack;
 
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Level;
 
 /**
@@ -30,6 +32,8 @@ import java.util.logging.Level;
 @AllArgsConstructor
 public abstract class CommonSQLListingDao implements Dao<Listing> {
     private final HikariDataSource dataSource;
+    protected static final Gson GSON = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
+    protected static final Type BIDS_TYPE = new TypeToken<ConcurrentSkipListSet<Bid>>(){}.getType();
 
     /**
      * Get a listing from the database by its id.
@@ -109,7 +113,7 @@ public abstract class CommonSQLListingDao implements Dao<Listing> {
                 statement.setDouble(8, listing.getTax());
                 statement.setString(9, ItemSerializer.serialize(listing.getItemStack()));
                 statement.setBoolean(10, false);
-                statement.setString(11, "");
+                statement.setString(11, listing instanceof BidListing bid ? GSON.toJson(bid.getBids(), BIDS_TYPE) : "");
                 statement.execute();
             }
         } catch (SQLException e) {
@@ -167,27 +171,33 @@ public abstract class CommonSQLListingDao implements Dao<Listing> {
         final double tax = resultSet.getDouble("tax");
         final ItemStack itemStack = ItemSerializer.deserialize(resultSet.getString("itemStack"))[0];
         final boolean biddable = resultSet.getBoolean("biddable");
+        final String bidString = resultSet.getString("bids");
+        final ConcurrentSkipListSet<Bid> bids;
+        if (bidString.isEmpty()) {
+            bids = new ConcurrentSkipListSet<>();
+        } else {
+            bids = GSON.fromJson(bidString, BIDS_TYPE);
+        }
 
         final Listing listing;
         if (biddable) {
-            listing = new BidListing(
+            listing = new ImplBidListing(
                     id,
                     ownerUUID, ownerName,
                     itemStack,
                     categoryID,
                     currency, price, tax,
                     creationDate, deletionDate,
-                    new TreeSet<>()
+                    bids
             );
         } else {
-            listing = new BinListing(
+            listing = new ImplBinListing(
                     id,
                     ownerUUID, ownerName,
                     itemStack,
                     categoryID,
                     currency, price, tax,
-                    creationDate, deletionDate,
-                    new TreeSet<>()
+                    creationDate, deletionDate
             );
         }
 

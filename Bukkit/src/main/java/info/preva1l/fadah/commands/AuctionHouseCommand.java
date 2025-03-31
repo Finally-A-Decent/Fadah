@@ -13,6 +13,7 @@ import info.preva1l.fadah.filters.SortingDirection;
 import info.preva1l.fadah.filters.SortingMethod;
 import info.preva1l.fadah.guis.*;
 import info.preva1l.fadah.records.Category;
+import info.preva1l.fadah.records.listing.BinListing;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.utils.Text;
 import info.preva1l.fadah.utils.guis.LayoutManager;
@@ -107,7 +108,10 @@ public class AuctionHouseCommand extends BaseCommand
                 player.sendMessage(Text.text(Lang.i().getPrefix() + Lang.i().getErrors().getOwnListings()));
                 return;
             }
-            new ConfirmPurchaseMenu(listing, player, player::closeInventory).open(player);
+
+            if (listing instanceof BinListing bin) {
+                new ConfirmPurchaseMenu(bin, player, player::closeInventory).open(player);
+            }
         }, () -> player.sendMessage(Text.text(Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist())));
     }
 

@@ -363,6 +363,8 @@ public class Lang {
         private String databaseLoading = "&cDatabase not connected! Please Wait";
         private String cooldown = "&cPlease wait &f%time%&c!";
         private String other = "&cListing this item failed! (%ex%)";
+        private String alreadyHighestBidder = "&cYou are already the highest bidder!";
+        private String bidTooLow = "&cThe current bid is higher than your bid!";
     }
 
     private Words words = new Words();
@@ -372,8 +374,8 @@ public class Lang {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Words {
         private String your = "your";
-        private String you = "you";
         private String none = "None";
+        private String startingBid = "Starting Bid";
         private Modes modes = new Modes();
 
         @Getter
