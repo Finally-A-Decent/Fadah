@@ -17,7 +17,7 @@ import java.util.Objects;
 public record CollectableItem(
         ItemStack itemStack,
         long dateAdded
-) {
+) implements Comparable<CollectableItem> {
     /**
      * Create a collectable item that is timestamped at the current time.
      *
@@ -39,5 +39,10 @@ public record CollectableItem(
     @Override
     public int hashCode() {
         return Objects.hash(itemStack, dateAdded);
+    }
+
+    @Override
+    public int compareTo(@NotNull CollectableItem o) {
+        return Long.compare(o.dateAdded, this.dateAdded);
     }
 }

@@ -42,6 +42,8 @@ public class HistoryMenu extends PaginatedFastInv {
             this.historicItems.removeIf(historicItem -> !TimeUtil.formatTimeToVisualDate(historicItem.loggedDate()).contains(dateSearch));
         }
 
+        this.historicItems.sort(HistoricItem::compareTo);
+
         fillers();
         setPaginationMappings(getLayout().paginationSlots());
 
@@ -96,5 +98,12 @@ public class HistoryMenu extends PaginatedFastInv {
                         .lore(getLang().getLore("search.lore")).build(), e ->
                         new SearchMenu(viewer, getLang().getString("search.placeholder", "Ex: 21/04/2024 22:26"),
                                 search -> new HistoryMenu(viewer, owner, search).open(viewer)));
+    }
+
+    @Override
+    protected void updatePagination() {
+        this.historicItems.sort(HistoricItem::compareTo);
+
+        super.updatePagination();
     }
 }

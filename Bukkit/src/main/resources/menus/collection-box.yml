@@ -1,4 +1,6 @@
-title: '&9&lAuction House &8> &e{0} Collection Box' # {0} = "Your" or the players name if in management mode, {1} = the players username
+# %dynamic% = "Your" or the players name if in management mode, %username% = the players username
+
+title: '&9&lAuction House &8> &e%dynamic% Collection Box'
 
 lang:
   lore:

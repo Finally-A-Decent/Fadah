@@ -25,25 +25,22 @@ combat:
     - '&7▪ &fBows'
     - '&7▪ &fShields'
   materials:
-    - '*_SWORD'
-    - '*_BOOTS'
-    - '*_LEGGINGS'
-    - '*_CHESTPLATE'
-    - '*_HELMET'
-    - BOW
+    - '%material%.endsWith("_SWORD")'
+    - '%material%.endsWith("_BOOTS")'
+    - '%material%.endsWith("_LEGGINGS")'
+    - '%material%.endsWith("_CHESTPLATE")'
+    - '%material%.endsWith("_HELMET")'
+    - '%material% == "BOW"'
 
 keys:
   name: '&3Crate Keys'
   priority: 4
-  icon: DIAMOND_PICKAXE
+  icon: TRIPWIRE_HOOK
   icon-model-data: 0
   description:
     - '&fPickaxes, Axes, Hoes, etc'
   materials:
-    - '*_AXE'
-    - '*_PICKAXE'
-    - '*_HOE'
-    - '*_SHOVEL'
+    - '%material% == "TRIPWIRE_HOOK"'
 
 spawners-and-eggs:
   name: '&5Spawners and Mob Eggs'
@@ -53,8 +50,8 @@ spawners-and-eggs:
   description:
     - '&fAll Mob Spawners and Mob Spawn Eggs'
   materials:
-    - SPAWNER
-    - '*_SPAWN_EGG'
+    - '%material% == "SPAWNER"'
+    - '%material%.endsWith("_SPAWN_EGG")'
 
 building-blocks:
   name: '&dBuilding Blocks'
@@ -64,15 +61,15 @@ building-blocks:
   description:
     - '&fBlocks used to make &ebeautiful &fbuildings!'
   materials:
-    - 'COARSE_DIRT'
-    - 'TERRACOTTA'
-    - '*_WOOL'
-    - '*_TERRACOTTA'
-    - '*_CONCRETE'
-    - '*_CONCRETE_POWDER'
-    - 'GLASS'
-    - '*_GLASS'
-    - '*_GLASS_PANE'
+    - '%material% == "COARSE_DIRT"'
+    - '%material% == "TERRACOTTA"'
+    - '%material%.endsWith("_WOOL")'
+    - '%material%.endsWith("_TERRACOTTA")'
+    - '%material%.endsWith("_CONCRETE")'
+    - '%material%.endsWith("_CONCRETE_POWDER")'
+    - '%material% == "GLASS"'
+    - '%material%.endsWith("_GLASS")'
+    - '%material%.endsWith("_GLASS_PANE")'
 
 redstone:
   name: '&cRedstone'

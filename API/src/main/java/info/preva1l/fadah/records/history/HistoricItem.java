@@ -28,7 +28,7 @@ public record HistoricItem(
         @Expose @Nullable Double price,
         @Expose @Nullable UUID playerUUID,
         @Expose @Nullable Boolean biddable
-) {
+) implements Comparable<HistoricItem> {
 
     @Override
     public boolean equals(Object o) {
@@ -98,5 +98,10 @@ public record HistoricItem(
         public String getLocaleActionName() {
             return AuctionHouseAPI.getInstance().getLoggedActionLocale(this);
         }
+    }
+
+    @Override
+    public int compareTo(@NotNull HistoricItem o) {
+        return Long.compare(o.loggedDate, this.loggedDate);
     }
 }

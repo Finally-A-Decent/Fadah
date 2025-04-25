@@ -8,6 +8,7 @@ import info.preva1l.fadah.config.Menus;
 import info.preva1l.fadah.config.misc.Tuple;
 import info.preva1l.fadah.filters.SortingDirection;
 import info.preva1l.fadah.filters.SortingMethod;
+import info.preva1l.fadah.records.Category;
 import info.preva1l.fadah.records.listing.BidListing;
 import info.preva1l.fadah.records.listing.BinListing;
 import info.preva1l.fadah.records.listing.Listing;
@@ -44,6 +45,7 @@ public abstract class BrowseMenu extends ScrollBarFastInv {
     protected final String search;
     protected SortingMethod sortingMethod;
     protected SortingDirection sortingDirection;
+    protected Category category;
 
     protected BrowseMenu(
             Player player,
@@ -52,8 +54,9 @@ public abstract class BrowseMenu extends ScrollBarFastInv {
             Supplier<List<Listing>> listings,
             @Nullable String search,
             @Nullable SortingMethod sortingMethod,
-            @Nullable SortingDirection sortingDirection
-    ) {
+            @Nullable SortingDirection sortingDirection,
+            @Nullable Category category
+            ) {
         super(menuType.getLayout().guiSize(), menuType.getLayout().guiTitle(), player, menuType);
 
         this.listingSupplier = listings;
@@ -64,6 +67,7 @@ public abstract class BrowseMenu extends ScrollBarFastInv {
         this.search = search;
         this.sortingMethod = (sortingMethod == null ? SortingMethod.AGE : sortingMethod);
         this.sortingDirection = (sortingDirection == null ? SortingDirection.ASCENDING : sortingDirection);
+        this.category = category;
 
         this.listings.sort(this.sortingMethod.getSorter(this.sortingDirection));
 
@@ -72,6 +76,10 @@ public abstract class BrowseMenu extends ScrollBarFastInv {
                     listing -> !(Text.doesItemHaveString(search, listing.getItemStack())
                             || doesBookHaveEnchant(search, listing.getItemStack()))
             );
+        }
+
+        if (category != null) {
+            this.listings.removeIf(listing -> !listing.getCategoryID().equals(category.id()));
         }
 
         fillers();
@@ -266,6 +274,11 @@ public abstract class BrowseMenu extends ScrollBarFastInv {
             listings.removeIf(listing -> !(Text.doesItemHaveString(search, listing.getItemStack())
                     || doesBookHaveEnchant(search, listing.getItemStack())));
         }
+
+        if (category != null) {
+            this.listings.removeIf(listing -> !listing.getCategoryID().equals(category.id()));
+        }
+
 
         listings.sort(this.sortingMethod.getSorter(this.sortingDirection));
 

@@ -32,13 +32,9 @@ public class MainMenu extends BrowseMenu {
                 () -> CacheAccess.getAll(Listing.class),
                 search,
                 sortingMethod,
-                sortingDirection
+                sortingDirection,
+                category
         );
-        this.category = category;
-
-        if (category != null) {
-            listings.removeIf(listing -> !listing.getCategoryID().equals(category.id()));
-        }
     }
 
     @Override
@@ -91,14 +87,5 @@ public class MainMenu extends BrowseMenu {
                         .addLore(getLang().getLore("profile-button.lore"))
                         .modelData(getLang().getInt("profile-button.model-data"))
                         .build(), e -> new ProfileMenu(player, player).open(player));
-    }
-
-    @Override
-    protected void updatePagination() {
-        super.updatePagination();
-
-        if (category != null) {
-            listings.removeIf(listing -> !listing.getCategoryID().equals(category.id()));
-        }
     }
 }

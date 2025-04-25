@@ -1,9 +1,11 @@
-title: '&9&lAuction House &8> &c{0} Expired Listings' # {0} = "Your" or the players name if in management mode, {1} = the players username
+# %dynamic% = "Your" or the players name if in management mode, %username% = the players username
+
+title: '&9&lAuction House &8> &c%dynamic% Expired Listings'
 
 lang:
   lore:
     - '&8&n---------------------------'
-    - '&fAdded: &e{0} &fago'
+    - '&fAdded: &e%time% &fago'
     - '&r '
     - '&eClick To Re-Claim!'
     - '&8&n---------------------------'

@@ -31,7 +31,8 @@ public class ViewListingsMenu extends BrowseMenu {
                 },
                 search,
                 sortingMethod,
-                sortingDirection
+                sortingDirection,
+                null
         );
     }
 

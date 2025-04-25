@@ -32,6 +32,8 @@ public class CollectionMenu extends PaginatedFastInv {
     protected final OfflinePlayer owner;
     protected final boolean expired;
 
+    private final List<CollectableItem> items;
+
     public CollectionMenu(Player viewer, OfflinePlayer owner, LayoutManager.MenuType menuType) {
         super(
                 menuType.getLayout().guiSize(),
@@ -48,6 +50,12 @@ public class CollectionMenu extends PaginatedFastInv {
         this.owner = owner;
         this.expired = menuType == LayoutManager.MenuType.EXPIRED_LISTINGS;
 
+        this.items = expired
+                ? CacheAccess.getNotNull(ExpiredItems.class, owner.getUniqueId()).expiredItems()
+                : CacheAccess.getNotNull(CollectionBox.class, owner.getUniqueId()).collectableItems();
+
+        this.items.sort(CollectableItem::compareTo);
+
         fillers();
         setPaginationMappings(getLayout().paginationSlots());
         addNavigationButtons();
@@ -58,9 +66,6 @@ public class CollectionMenu extends PaginatedFastInv {
 
     @Override
     protected void fillPaginationItems() {
-        var items = expired
-                ? CacheAccess.getNotNull(ExpiredItems.class, owner.getUniqueId()).expiredItems()
-                : CacheAccess.getNotNull(CollectionBox.class, owner.getUniqueId()).collectableItems();
         for (CollectableItem expiredItem : items) {
             ItemBuilder itemStack = new ItemBuilder(expiredItem.itemStack().clone())
                     .addLore(getLang().getLore("lore", Tuple.of("%time%", TimeUtil.formatTimeSince(expiredItem.dateAdded()))));
@@ -108,5 +113,12 @@ public class CollectionMenu extends PaginatedFastInv {
         setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.BACK, -1),
                 Menus.i().getBackButton().itemStack(), e ->
                         new ProfileMenu(player, owner).open(player));
+    }
+
+    @Override
+    protected void updatePagination() {
+        this.items.sort(CollectableItem::compareTo);
+
+        super.updatePagination();
     }
 }
