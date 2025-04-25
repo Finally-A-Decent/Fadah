@@ -14,6 +14,7 @@ import info.preva1l.fadah.utils.TaskManager;
 import info.preva1l.fadah.utils.logging.TransactionLogger;
 import info.preva1l.fadah.watcher.AuctionWatcher;
 import info.preva1l.fadah.watcher.Watching;
+import info.preva1l.trashcan.plugin.annotations.PluginEnable;
 import org.bukkit.Bukkit;
 
 import java.util.UUID;
@@ -23,9 +24,9 @@ import java.util.function.Supplier;
 public interface DataProvider {
     Fadah getPlugin();
 
+    @PluginEnable
     default void loadDataAndPopulateCaches() {
         DatabaseManager.getInstance(); // Make the connection happen during startup
-        CacheAccess.init();
         CategoryRegistry.loadCategories();
 
         DatabaseManager.getInstance().getAll(Listing.class)

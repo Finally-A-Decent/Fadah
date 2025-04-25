@@ -3,6 +3,7 @@ package info.preva1l.fadah.hooks;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.hooker.Hooker;
+import info.preva1l.trashcan.plugin.annotations.PluginReload;
 
 public interface HookProvider {
     default void loadHooks() {
@@ -20,5 +21,10 @@ public interface HookProvider {
         );
 
         Hooker.load();
+    }
+
+    @PluginReload
+    default void reloadHooks() {
+        Hooker.reload();
     }
 }

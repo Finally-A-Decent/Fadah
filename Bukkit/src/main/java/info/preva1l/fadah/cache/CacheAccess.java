@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class CacheAccess {
     private static final Map<Class<?>, Cache<?>> cacheMap = new ConcurrentHashMap<>();
 
-    public static void init() {
+    static {
         registerCache(Listing.class, MemoryListingCache::new, DistributedListingCache::new);
         registerCache(CollectionBox.class, MemoryCollectionCache::new, DistributedCollectionCache::new);
         registerCache(ExpiredItems.class, MemoryExpiredCache::new, DistributedExpiredCache::new);

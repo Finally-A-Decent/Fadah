@@ -26,7 +26,6 @@ import info.preva1l.trashcan.plugin.BasePlugin;
 import info.preva1l.trashcan.plugin.annotations.PluginDisable;
 import info.preva1l.trashcan.plugin.annotations.PluginEnable;
 import info.preva1l.trashcan.plugin.annotations.PluginLoad;
-import info.preva1l.trashcan.plugin.annotations.PluginReload;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 
@@ -122,11 +121,6 @@ public final class Fadah extends BasePlugin implements MigrationProvider, Curren
                 new BasicConfig(this, "menus/view-listings.yml"),
                 new BasicConfig(this, "menus/watch.yml")
         ).forEach(LayoutManager.instance::loadLayout);
-    }
-
-    @PluginReload
-    public void extraReloads() {
-        Hooker.reload();
     }
 
     @Override

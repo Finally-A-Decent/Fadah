@@ -56,8 +56,18 @@ public abstract class BrowseMenu extends ScrollBarFastInv {
             @Nullable SortingMethod sortingMethod,
             @Nullable SortingDirection sortingDirection,
             @Nullable Category category
-            ) {
-        super(menuType.getLayout().guiSize(), menuType.getLayout().guiTitle(), player, menuType);
+    ) {
+        super(
+                menuType.getLayout().guiSize(),
+                menuType.getLayout().formattedTitle(
+                        Tuple.of("%dynamic%", player.getUniqueId() == owner.getUniqueId()
+                                ? Text.capitalizeFirst(Lang.i().getWords().getYour())
+                                : owner.getName()),
+                        Tuple.of("%username%", owner.getName())
+                ),
+                player,
+                menuType
+        );
 
         this.listingSupplier = listings;
         this.listings = listingSupplier.get();
