@@ -32,8 +32,8 @@ subprojects {
     apply(plugin = "com.gradleup.shadow")
 
     dependencies {
-        compileOnly("org.projectlombok:lombok:1.18.36")
-        annotationProcessor("org.projectlombok:lombok:1.18.36")
+        compileOnly("org.projectlombok:lombok:1.18.38")
+        annotationProcessor("org.projectlombok:lombok:1.18.38")
 
         compileOnly("org.jetbrains:annotations:26.0.2")
         annotationProcessor("org.jetbrains:annotations:26.0.2")
@@ -44,8 +44,8 @@ subprojects {
         testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.12.1")
 
         testCompileOnly("org.jetbrains:annotations:26.0.2")
-        testCompileOnly("org.projectlombok:lombok:1.18.36")
-        testAnnotationProcessor("org.projectlombok:lombok:1.18.36")
+        testCompileOnly("org.projectlombok:lombok:1.18.38")
+        testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
     }
 
     tasks.withType<ShadowJar> {
