@@ -15,7 +15,6 @@ import info.preva1l.fadah.records.listing.ImplListingBuilder;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.records.post.PostResult;
 import info.preva1l.fadah.utils.TaskManager;
-import info.preva1l.fadah.utils.Text;
 import info.preva1l.fadah.utils.TimeUtil;
 import info.preva1l.fadah.utils.guis.FastInv;
 import info.preva1l.fadah.utils.guis.ItemBuilder;
@@ -171,14 +170,12 @@ public class NewListingMenu extends FastInv {
     }
 
     private void setAdvertButton() {
-        Component postAdvert = Text.replace(advertise
-                        ? getLang().getStringFormatted("advert.options.selected", "&8> &e%option%")
-                        : getLang().getStringFormatted("advert.options.not-selected", "&f%option%"),
-                Tuple.of("%option%", Lang.i().getAdvertActions().getPost()));
-        Component dontPost = Text.replace(!advertise
-                        ? getLang().getStringFormatted("advert.options.selected", "&8> &e%option%")
-                        : getLang().getStringFormatted("advert.options.not-selected", "&f%option%"),
-                Tuple.of("%option%", Lang.i().getAdvertActions().getSilent()));
+        Component postAdvert = advertise
+                        ? getLang().getStringFormatted("advert.options.selected", "&8> &e%option%", Tuple.of("%option%", Lang.i().getAdvertActions().getPost()))
+                        : getLang().getStringFormatted("advert.options.not-selected", "&f%option%", Tuple.of("%option%", Lang.i().getAdvertActions().getPost()));
+        Component dontPost = !advertise
+                        ? getLang().getStringFormatted("advert.options.selected", "&8> &e%option%", Tuple.of("%option%", Lang.i().getAdvertActions().getPost()))
+                        : getLang().getStringFormatted("advert.options.not-selected", "&f%option%", Tuple.of("%option%", Lang.i().getAdvertActions().getPost()));
 
         removeItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.LISTING_ADVERT, -1));
         setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.LISTING_ADVERT, -1),
@@ -232,14 +229,12 @@ public class NewListingMenu extends FastInv {
     }
 
     private void setModeButton() {
-        Component bidding = Text.replace(isBidding
-                        ? getLang().getStringFormatted("mode.options.selected", "&8> &e%option%")
-                        : getLang().getStringFormatted("mode.options.not-selected", "&f%option%"),
-                Tuple.of("%option%", Lang.i().getWords().getModes().getBidding()));
-        Component bin = Text.replace(!isBidding
-                        ? getLang().getStringFormatted("mode.options.selected", "&8> &e%option%")
-                        : getLang().getStringFormatted("mode.options.not-selected", "&f%option%"),
-                Tuple.of("%option%", Lang.i().getWords().getModes().getBuyItNow()));
+        Component bidding = isBidding
+                        ? getLang().getStringFormatted("mode.options.selected", "&8> &e%option%", Tuple.of("%option%", Lang.i().getWords().getModes().getBidding()))
+                        : getLang().getStringFormatted("mode.options.not-selected", "&f%option%", Tuple.of("%option%", Lang.i().getWords().getModes().getBidding()));
+        Component bin = !isBidding
+                        ? getLang().getStringFormatted("mode.options.selected", "&8> &e%option%", Tuple.of("%option%", Lang.i().getWords().getModes().getBuyItNow()))
+                        : getLang().getStringFormatted("mode.options.not-selected", "&f%option%", Tuple.of("%option%", Lang.i().getWords().getModes().getBuyItNow()));
 
         removeItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.LISTING_MODE, -1));
         setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.LISTING_MODE, -1),

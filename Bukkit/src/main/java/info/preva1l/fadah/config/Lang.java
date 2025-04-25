@@ -6,6 +6,7 @@ import de.exlll.configlib.YamlConfigurationProperties;
 import de.exlll.configlib.YamlConfigurations;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.utils.Text;
+import info.preva1l.trashcan.plugin.annotations.PluginReload;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -395,6 +396,7 @@ public class Lang {
         YamlConfigurations.save(new File(Fadah.getInstance().getDataFolder(), "lang.yml").toPath(), Lang.class, this);
     }
 
+    @PluginReload
     public static void reload() {
         instance = YamlConfigurations.load(new File(Fadah.getInstance().getDataFolder(), "lang.yml").toPath(), Lang.class, PROPERTIES);
     }

@@ -1,24 +1,40 @@
 package info.preva1l.fadah.utils.guis;
 
 import info.preva1l.fadah.Fadah;
-import info.preva1l.fadah.utils.Text;
 import info.preva1l.fadah.utils.config.BasicConfig;
 import info.preva1l.fadah.utils.config.LanguageConfig;
-import net.kyori.adventure.text.Component;
+import info.preva1l.trashcan.plugin.annotations.PluginReload;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class LayoutManager {
+    public static final LayoutManager instance = new LayoutManager();
+
     private final List<GuiLayout> guiLayouts = new ArrayList<>();
+
+    @PluginReload
+    public void reload() {
+        Stream.of(
+                LayoutManager.MenuType.MAIN,
+                LayoutManager.MenuType.NEW_LISTING,
+                LayoutManager.MenuType.PROFILE,
+                LayoutManager.MenuType.EXPIRED_LISTINGS,
+                LayoutManager.MenuType.COLLECTION_BOX,
+                LayoutManager.MenuType.CONFIRM_PURCHASE,
+                LayoutManager.MenuType.HISTORY,
+                LayoutManager.MenuType.WATCH
+        ).forEach(this::reloadLayout);
+    }
 
     public void loadLayout(BasicConfig config) {
         final MenuType menuType = getMenuType(config.getFileName());
 
-        final Component guiTitle = Text.text(config.getString("title"));
+        final String guiTitle = config.getString("title");
 
         final List<Integer> fillerSlots = new ArrayList<>();
         final List<Integer> paginationSlots = new ArrayList<>();
@@ -142,7 +158,7 @@ public class LayoutManager {
         ;
 
         public GuiLayout getLayout() {
-            return Fadah.getInstance().getLayoutManager().getLayout(this);
+            return LayoutManager.instance.getLayout(this);
         }
     }
 

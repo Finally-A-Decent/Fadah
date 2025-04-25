@@ -243,7 +243,7 @@ public class FastInv implements InventoryHolder {
     }
 
     public @NotNull GuiLayout getLayout() {
-        return Fadah.getInstance().getLayoutManager().getLayout(this);
+        return LayoutManager.instance.getLayout(this);
     }
 
     public @NotNull LanguageConfig getLang() {

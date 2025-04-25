@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class ViewListingsMenu extends PurchaseMenu {
+public class ViewListingsMenu extends BrowseMenu {
     public ViewListingsMenu(
             @NotNull Player player,
             OfflinePlayer owner,
@@ -38,8 +38,8 @@ public class ViewListingsMenu extends PurchaseMenu {
     protected void addNavigationButtons() {
         super.addNavigationButtons();
 
-        setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.CLOSE, -1),
-                Menus.i().getCloseButton().itemStack(), e -> e.getWhoClicked().closeInventory());
+        setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.BACK, -1),
+                Menus.i().getBackButton().itemStack(), e -> new ProfileMenu(player, owner).open(player));
     }
 
     @Override

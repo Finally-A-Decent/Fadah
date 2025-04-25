@@ -34,7 +34,7 @@ import java.util.function.Supplier;
  *
  * @author Preva1l
  */
-public abstract class PurchaseMenu extends ScrollBarFastInv {
+public abstract class BrowseMenu extends ScrollBarFastInv {
     protected final Supplier<List<Listing>> listingSupplier;
     protected final List<Listing> listings;
 
@@ -45,7 +45,7 @@ public abstract class PurchaseMenu extends ScrollBarFastInv {
     protected SortingMethod sortingMethod;
     protected SortingDirection sortingDirection;
 
-    protected PurchaseMenu(
+    protected BrowseMenu(
             Player player,
             OfflinePlayer owner,
             LayoutManager.MenuType menuType,
@@ -195,14 +195,30 @@ public abstract class PurchaseMenu extends ScrollBarFastInv {
                 });
 
         // Filter Direction Toggle
-        Component asc = Text.replace(sortingDirection == SortingDirection.ASCENDING
-                        ? getLang().getStringFormatted("filter.change-direction.options.selected", "&8> &e%option%")
-                        : getLang().getStringFormatted("filter.change-direction.options.not-selected", "&f%option%"),
-                Tuple.of("%option%", sortingMethod.getLang(SortingDirection.ASCENDING)));
-        Component desc = Text.replace(sortingDirection == SortingDirection.DESCENDING
-                        ? getLang().getStringFormatted("filter.change-direction.options.selected", "&8> &e%option%")
-                        : getLang().getStringFormatted("filter.change-direction.options.not-selected", "&f%option%"),
-                Tuple.of("%option%", sortingMethod.getLang(SortingDirection.DESCENDING)));
+        Component asc =
+                sortingDirection == SortingDirection.ASCENDING
+                        ? getLang().getStringFormatted(
+                        "filter.change-direction.options.selected",
+                        "&8> &e%option%",
+                        Tuple.of("%option%", sortingMethod.getLang(SortingDirection.ASCENDING))
+                )
+                        : getLang().getStringFormatted(
+                        "filter.change-direction.options.not-selected",
+                        "&f%option%",
+                        Tuple.of("%option%", sortingMethod.getLang(SortingDirection.ASCENDING))
+                );
+        Component desc =
+                sortingDirection == SortingDirection.DESCENDING
+                        ? getLang().getStringFormatted(
+                        "filter.change-direction.options.selected",
+                        "&8> &e%option%",
+                        Tuple.of("%option%", sortingMethod.getLang(SortingDirection.DESCENDING))
+                )
+                        : getLang().getStringFormatted(
+                        "filter.change-direction.options.not-selected",
+                        "&f%option%",
+                        Tuple.of("%option%", sortingMethod.getLang(SortingDirection.DESCENDING))
+                );
 
         removeItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.FILTER_DIRECTION,-1));
         setItem(getLayout().buttonSlots().getOrDefault(LayoutManager.ButtonType.FILTER_DIRECTION,-1),

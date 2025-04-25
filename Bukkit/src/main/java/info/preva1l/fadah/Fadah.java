@@ -1,5 +1,6 @@
 package info.preva1l.fadah;
 
+import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import info.preva1l.fadah.api.AuctionHouseAPI;
 import info.preva1l.fadah.api.BukkitAuctionHouseAPI;
 import info.preva1l.fadah.commands.CommandProvider;
@@ -21,35 +22,39 @@ import info.preva1l.fadah.utils.guis.FastInvManager;
 import info.preva1l.fadah.utils.guis.LayoutManager;
 import info.preva1l.fadah.utils.logging.LoggingProvider;
 import info.preva1l.hooker.Hooker;
+import info.preva1l.trashcan.plugin.BasePlugin;
+import info.preva1l.trashcan.plugin.annotations.PluginDisable;
+import info.preva1l.trashcan.plugin.annotations.PluginEnable;
+import info.preva1l.trashcan.plugin.annotations.PluginLoad;
+import info.preva1l.trashcan.plugin.annotations.PluginReload;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public final class Fadah extends JavaPlugin implements MigrationProvider, CurrencyProvider, CommandProvider,
+public final class Fadah extends BasePlugin implements MigrationProvider, CurrencyProvider, CommandProvider,
         MetricsProvider, LoggingProvider, HookProvider, DataProvider, DefaultProcessorArgsProvider, UpdatesProvider {
-    @Getter private static Fadah instance;
+    @Getter public static Fadah instance;
     @Getter private static Logger console;
 
     @Getter private final Logger transactionLogger = Logger.getLogger("AuctionHouse-Transactions");
     @Getter private BasicConfig categoriesFile;
-    @Getter private BasicConfig menusFile;
 
-    @Getter private LayoutManager layoutManager;
-
-    @Override
-    public void onLoad() {
+    public Fadah() {
         instance = this;
+    }
+
+    @PluginLoad
+    public void load() {
         console = getLogger();
         loadHooks();
         initLogger();
     }
 
-    @Override
-    public void onEnable() {
+    @PluginEnable
+    public void enable() {
         getConsole().info("Enabling the API...");
         AuctionHouseAPI.setInstance(new BukkitAuctionHouseAPI());
         getConsole().info("API Enabled!");
@@ -81,12 +86,16 @@ public final class Fadah extends JavaPlugin implements MigrationProvider, Curren
         checkForUpdates();
     }
 
-    @Override
-    public void onDisable() {
-        FastInvManager.closeAll(this);
+    @PluginDisable
+    public void disable() {
         DatabaseManager.getInstance().shutdown();
         if (Config.i().getBroker().isEnabled()) Broker.getInstance().destroy();
         shutdownMetrics();
+    }
+
+    @Override
+    public BukkitCommandManager<?> getCommandManager() {
+        return CommandManagerHolder.commandManager;
     }
 
     private void loadFiles() {
@@ -102,7 +111,6 @@ public final class Fadah extends JavaPlugin implements MigrationProvider, Curren
     }
 
     private void loadMenus() {
-        layoutManager = new LayoutManager();
         Stream.of(
                 new BasicConfig(this, "menus/main.yml"),
                 new BasicConfig(this, "menus/new-listing.yml"),
@@ -113,7 +121,12 @@ public final class Fadah extends JavaPlugin implements MigrationProvider, Curren
                 new BasicConfig(this, "menus/profile.yml"),
                 new BasicConfig(this, "menus/view-listings.yml"),
                 new BasicConfig(this, "menus/watch.yml")
-        ).forEach(layoutManager::loadLayout);
+        ).forEach(LayoutManager.instance::loadLayout);
+    }
+
+    @PluginReload
+    public void extraReloads() {
+        Hooker.reload();
     }
 
     @Override

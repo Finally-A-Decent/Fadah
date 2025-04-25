@@ -2,6 +2,8 @@ package info.preva1l.fadah.utils.guis;
 
 import com.github.puregero.multilib.MultiLib;
 import info.preva1l.fadah.utils.TaskManager;
+import info.preva1l.trashcan.plugin.annotations.PluginDisable;
+import info.preva1l.trashcan.plugin.annotations.PluginReload;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -9,11 +11,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.server.PluginDisableEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
 
+import java.lang.reflect.Method;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Manager for FastInv listeners.
@@ -21,8 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author MrMicky
  */
 public final class FastInvManager {
-
-    private static final AtomicBoolean REGISTERED = new AtomicBoolean(false);
+    private static final AtomicReference<Plugin> PLUGIN = new AtomicReference<>();
 
     private FastInvManager() {
         throw new UnsupportedOperationException();
@@ -38,7 +41,7 @@ public final class FastInvManager {
     public static void register(Plugin plugin) {
         Objects.requireNonNull(plugin, "plugin");
 
-        if (REGISTERED.getAndSet(true)) {
+        if (PLUGIN.getAndSet(plugin) != null) {
             throw new IllegalStateException("FastInv is already registered");
         }
 
@@ -48,14 +51,33 @@ public final class FastInvManager {
     /**
      * Close all open FastInv inventories.
      */
-    public static void closeAll(Plugin plugin) {
+    @PluginReload
+    public static void closeAll() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            MultiLib.getEntityScheduler(player).execute(plugin, () -> {
-                if (player.getOpenInventory().getTopInventory().getHolder() instanceof FastInv) {
-                    player.closeInventory();
+            MultiLib.getEntityScheduler(player).execute(PLUGIN.get(), () -> {
+                try {
+                    Method getOpenInventory = Player.class.getMethod("getOpenInventory");
+                    Object inventoryView = getOpenInventory.invoke(player);
+
+                    Method getTopInventory = inventoryView.getClass().getMethod("getTopInventory");
+                    Inventory topInventory = (Inventory) getTopInventory.invoke(inventoryView);
+
+                    InventoryHolder holder = topInventory.getHolder();
+
+                    if (holder instanceof FastInv) {
+                        player.closeInventory();
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
             }, null, 0L);
         }
+    }
+
+    @PluginDisable
+    public static void onPluginDisable() {
+        closeAll();
+        PLUGIN.set(null);
     }
 
     public static final class InventoryListener implements Listener {
@@ -94,15 +116,6 @@ public final class FastInvManager {
                 if (inv.handleClose(e)) {
                     TaskManager.Sync.run(this.plugin, () -> inv.open((Player) e.getPlayer()));
                 }
-            }
-        }
-
-        @EventHandler
-        public void onPluginDisable(PluginDisableEvent e) {
-            if (e.getPlugin() == this.plugin) {
-                closeAll(this.plugin);
-
-                REGISTERED.set(false);
             }
         }
     }

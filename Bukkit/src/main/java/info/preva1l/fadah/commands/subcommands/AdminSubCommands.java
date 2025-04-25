@@ -22,7 +22,7 @@ public interface AdminSubCommands {
                     .build().send(Broker.getInstance());
         }
 
-        FastInvManager.closeAll(plugin);
+        FastInvManager.closeAll();
         boolean enabled = !Config.i().isEnabled();
         Config.i().setEnabled(enabled);
 

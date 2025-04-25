@@ -1,5 +1,9 @@
 package info.preva1l.fadah.commands;
 
+import dev.triumphteam.cmd.bukkit.annotation.Permission;
+import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.annotation.*;
+import dev.triumphteam.cmd.core.flag.Flags;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.cache.CategoryRegistry;
@@ -13,10 +17,6 @@ import info.preva1l.fadah.records.listing.BinListing;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.utils.Text;
 import info.preva1l.fadah.utils.guis.LayoutManager;
-import info.preva1l.trashcan.commands.bukkit.annotation.Permission;
-import info.preva1l.trashcan.commands.core.BaseCommand;
-import info.preva1l.trashcan.commands.core.annotation.*;
-import info.preva1l.trashcan.commands.core.flag.Flags;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

@@ -17,13 +17,13 @@ public record GuiLayout(
         @NotNull List<Integer> scrollbarSlots,
         @NotNull List<Integer> noItems,
         @NotNull HashMap<LayoutManager.ButtonType, Integer> buttonSlots,
-        @NotNull Component guiTitle,
+        @NotNull String guiTitle,
         int guiSize,
         @NotNull LanguageConfig language,
         @NotNull BasicConfig extraConfig
 ) {
     @SafeVarargs
     public final Component formattedTitle(Tuple<String, Object>... args) {
-        return Text.replace(guiTitle, args);
+        return Text.text(guiTitle, args);
     }
 }

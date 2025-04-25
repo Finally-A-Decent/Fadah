@@ -1,13 +1,13 @@
 package info.preva1l.fadah.commands;
 
+import dev.triumphteam.cmd.bukkit.annotation.Permission;
+import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.annotation.Command;
+import dev.triumphteam.cmd.core.annotation.Default;
+import dev.triumphteam.cmd.core.annotation.Requirement;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.utils.Text;
-import info.preva1l.trashcan.commands.bukkit.annotation.Permission;
-import info.preva1l.trashcan.commands.core.BaseCommand;
-import info.preva1l.trashcan.commands.core.annotation.Command;
-import info.preva1l.trashcan.commands.core.annotation.Default;
-import info.preva1l.trashcan.commands.core.annotation.Requirement;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 

@@ -2,9 +2,11 @@ package info.preva1l.fadah.utils.guis;
 
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
+import lombok.SneakyThrows;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -82,12 +84,12 @@ public class ItemBuilder {
         return edit(item -> item.setAmount(amount));
     }
 
-    public void enchant(Enchantment enchantment) {
-        enchant(enchantment, 1);
+    public ItemBuilder enchant(Enchantment enchantment) {
+        return enchant(enchantment, 1);
     }
 
-    public void enchant(Enchantment enchantment, int level) {
-        meta(meta -> meta.addEnchant(enchantment, level, true));
+    public ItemBuilder enchant(Enchantment enchantment, int level) {
+        return meta(meta -> meta.addEnchant(enchantment, level, true));
     }
 
     public ItemBuilder removeEnchant(Enchantment enchantment) {
@@ -96,6 +98,10 @@ public class ItemBuilder {
 
     public ItemBuilder removeEnchants() {
         return meta(m -> m.getEnchants().keySet().forEach(m::removeEnchant));
+    }
+
+    public ItemBuilder glow(boolean glow) {
+        return enchant(Enchantment.getByKey(NamespacedKey.minecraft("unbreaking")));
     }
 
     public ItemBuilder name(String name) {
@@ -202,8 +208,9 @@ public class ItemBuilder {
         return removeFlags(ItemFlag.values());
     }
 
+    @SneakyThrows
     public ItemBuilder attributeSillyStuff() {
-        for (Attribute attribute : Attribute.values()) {
+        for (Attribute attribute : (Attribute[]) Attribute.class.getDeclaredMethod("values").invoke(null)) {
             meta(meta -> meta.setAttributeModifiers(ImmutableListMultimap.of()));
         }
         return this;

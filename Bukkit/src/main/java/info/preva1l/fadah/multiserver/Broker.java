@@ -55,7 +55,7 @@ public abstract class Broker {
             }
 
             case TOGGLE -> {
-                FastInvManager.closeAll(Fadah.getInstance());
+                FastInvManager.closeAll();
                 boolean enabled = Config.i().isEnabled();
                 Config.i().setEnabled(!enabled);
 

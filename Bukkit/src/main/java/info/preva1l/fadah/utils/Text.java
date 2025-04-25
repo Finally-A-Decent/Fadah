@@ -46,8 +46,8 @@ public class Text {
     public Component text(@Nullable Player player, @NotNull String message, Tuple<String, Object>... args) {
         Optional<PapiHook> hook = Hooker.getHook(PapiHook.class);
         if (hook.isPresent()) message = hook.get().format(player, message);
-        return replace(miniMessage.deserialize(unescape(miniMessage.serialize(
-                                        legacySerializer.deserialize("<!italic>" + message)))), args);
+        return miniMessage.deserialize(unescape(miniMessage.serialize(
+                                        legacySerializer.deserialize("<!italic>" + replace(message, args)))));
     }
 
     @SafeVarargs
@@ -109,30 +109,6 @@ public class Text {
             }
 
             message = message.replace(replacement.first, String.valueOf(replacement.second));
-        }
-        return message;
-    }
-
-    /**
-     * Formats a message with placeholders.
-     *
-     * @param message message with placeholders
-     * @param args    placeholders to replace
-     * @return formatted string
-     */
-    @SafeVarargs
-    public Component replace(Component message, Tuple<String, Object>... args) {
-        if (args == null) return message;
-        for (Tuple<String, Object> replacement : args) {
-            TextComponent text = (TextComponent) message;
-            if (!text.content().contains(replacement.first)) continue;
-
-            if (replacement.second instanceof Component comp) {
-                message = message.replaceText(conf -> conf.match(replacement.first).replacement(comp));
-                continue;
-            }
-
-            message = message.replaceText(conf -> conf.match(replacement.first).replacement(String.valueOf(replacement.second)));
         }
         return message;
     }

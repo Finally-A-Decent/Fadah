@@ -5,6 +5,7 @@ import info.preva1l.fadah.data.DatabaseManager;
 import info.preva1l.fadah.processor.JavaScriptProcessor;
 import info.preva1l.fadah.records.Category;
 import info.preva1l.fadah.utils.config.BasicConfig;
+import info.preva1l.trashcan.plugin.annotations.PluginReload;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -55,6 +56,7 @@ public final class CategoryRegistry {
         }, DatabaseManager.getInstance().getThreadPool());
     }
 
+    @PluginReload
     public void loadCategories() {
         Fadah.getInstance().getCategoriesFile().load();
         SortedSet<Category> set = new TreeSet<>();

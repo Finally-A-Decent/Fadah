@@ -11,12 +11,9 @@ repositories {
     maven(url = "https://oss.sonatype.org/content/groups/public/")
     maven(url = "https://jitpack.io")
     maven(url = "https://repo.codemc.io/repository/maven-snapshots/")
-    maven(url = "https://repo.clojars.org/")
-    maven(url = "https://repo.william278.net/snapshots")
     maven(url = "https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven(url = "https://mvn-repo.arim.space/lesser-gpl3/")
     maven(url = "https://repo.rosewooddev.io/repository/public/")
-    maven(url = "https://repo.triumphteam.dev/snapshots/")
 }
 
 dependencies {
@@ -30,17 +27,17 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.6") // Placeholder support
 
     // Database
-    compileOnly("com.zaxxer:HikariCP:6.2.1")
-    compileOnly("org.xerial:sqlite-jdbc:3.49.1.0")
-    compileOnly("com.mysql:mysql-connector-j:9.2.0")
-    compileOnly("org.mariadb.jdbc:mariadb-java-client:3.5.2")
-    compileOnly("org.mongodb:mongodb-driver-sync:5.3.1")
+    library("com.zaxxer:HikariCP:6.2.1")
+    library("org.xerial:sqlite-jdbc:3.49.1.0")
+    library("com.mysql:mysql-connector-j:9.2.0")
+    library("org.mariadb.jdbc:mariadb-java-client:3.5.2")
+    library("org.mongodb:mongodb-driver-sync:5.3.1")
 
-    implementation("net.wesjd:anvilgui:1.10.4-SNAPSHOT") // Search Menu
+    library("net.wesjd:anvilgui:1.10.4-SNAPSHOT") // Search Menu
 
-    compileOnly("net.kyori:adventure-text-serializer-gson:4.16.0")
+    library("net.kyori:adventure-text-serializer-gson:4.16.0")
 
-    compileOnly("org.mozilla:rhino:1.8.0")
+    library("org.mozilla:rhino:1.8.0")
 
     // Currency
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
@@ -62,12 +59,10 @@ dependencies {
 }
 
 tasks.withType<ShadowJar> {
-    relocate("net.wesjd", "info.preva1l.fadah.libs")
     relocate("com.github.puregero.multilib", "info.preva1l.fadah.libs.multilib")
     relocate("info.preva1l.hooker", "info.preva1l.fadah.hooks.lib")
     relocate("info.preva1l.trashcan", "info.preva1l.fadah.trashcan")
 }
-
 
 paper {
     name = "Fadah"
