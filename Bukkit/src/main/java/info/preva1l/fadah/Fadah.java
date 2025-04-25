@@ -24,13 +24,14 @@ import java.util.logging.Logger;
 
 public final class Fadah extends BasePlugin implements CommandProvider, DataProvider {
     @Getter public static Fadah instance;
-    @Getter private static final Logger console = instance.getLogger();
+    @Getter private static Logger console;
 
     @Getter private final Logger transactionLogger = Logger.getLogger("AuctionHouse-Transactions");
     @Getter private BasicConfig categoriesFile;
 
     public Fadah() {
         instance = this;
+        console = instance.getLogger();
     }
 
     @PluginEnable
