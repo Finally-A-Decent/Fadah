@@ -2,8 +2,8 @@ package info.preva1l.fadah.utils;
 
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Config;
-import net.william278.desertwell.util.UpdateChecker;
-import net.william278.desertwell.util.Version;
+import info.preva1l.trashcan.Version;
+import info.preva1l.trashcan.plugin.UpdateChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

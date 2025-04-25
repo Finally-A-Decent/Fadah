@@ -1,6 +1,6 @@
 package info.preva1l.fadah.commands.subcommands;
 
-import dev.triumphteam.cmd.bukkit.CommandPermission;
+import info.preva1l.trashcan.commands.bukkit.CommandPermission;
 
 /**
  * Created on 31/03/2025

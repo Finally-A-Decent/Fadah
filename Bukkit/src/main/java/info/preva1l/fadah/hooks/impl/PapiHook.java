@@ -88,6 +88,7 @@ public class PapiHook {
         }
 
         private static <E> Placeholder<E> get(String match) {
+            if (!placeholders.containsKey(match)) return null;
             return (Placeholder<E>) placeholders.get(match);
         }
 

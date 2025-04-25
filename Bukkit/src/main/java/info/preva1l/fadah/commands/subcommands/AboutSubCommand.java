@@ -1,9 +1,9 @@
 package info.preva1l.fadah.commands.subcommands;
 
 import info.preva1l.fadah.Fadah;
+import info.preva1l.trashcan.chat.AboutMenu;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
-import net.william278.desertwell.about.AboutMenu;
 import org.bukkit.command.CommandSender;
 
 /**
