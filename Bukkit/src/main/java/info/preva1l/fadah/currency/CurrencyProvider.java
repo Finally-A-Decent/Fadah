@@ -1,11 +1,13 @@
 package info.preva1l.fadah.currency;
 
 import info.preva1l.fadah.Fadah;
+import info.preva1l.trashcan.plugin.annotations.PluginEnable;
 
 import java.util.stream.Stream;
 
 public interface CurrencyProvider {
-    default void loadCurrencies() {
+    @PluginEnable
+    static void loadCurrencies() {
         Fadah.getConsole().info("Loading currencies...");
         Stream.of(
                 new VaultCurrency(),

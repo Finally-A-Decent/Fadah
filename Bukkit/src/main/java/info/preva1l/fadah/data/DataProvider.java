@@ -25,7 +25,7 @@ public interface DataProvider {
     Fadah getPlugin();
 
     @PluginEnable
-    default void loadDataAndPopulateCaches() {
+    static void loadDataAndPopulateCaches() {
         DatabaseManager.getInstance(); // Make the connection happen during startup
         CategoryRegistry.loadCategories();
 
@@ -34,7 +34,7 @@ public interface DataProvider {
                         listings.forEach(listing ->
                                 CacheAccess.add(Listing.class, listing))).join();
 
-        TaskManager.Async.runTask(getPlugin(), listingExpiryTask(), 10L);
+        TaskManager.Async.runTask(Fadah.getInstance(), listingExpiryTask(), 10L);
     }
 
 
@@ -78,7 +78,7 @@ public interface DataProvider {
                 .orElseGet(() -> CompletableFuture.completedFuture(null));
     }
 
-    private Runnable listingExpiryTask() {
+    private static Runnable listingExpiryTask() {
         return () -> {
             for (Listing listing : CacheAccess.getAll(Listing.class)) {
                 if (System.currentTimeMillis() <= listing.getDeletionDate()) continue;

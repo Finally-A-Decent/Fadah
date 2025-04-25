@@ -5,8 +5,8 @@ import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.annotation.Requirement;
-import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Lang;
+import info.preva1l.fadah.migrator.MigrationProvider;
 import info.preva1l.fadah.utils.Text;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -17,17 +17,14 @@ import java.util.List;
 @Command("fadah-migrate")
 @Permission("fadah.migrate")
 public class MigrateCommand extends BaseCommand {
-    private final Fadah fadah;
-
-    public MigrateCommand(Fadah fadah) {
+    public MigrateCommand() {
         super(List.of("ah-migrate"));
-        this.fadah = fadah;
     }
 
     @Default
     @Requirement("enabled")
     public void execute(Player player, Plugin plugin) {
-        fadah.getMigrator(plugin.getName())
+        MigrationProvider.getMigrator(plugin.getName())
                 .ifPresentOrElse(migrator -> {
                     long start = Instant.now().toEpochMilli();
                     player.sendMessage(Text.text(Lang.i().getPrefix() + "&fStarting migration from %s..."

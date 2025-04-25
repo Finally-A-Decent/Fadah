@@ -7,6 +7,7 @@ import info.preva1l.fadah.data.DatabaseManager;
 import info.preva1l.fadah.guis.NewListingMenu;
 import info.preva1l.fadah.utils.TaskManager;
 import info.preva1l.fadah.utils.Text;
+import info.preva1l.fadah.utils.UpdatesProvider;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -43,7 +44,7 @@ public class PlayerListener implements Listener {
         if (task != null) {
             task.cancel();
         }
-        Fadah.getInstance().notifyUpdate(e.getPlayer());
+        UpdatesProvider.notifyUpdate(e.getPlayer());
     }
 
     @EventHandler

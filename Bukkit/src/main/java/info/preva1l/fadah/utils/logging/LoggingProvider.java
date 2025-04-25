@@ -2,6 +2,7 @@ package info.preva1l.fadah.utils.logging;
 
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Config;
+import info.preva1l.trashcan.plugin.annotations.PluginLoad;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,14 +13,13 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 
 public interface LoggingProvider {
-    Fadah getPlugin();
-
-    default void initLogger() {
+    @PluginLoad
+    static void initLogger() {
         Fadah.getConsole().info("Initialising transaction logger...");
 
         if (!Config.i().isLogToFile()) return;
         try {
-            File logsFolder = new File(getPlugin().getDataFolder(), "logs");
+            File logsFolder = new File(Fadah.getInstance().getDataFolder(), "logs");
             if (!logsFolder.exists()) {
                 if (!logsFolder.mkdirs()) {
                     Fadah.getConsole().warning("Failed to create logs folder!");
@@ -51,11 +51,11 @@ public interface LoggingProvider {
 
             FileHandler fileHandler = new FileHandler(logFile.getAbsolutePath());
             fileHandler.setFormatter(new TransactionLogFormatter());
-            getPlugin().getTransactionLogger().setUseParentHandlers(false);
-            for (Handler handler : getPlugin().getTransactionLogger().getHandlers()) {
-                getPlugin().getTransactionLogger().removeHandler(handler);
+            Fadah.getInstance().getTransactionLogger().setUseParentHandlers(false);
+            for (Handler handler : Fadah.getInstance().getTransactionLogger().getHandlers()) {
+                Fadah.getInstance().getTransactionLogger().removeHandler(handler);
             }
-            getPlugin().getTransactionLogger().addHandler(fileHandler);
+            Fadah.getInstance().getTransactionLogger().addHandler(fileHandler);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

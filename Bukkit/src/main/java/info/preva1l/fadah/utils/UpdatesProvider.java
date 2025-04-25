@@ -2,32 +2,27 @@ package info.preva1l.fadah.utils;
 
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Config;
-import info.preva1l.trashcan.Version;
 import info.preva1l.trashcan.plugin.UpdateChecker;
+import info.preva1l.trashcan.plugin.annotations.PluginEnable;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public interface UpdatesProvider {
-    Fadah getPlugin();
-
-    default Version getVersion() {
-        return UpdatesHolder.pluginVersion;
-    }
-
-    default void checkForUpdates() {
+    @PluginEnable
+    static void checkForUpdates() {
         final UpdateChecker checker = UpdateChecker.builder()
-                .currentVersion(UpdatesHolder.pluginVersion)
+                .currentVersion(Fadah.getInstance().getCurrentVersion())
                 .endpoint(UpdateChecker.Endpoint.SPIGOT)
                 .resource(Integer.toString(UpdatesHolder.SPIGOT_ID))
                 .build();
         checker.check().thenAccept(checked -> UpdatesHolder.completed = checked);
 
-        TaskManager.Sync.runLater(getPlugin(), () -> notifyUpdate(Bukkit.getConsoleSender()), 60L);
+        TaskManager.Sync.runLater(Fadah.getInstance(), () -> notifyUpdate(Bukkit.getConsoleSender()), 60L);
     }
 
-    default void notifyUpdate(@NotNull CommandSender recipient) {
+    static void notifyUpdate(@NotNull CommandSender recipient) {
         if (!recipient.hasPermission("fadah.manage.profile")) return;
         var checked = UpdatesHolder.completed;
         if (checked.isUpToDate()) return;
@@ -45,7 +40,7 @@ public interface UpdatesProvider {
         ));
     }
 
-    private boolean isCritical(UpdateChecker.Completed checked) {
+    private static boolean isCritical(UpdateChecker.Completed checked) {
         return !checked.isUpToDate() &&
                 (checked.getLatestVersion().getMetadata().equalsIgnoreCase("hotfix") ||
                         checked.getLatestVersion().getMajor() > checked.getCurrentVersion().getMajor() ||
@@ -55,7 +50,6 @@ public interface UpdatesProvider {
     class UpdatesHolder {
         private static final int SPIGOT_ID = 116157;
 
-        private static final Version pluginVersion = Version.fromString(Fadah.getInstance().getDescription().getVersion());
         private static UpdateChecker.Completed completed;
 
         private UpdatesHolder() {}

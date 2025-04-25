@@ -40,7 +40,7 @@ public class PapiHook {
     private static class Expansion extends PlaceholderExpansion {
         public final String identifier = "fadah";
         public final String author = "Preva1l";
-        public final String version = Fadah.getInstance().getVersion().toString();
+        public final String version = Fadah.getInstance().getCurrentVersion().toString();
         @Override public boolean persist() { return true; }
 
         @Override

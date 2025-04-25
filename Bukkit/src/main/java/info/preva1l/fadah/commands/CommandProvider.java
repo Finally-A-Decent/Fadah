@@ -16,6 +16,7 @@ import info.preva1l.fadah.commands.subcommands.SubCommandInfo;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.config.misc.Tuple;
+import info.preva1l.fadah.migrator.MigrationProvider;
 import info.preva1l.fadah.utils.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -47,7 +48,7 @@ public interface CommandProvider {
         getPlugin().getLogger().info("Registering Commands...");
         Stream.of(
                 new AuctionHouseCommand(getPlugin()),
-                new MigrateCommand(getPlugin())
+                new MigrateCommand()
         ).forEach(CommandManagerHolder.commandManager::registerCommand);
         getPlugin().getLogger().info("Commands Registered!");
     }
@@ -126,7 +127,7 @@ public interface CommandProvider {
         );
         CommandManagerHolder.commandManager.registerSuggestion(
                 Plugin.class,
-                (sender, context) -> getPlugin().getMigratorNames()
+                (sender, context) -> MigrationProvider.getMigratorNames()
         );
     }
 

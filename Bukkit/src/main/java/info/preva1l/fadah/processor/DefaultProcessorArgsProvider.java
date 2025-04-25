@@ -1,6 +1,7 @@
 package info.preva1l.fadah.processor;
 
 import info.preva1l.fadah.utils.Text;
+import info.preva1l.trashcan.plugin.annotations.PluginEnable;
 
 import java.util.ArrayList;
 
@@ -13,7 +14,8 @@ import static info.preva1l.fadah.processor.ProcessorArgType.STRING;
  * @author Preva1l
  */
 public interface DefaultProcessorArgsProvider {
-    default void registerDefaultProcessorArgs() {
+    @PluginEnable
+    static void registerDefaultProcessorArgs() {
         ProcessorArgsRegistry.register(STRING, "material", item -> item.getType().toString());
 
         ProcessorArgsRegistry.register(STRING, "name", Text::extractItemName);

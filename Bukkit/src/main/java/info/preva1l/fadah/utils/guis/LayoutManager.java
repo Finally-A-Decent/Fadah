@@ -3,6 +3,7 @@ package info.preva1l.fadah.utils.guis;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.utils.config.BasicConfig;
 import info.preva1l.fadah.utils.config.LanguageConfig;
+import info.preva1l.trashcan.plugin.annotations.PluginEnable;
 import info.preva1l.trashcan.plugin.annotations.PluginReload;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +30,22 @@ public class LayoutManager {
                 LayoutManager.MenuType.HISTORY,
                 LayoutManager.MenuType.WATCH
         ).forEach(this::reloadLayout);
+    }
+
+    @PluginEnable
+    public void load() {
+        var plugin = Fadah.getInstance();
+        Stream.of(
+                new BasicConfig(plugin, "menus/main.yml"),
+                new BasicConfig(plugin, "menus/new-listing.yml"),
+                new BasicConfig(plugin, "menus/expired-listings.yml"),
+                new BasicConfig(plugin, "menus/historic-items.yml"),
+                new BasicConfig(plugin, "menus/confirm.yml"),
+                new BasicConfig(plugin, "menus/collection-box.yml"),
+                new BasicConfig(plugin, "menus/profile.yml"),
+                new BasicConfig(plugin, "menus/view-listings.yml"),
+                new BasicConfig(plugin, "menus/watch.yml")
+        ).forEach(LayoutManager.instance::loadLayout);
     }
 
     public void loadLayout(BasicConfig config) {

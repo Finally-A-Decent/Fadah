@@ -4,14 +4,17 @@ import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.records.listing.Listing;
+import info.preva1l.trashcan.plugin.annotations.PluginDisable;
+import info.preva1l.trashcan.plugin.annotations.PluginEnable;
 
 public interface MetricsProvider {
     int METRICS_ID = 21651;
 
-    default void setupMetrics() {
-        getPlugin().getLogger().info("Starting Metrics...");
+    @PluginEnable
+    static void setupMetrics() {
+        Fadah.getConsole().info("Starting Metrics...");
 
-        MetricsHolder.metrics = new Metrics(getPlugin(), METRICS_ID);
+        MetricsHolder.metrics = new Metrics(Fadah.getInstance(), METRICS_ID);
         MetricsHolder.metrics.addCustomChart(new Metrics.SingleLineChart("items_listed", () -> CacheAccess.size(Listing.class)));
         MetricsHolder.metrics.addCustomChart(new Metrics.SimplePie("database_type", () -> Config.i().getDatabase().getType().getFriendlyName()));
         MetricsHolder.metrics.addCustomChart(new Metrics.SimplePie(
@@ -20,10 +23,11 @@ public interface MetricsProvider {
         ));
 
 
-        getPlugin().getLogger().info("Metrics Logging Started!");
+        Fadah.getConsole().info("Metrics Logging Started!");
     }
 
-    default void shutdownMetrics() {
+    @PluginDisable
+    static void shutdownMetrics() {
         if (MetricsHolder.metrics != null) {
             MetricsHolder.metrics.shutdown();
         }
@@ -34,6 +38,4 @@ public interface MetricsProvider {
 
         private MetricsHolder() {}
     }
-
-    Fadah getPlugin();
 }

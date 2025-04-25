@@ -28,7 +28,7 @@ public interface AboutSubCommand {
                         AboutMenu.Link.of("https://discord.gg/4KcF7S94HF").text("Discord Support").icon("⭐"),
                         AboutMenu.Link.of("https://docs.preva1l.info/fadlc/").text("Documentation").icon("📖")
                 )
-                .version(plugin.getVersion())
+                .version(plugin.getCurrentVersion())
                 .themeColor(TextColor.fromHexString("#9555FF"))
                 .secondaryColor(TextColor.fromHexString("#bba4e0"))
                 .build();

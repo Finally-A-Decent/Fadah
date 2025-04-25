@@ -98,7 +98,7 @@ layout:
   '37': "FILTER"
   '38': "FILTER_DIRECTION"
   '39': "PAGINATION_CONTROL_ONE"
-  '40': "CLOSE"
+  '40': "BACK"
   '41': "PAGINATION_CONTROL_TWO"
   '42': "SEARCH"
   '43': "FILLER"
