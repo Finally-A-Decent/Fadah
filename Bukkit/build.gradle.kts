@@ -28,7 +28,7 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.6") // Placeholder support
 
     // Database
-    library("com.zaxxer:HikariCP:6.2.1")
+    library("com.zaxxer:HikariCP:6.3.0")
     library("org.xerial:sqlite-jdbc:3.49.1.0")
     library("com.mysql:mysql-connector-j:9.2.0")
     library("org.mariadb.jdbc:mariadb-java-client:3.5.2")
