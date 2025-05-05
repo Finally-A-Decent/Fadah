@@ -30,7 +30,7 @@ dependencies {
     // Database
     library("com.zaxxer:HikariCP:6.3.0")
     library("org.xerial:sqlite-jdbc:3.49.1.0")
-    library("com.mysql:mysql-connector-j:9.2.0")
+    library("com.mysql:mysql-connector-j:9.3.0")
     library("org.mariadb.jdbc:mariadb-java-client:3.5.3")
     library("org.mongodb:mongodb-driver-sync:5.4.0")
 
