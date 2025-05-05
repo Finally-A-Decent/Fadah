@@ -36,7 +36,7 @@ dependencies {
 
     library("net.wesjd:anvilgui:1.10.5-SNAPSHOT") // Search Menu
 
-    library("net.kyori:adventure-text-serializer-gson:4.20.0")
+    library("net.kyori:adventure-text-serializer-gson:4.21.0")
 
     library("org.mozilla:rhino:1.8.0")
 
