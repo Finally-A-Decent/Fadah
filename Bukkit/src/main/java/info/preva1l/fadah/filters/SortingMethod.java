@@ -1,6 +1,8 @@
 package info.preva1l.fadah.filters;
 
 import info.preva1l.fadah.config.Lang;
+import info.preva1l.fadah.records.listing.BidListing;
+import info.preva1l.fadah.records.listing.BinListing;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.utils.Text;
 import lombok.AllArgsConstructor;
@@ -16,23 +18,27 @@ import java.util.Comparator;
 public enum SortingMethod {
     AGE(
             Lang.i().getSort().getAge().getName(),
-            Comparator.comparingLong(Listing::getCreationDate).reversed(),
-            Comparator.comparingLong(Listing::getCreationDate)
+            Comparator.comparingLong(Listing::getCreationDate).reversed()
     ),
     ALPHABETICAL(
             Lang.i().getSort().getName().getName(),
-            new AlphabeticalComparator(),
-            new AlphabeticalComparator().reversed()
+            new AlphabeticalComparator()
     ),
     PRICE(
             Lang.i().getSort().getPrice().getName(),
-            Comparator.comparingDouble(Listing::getPrice).reversed(),
-            Comparator.comparingDouble(Listing::getPrice)
+            Comparator.comparingDouble(Listing::getPrice).reversed()
+    ),
+    MODE(
+            Lang.i().getSort().getMode().getName(),
+            Comparator.comparingInt(listing -> {
+                if (listing instanceof BinListing) return 0;
+                if (listing instanceof BidListing) return 1;
+                return 2;
+            })
     );
 
     private final String friendlyName;
     private final Comparator<Listing> normalSorter;
-    private final Comparator<Listing> reversedSorter;
 
     public Component getFriendlyName() {
         return Text.text(friendlyName);
@@ -41,7 +47,7 @@ public enum SortingMethod {
     public Comparator<Listing> getSorter(@NotNull SortingDirection direction) {
         return switch (direction) {
             case ASCENDING -> normalSorter;
-            case DESCENDING -> reversedSorter;
+            case DESCENDING -> normalSorter.reversed();
         };
     }
 
@@ -50,6 +56,7 @@ public enum SortingMethod {
             case AGE -> direction.getAgeName();
             case ALPHABETICAL -> direction.getAlphaName();
             case PRICE -> direction.getPriceName();
+            case MODE -> direction.getModeName();
         };
     }
 

@@ -360,6 +360,17 @@ public class Lang {
             private String descending = "Cheapest First (Low to High)";
             private String ascending = "Most Expensive First (High to Low)";
         }
+
+        private Mode mode = new Mode();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class Mode {
+            private String name = "Sort By Listing Mode";
+            private String descending = "Bidding First";
+            private String ascending = "Buy it Now First";
+        }
     }
 
     private Errors errors = new Errors();
