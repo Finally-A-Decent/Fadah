@@ -51,7 +51,7 @@ dependencies {
     compileOnly("com.willfp:eco:6.56.0")
     compileOnly("com.willfp:EcoItems:5.43.1")
     compileOnly("com.influxdb:influxdb-client-java:7.2.0") // InfluxDB logging
-    compileOnly("net.luckperms:api:5.4") // Permissions enhancement
+    compileOnly("net.luckperms:api:5.5") // Permissions enhancement
     compileOnly("com.gmail.nossr50.mcMMO:mcMMO:2.2.004") {
         isTransitive = false
     }
