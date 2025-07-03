@@ -13,7 +13,7 @@ multilib = "1.2.4"
 anvilgui = "1.10.6-SNAPSHOT"
 
 placeholderapi = "2.11.6"
-luckperms = "5.4"
+luckperms = "5.5"
 mcmmo = "2.2.004"
 
 # currency
