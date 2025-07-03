@@ -8,7 +8,7 @@ mongo = "5.5.0"
 
 adventure = "4.21.0"
 
-influxdb = "7.2.0"
+influxdb = "7.3.0"
 multilib = "1.2.4"
 anvilgui = "1.10.6-SNAPSHOT"
 
