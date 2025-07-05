@@ -5,7 +5,6 @@ import fr.maxlego08.zauctionhouse.api.AuctionItem;
 import fr.maxlego08.zauctionhouse.api.AuctionManager;
 import fr.maxlego08.zauctionhouse.api.AuctionPlugin;
 import fr.maxlego08.zauctionhouse.api.enums.StorageType;
-import info.preva1l.fadah.config.Categories;
 import info.preva1l.fadah.currency.CurrencyRegistry;
 import info.preva1l.fadah.migrator.MigrationService;
 import info.preva1l.fadah.migrator.Migrator;
@@ -44,10 +43,9 @@ public final class zAuctionHouseMigrator implements Migrator {
             ItemStack itemStack = item.getItemStack();
             double price = item.getPrice();
             long expiry = item.getExpireAt();
-            String categoryId = Categories.getCategoryForItem(itemStack);
             String currency = item.getEconomy().getCurrency();
             if (CurrencyRegistry.get(currency) == null) currency = "vault";
-            listings.add(new ImplBinListing(id, owner, ownerName, itemStack, categoryId, currency, price, 0,
+            listings.add(new ImplBinListing(id, owner, ownerName, itemStack, currency, price, 0,
                     Instant.now().toEpochMilli(), expiry));
         }
         return listings;

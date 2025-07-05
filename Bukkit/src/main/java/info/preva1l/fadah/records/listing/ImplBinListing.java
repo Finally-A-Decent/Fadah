@@ -26,9 +26,9 @@ public final class ImplBinListing extends ActiveListing implements BinListing {
     private final double price;
 
     public ImplBinListing(@NotNull UUID id, @NotNull UUID owner, @NotNull String ownerName,
-                          @NotNull ItemStack itemStack, @NotNull String categoryID, @NotNull String currency, double price,
+                          @NotNull ItemStack itemStack, @NotNull String currency, double price,
                           double tax, long creationDate, long deletionDate) {
-        super(id, owner, ownerName, itemStack, categoryID, currency, tax, creationDate, deletionDate);
+        super(id, owner, ownerName, itemStack, currency, tax, creationDate, deletionDate);
         this.price = price;
     }
 
@@ -44,7 +44,7 @@ public final class ImplBinListing extends ActiveListing implements BinListing {
 
     @Override
     public StaleListing getAsStale() {
-        return new StaleListing(id, owner, ownerName, itemStack, categoryID, currencyId, price, tax, creationDate, deletionDate, new ConcurrentSkipListSet<>());
+        return new StaleListing(id, owner, ownerName, itemStack, currencyId, price, tax, creationDate, deletionDate, new ConcurrentSkipListSet<>());
     }
 
     @Override

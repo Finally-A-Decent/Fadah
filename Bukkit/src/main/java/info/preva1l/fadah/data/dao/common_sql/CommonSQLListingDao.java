@@ -6,7 +6,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadah.data.dao.Dao;
-import info.preva1l.fadah.records.listing.*;
+import info.preva1l.fadah.records.listing.Bid;
+import info.preva1l.fadah.records.listing.BidListing;
+import info.preva1l.fadah.records.listing.Listing;
+import info.preva1l.fadah.records.listing.ListingFactory;
 import info.preva1l.fadah.utils.serialization.ItemSerializer;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
@@ -105,7 +108,7 @@ public abstract class CommonSQLListingDao implements Dao<Listing> {
                 statement.setString(1, listing.getId().toString());
                 statement.setString(2, listing.getOwner().toString());
                 statement.setString(3, listing.getOwnerName());
-                statement.setString(4, listing.getCategoryID() + "~" + listing.getCurrencyId());
+                statement.setString(4, listing.getCurrencyId());
                 statement.setLong(5, listing.getCreationDate());
                 statement.setLong(6, listing.getDeletionDate());
                 statement.setDouble(7, listing.getPrice());
@@ -155,14 +158,11 @@ public abstract class CommonSQLListingDao implements Dao<Listing> {
         final String ownerName = resultSet.getString("ownerName");
         String temp = resultSet.getString("category");
         String currency;
-        String categoryID;
-        if (temp.contains("~")) {
+        if (temp.contains("~")) { // support backwards compat
             String[] t2 = temp.split("~");
             currency = t2[1];
-            categoryID = t2[0];
         } else {
-            currency = "vault";
-            categoryID = temp;
+            currency = temp;
         }
         final long creationDate = resultSet.getLong("creationDate");
         final long deletionDate = resultSet.getLong("deletionDate");
@@ -178,29 +178,19 @@ public abstract class CommonSQLListingDao implements Dao<Listing> {
             bids = GSON.fromJson(bidString, BIDS_TYPE);
         }
 
-        final Listing listing;
-        if (biddable) {
-            listing = new ImplBidListing(
-                    id,
-                    ownerUUID, ownerName,
-                    itemStack,
-                    categoryID,
-                    currency, price, tax,
-                    creationDate, deletionDate,
-                    bids
-            );
-        } else {
-            listing = new ImplBinListing(
-                    id,
-                    ownerUUID, ownerName,
-                    itemStack,
-                    categoryID,
-                    currency, price, tax,
-                    creationDate, deletionDate
-            );
-        }
-
-        return listing;
+        return ListingFactory.create(
+                biddable,
+                id,
+                ownerUUID,
+                ownerName,
+                itemStack,
+                currency,
+                price,
+                tax,
+                creationDate,
+                deletionDate,
+                bids
+        );
     }
 
     protected Connection getConnection() throws SQLException {

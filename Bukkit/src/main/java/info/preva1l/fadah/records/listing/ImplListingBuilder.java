@@ -1,7 +1,6 @@
 package info.preva1l.fadah.records.listing;
 
 import com.google.common.base.Preconditions;
-import info.preva1l.fadah.config.Categories;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.hooks.impl.permissions.Permission;
 import info.preva1l.fadah.hooks.impl.permissions.PermissionsHook;
@@ -55,35 +54,18 @@ public final class ImplListingBuilder extends ListingBuilder {
         Preconditions.checkNotNull(tax);
         Preconditions.checkNotNull(length);
 
-        String category = Categories.getCategoryForItem(itemStack);
-
-        if (biddable) {
-            return new ImplBidListing(
-                    UUID.randomUUID(),
-                    ownerUuid,
-                    ownerName,
-                    itemStack,
-                    category,
-                    currency.getId(),
-                    price,
-                    tax,
-                    System.currentTimeMillis(),
-                    Instant.now().plus(length, ChronoUnit.MILLIS).toEpochMilli(),
-                    new ConcurrentSkipListSet<>()
-            );
-        } else {
-            return new ImplBinListing(
-                    UUID.randomUUID(),
-                    ownerUuid,
-                    ownerName,
-                    itemStack,
-                    category,
-                    currency.getId(),
-                    price,
-                    tax,
-                    System.currentTimeMillis(),
-                    Instant.now().plus(length, ChronoUnit.MILLIS).toEpochMilli()
-            );
-        }
+        return ListingFactory.create(
+                biddable,
+                UUID.randomUUID(),
+                ownerUuid,
+                ownerName,
+                itemStack,
+                currency.getId(),
+                price,
+                tax,
+                System.currentTimeMillis(),
+                Instant.now().plus(length, ChronoUnit.MILLIS).toEpochMilli(),
+                new ConcurrentSkipListSet<>()
+        );
     }
 }

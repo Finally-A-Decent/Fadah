@@ -34,9 +34,9 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
     private final ConcurrentSkipListSet<Bid> bids;
 
     public ImplBidListing(@NotNull UUID id, @NotNull UUID owner, @NotNull String ownerName,
-                          @NotNull ItemStack itemStack, @NotNull String categoryID, @NotNull String currency, double startingBid,
+                          @NotNull ItemStack itemStack, @NotNull String currency, double startingBid,
                           double tax, long creationDate, long deletionDate, ConcurrentSkipListSet<Bid> bids) {
-        super(id, owner, ownerName, itemStack, categoryID, currency, tax, creationDate, deletionDate);
+        super(id, owner, ownerName, itemStack, currency, tax, creationDate, deletionDate);
 
         if (startingBid <= 0) {
             throw new IllegalArgumentException("Starting bid must be positive");
@@ -76,7 +76,7 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
 
     @Override
     public StaleListing getAsStale() {
-        return new StaleListing(id, owner, ownerName, itemStack, categoryID, currencyId,
+        return new StaleListing(id, owner, ownerName, itemStack, currencyId,
                 getCurrentBid().bidAmount(), tax, creationDate, deletionDate, bids);
     }
 

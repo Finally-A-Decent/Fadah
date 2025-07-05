@@ -1,6 +1,5 @@
 package info.preva1l.fadah.migrator.impl;
 
-import info.preva1l.fadah.config.Categories;
 import info.preva1l.fadah.migrator.Migrator;
 import info.preva1l.fadah.records.collection.CollectableItem;
 import info.preva1l.fadah.records.listing.ImplBinListing;
@@ -36,10 +35,8 @@ public final class AkarianAuctionHouseMigrator implements Migrator {
             ItemStack item = oldListing.getItemStack();
             double price = oldListing.getPrice();
 
-            String categoryId = Categories.getCategoryForItem(item);
-
             long expiry = oldListing.getEnd();
-            listings.add(new ImplBinListing(id, owner, ownerName == null ? "Unknown Seller" : ownerName, item, categoryId, "vault", price, 0,
+            listings.add(new ImplBinListing(id, owner, ownerName == null ? "Unknown Seller" : ownerName, item, "vault", price, 0,
                     Instant.now().toEpochMilli(), expiry));
         }
 
