@@ -48,13 +48,11 @@ public abstract class BaseListing implements Listing {
         this.tax = tax;
         this.creationDate = creationDate;
         this.deletionDate = deletionDate;
+        this.categoryID = Categories.getCategoryForItem(itemStack);
     }
 
     @Override
     public @NotNull String getCategoryID() {
-        if (categoryID == null) {
-            categoryID = Categories.getCategoryForItem(itemStack);
-        }
         return categoryID;
     }
 
