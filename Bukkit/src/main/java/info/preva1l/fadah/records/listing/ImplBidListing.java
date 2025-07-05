@@ -220,6 +220,13 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
         }
     }
 
+    @Override
+    protected void cancel0(@NotNull Player canceller) {
+        Bid lastBid = bids.first();
+        getCurrency().add(Bukkit.getOfflinePlayer(lastBid.bidder()),  lastBid.bidAmount());
+        super.cancel0(canceller);
+    }
+
     private void processSellerPayment(@NotNull Bid winningBid) {
         try {
             double taxAmount = (this.getTax() / 100.0) * winningBid.bidAmount();

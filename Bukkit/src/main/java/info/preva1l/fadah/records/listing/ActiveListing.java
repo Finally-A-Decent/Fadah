@@ -145,7 +145,7 @@ public abstract class ActiveListing extends BaseListing {
         AwareDataService.instance.execute(Listing.class, this, () -> cancel0(canceller));
     }
 
-    private void cancel0(@NotNull Player canceller) {
+    protected void cancel0(@NotNull Player canceller) {
         try {
             sendCancellationMessage(canceller);
             removeListing();
