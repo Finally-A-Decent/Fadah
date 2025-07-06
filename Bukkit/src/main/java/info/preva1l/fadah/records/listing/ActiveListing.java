@@ -28,6 +28,8 @@ import java.util.logging.Logger;
 public abstract class ActiveListing extends BaseListing {
     protected static final Logger LOGGER = Logger.getLogger(ActiveListing.class.getName());
 
+    protected boolean stale = false;
+
     protected ActiveListing(@NotNull UUID id, @NotNull UUID owner, @NotNull String ownerName,
                             @NotNull ItemStack itemStack, @NotNull String currency,
                             double tax, long creationDate, long deletionDate) {
@@ -36,12 +38,17 @@ public abstract class ActiveListing extends BaseListing {
 
     @Override
     public void expire(boolean force) {
+        if (stale) return;
+        stale = true;
         AwareDataService.instance.execute(Listing.class, this, () -> expire0(force));
     }
 
     private void expire0(boolean force) {
         try {
-            if (System.currentTimeMillis() < deletionDate && !force) return;
+            if (System.currentTimeMillis() <= deletionDate && !force) {
+                stale = false;
+                return;
+            }
 
             removeListing();
             addToExpiredItems();
@@ -142,6 +149,8 @@ public abstract class ActiveListing extends BaseListing {
 
     @Override
     public void cancel(@NotNull Player canceller) {
+        if (stale) return;
+        stale = true;
         AwareDataService.instance.execute(Listing.class, this, () -> cancel0(canceller));
     }
 
@@ -239,6 +248,8 @@ public abstract class ActiveListing extends BaseListing {
     @Override
     public boolean canBuy(@NotNull Player player) {
         try {
+            if (stale) return false;
+
             if (isOwner(player)) {
                 Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getOwnListings());
                 return false;

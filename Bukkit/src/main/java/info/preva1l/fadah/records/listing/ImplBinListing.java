@@ -49,17 +49,23 @@ public final class ImplBinListing extends ActiveListing implements BinListing {
 
     @Override
     public void purchase(@NotNull Player buyer) {
+        if (stale) return;
+        stale = true;
         AwareDataService.instance.execute(Listing.class, this, () -> purchase0(buyer));
     }
 
     private void purchase0(@NotNull Player buyer) {
-        if (!canBuy(buyer)) return;
+        if (!canBuy(buyer)) {
+            stale = false;
+            return;
+        }
 
         double taxedAmount = (this.getTax() / 100) * this.getPrice();
         double sellerAmount = this.getPrice() - taxedAmount;
 
         try {
             if (!transferFunds(buyer, sellerAmount)) {
+                stale = false;
                 return;
             }
 

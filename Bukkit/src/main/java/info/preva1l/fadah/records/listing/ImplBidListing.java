@@ -101,6 +101,7 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
      */
     @Override
     public void newBid(@NotNull Player bidder, double bidAmount) {
+        if (stale) return;
         if (bidAmount <= 0) {
             Lang.sendMessage(bidder, Lang.i().getPrefix() + Lang.i().getErrors().getBidTooLow());
             return;
@@ -193,6 +194,8 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
 
     @Override
     public void completeBidding() {
+        if (stale) return;
+        stale = true;
         AwareDataService.instance.execute(Listing.class, this, this::completeBidding0);
     }
 

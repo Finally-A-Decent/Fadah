@@ -68,7 +68,6 @@ public class NewListingMenu extends FastInv {
         setModeButton();
         setAdvertButton();
         setCurrencyButton();
-        setModeButton();
         addNavigationButtons();
 
         setItem(getLayout().buttonSlots().getOrDefault(LayoutService.ButtonType.LISTING_ITEM, -1), itemToSell);

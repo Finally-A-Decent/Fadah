@@ -21,7 +21,7 @@ import static info.preva1l.fadah.filters.MatcherArgType.STRING;
  *
  * @author Preva1l
  */
-@Service
+@Service(priority = 20)
 public final class MatcherService {
     public static final MatcherService instance = new MatcherService();
 
