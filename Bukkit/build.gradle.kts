@@ -27,9 +27,10 @@ repositories {
 
 dependencies {
     implementation(project(":API"))
-    trashcan("1.2.1")
+    trashcan()
 
     library(libs.bundles.databases)
+    library(libs.redisson)
 
     library(libs.multilib)
     library(libs.anvilgui) { setRemapped(true) }
