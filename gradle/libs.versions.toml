@@ -1,7 +1,7 @@
 [versions]
 # database providers
 hikari = "6.3.0"
-sqlite = "3.49.1.0"
+sqlite = "3.50.3.0"
 mysql = "9.3.0"
 mariadb = "3.5.3"
 mongo = "5.5.0"
