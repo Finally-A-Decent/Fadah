@@ -6,7 +6,7 @@ mysql = "9.3.0"
 mariadb = "3.5.3"
 mongo = "5.5.0"
 
-adventure = "4.21.0"
+adventure = "4.24.0"
 
 influxdb = "7.3.0"
 multilib = "1.2.4"
