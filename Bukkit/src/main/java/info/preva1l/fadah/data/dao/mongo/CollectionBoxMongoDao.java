@@ -14,6 +14,7 @@ import info.preva1l.fadah.data.gson.BukkitSerializableAdapter;
 import info.preva1l.fadah.records.collection.CollectableItem;
 import info.preva1l.fadah.records.collection.CollectionBox;
 import info.preva1l.fadah.records.collection.ImplCollectionBox;
+import java.util.Map;
 import org.apache.commons.lang3.NotImplementedException;
 import org.bson.Document;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -97,7 +98,7 @@ public class CollectionBoxMongoDao implements Dao<CollectionBox> {
      * @param params       the parameters to update the object with.
      */
     @Override
-    public void update(CollectionBox expiredItems, String[] params) {
+    public void update(CollectionBox expiredItems, Map<String, ?> params) {
         throw new NotImplementedException("update()");
     }
 

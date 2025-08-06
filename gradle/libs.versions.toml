@@ -6,8 +6,9 @@ mysql = "9.3.0"
 mariadb = "3.5.4"
 mongo = "5.5.0"
 
-adventure = "4.24.0"
 
+redisson = "3.50.0"
+adventure = "4.24.0"
 influxdb = "7.3.0"
 multilib = "1.2.4"
 anvilgui = "1.10.6-SNAPSHOT"
@@ -36,6 +37,8 @@ sqlite = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite" }
 mysql = { module = "com.mysql:mysql-connector-j", version.ref = "mysql" }
 mariadb = { module = "org.mariadb.jdbc:mariadb-java-client", version.ref = "mariadb" }
 mongo = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongo" }
+
+redisson = { module = "org.redisson:redisson", version.ref = "redisson" }
 
 adventure-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "adventure" }
 

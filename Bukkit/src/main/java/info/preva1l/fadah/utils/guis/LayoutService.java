@@ -28,15 +28,16 @@ public final class LayoutService {
     @ExtensionReload
     public void reload() {
         Stream.of(
-                LayoutService.MenuType.MAIN,
-                LayoutService.MenuType.NEW_LISTING,
-                LayoutService.MenuType.PROFILE,
-                LayoutService.MenuType.EXPIRED_LISTINGS,
-                LayoutService.MenuType.COLLECTION_BOX,
-                LayoutService.MenuType.CONFIRM_PURCHASE,
-                LayoutService.MenuType.PLACE_BID,
-                LayoutService.MenuType.HISTORY,
-                LayoutService.MenuType.WATCH
+                MenuType.MAIN,
+                MenuType.NEW_LISTING,
+                MenuType.PROFILE,
+                MenuType.EXPIRED_LISTINGS,
+                MenuType.COLLECTION_BOX,
+                MenuType.CONFIRM_PURCHASE,
+                MenuType.PLACE_BID,
+                MenuType.HISTORY,
+                MenuType.WATCH,
+                MenuType.VIEW_LISTINGS
         ).forEach(this::reloadLayout);
     }
 
@@ -133,17 +134,18 @@ public final class LayoutService {
     private MenuType getMenuType(String fileName) {
         String[] temp = fileName.split("/");
         return switch (temp[temp.length - 1]) {
-            case "main.yml": yield MenuType.MAIN;
-            case "new-listing.yml": yield MenuType.NEW_LISTING;
-            case "profile.yml": yield MenuType.PROFILE;
-            case "confirm.yml": yield MenuType.CONFIRM_PURCHASE;
-            case "place-bid.yml": yield MenuType.PLACE_BID;
-            case "collection-box.yml": yield MenuType.COLLECTION_BOX;
-            case "expired-listings.yml": yield MenuType.EXPIRED_LISTINGS;
-            case "historic-items.yml": yield MenuType.HISTORY;
-            case "view-listings.yml": yield MenuType.VIEW_LISTINGS;
-            case "watch.yml": yield MenuType.WATCH;
-            default: throw new IllegalStateException("The config file %s is not related to a GuiLayout".formatted(fileName));
+            case "main.yml" -> MenuType.MAIN;
+            case "new-listing.yml" -> MenuType.NEW_LISTING;
+            case "profile.yml" -> MenuType.PROFILE;
+            case "confirm.yml" -> MenuType.CONFIRM_PURCHASE;
+            case "place-bid.yml" -> MenuType.PLACE_BID;
+            case "collection-box.yml" -> MenuType.COLLECTION_BOX;
+            case "expired-listings.yml" -> MenuType.EXPIRED_LISTINGS;
+            case "historic-items.yml" -> MenuType.HISTORY;
+            case "view-listings.yml" -> MenuType.VIEW_LISTINGS;
+            case "watch.yml" -> MenuType.WATCH;
+            default ->
+                    throw new IllegalStateException("The config file %s is not related to a GuiLayout".formatted(fileName));
         };
     }
 

@@ -2,6 +2,7 @@ package info.preva1l.fadah.records.listing;
 
 import info.preva1l.fadah.currency.Currency;
 import info.preva1l.fadah.currency.CurrencyRegistry;
+import info.preva1l.fadah.records.Category;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -85,6 +86,13 @@ public interface Listing {
     default Currency getCurrency() {
         return CurrencyRegistry.get(getCurrencyId());
     }
+
+    /**
+     * Get the category that this listing should be listed under.
+     *
+     * @return the category for this listing.
+     */
+    Category getCategory();
 
     /**
      * Check if a player owns the listing.

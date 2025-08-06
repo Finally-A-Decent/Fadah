@@ -5,6 +5,7 @@ import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.config.misc.Tuple;
 import info.preva1l.fadah.data.DataService;
+import info.preva1l.fadah.data.dao.common_sql.CommonSQLListingDao;
 import info.preva1l.fadah.multiserver.Broker;
 import info.preva1l.fadah.multiserver.Message;
 import info.preva1l.fadah.multiserver.Payload;
@@ -12,6 +13,7 @@ import info.preva1l.fadah.records.collection.CollectableItem;
 import info.preva1l.fadah.records.collection.CollectionBox;
 import info.preva1l.fadah.security.AwareDataService;
 import info.preva1l.fadah.utils.Text;
+import java.util.Map;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -34,9 +36,9 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
     private final ConcurrentSkipListSet<Bid> bids;
 
     public ImplBidListing(@NotNull UUID id, @NotNull UUID owner, @NotNull String ownerName,
-                          @NotNull ItemStack itemStack, @NotNull String categoryID, @NotNull String currency, double startingBid,
+                          @NotNull ItemStack itemStack, @NotNull String currency, double startingBid,
                           double tax, long creationDate, long deletionDate, ConcurrentSkipListSet<Bid> bids) {
-        super(id, owner, ownerName, itemStack, categoryID, currency, tax, creationDate, deletionDate);
+        super(id, owner, ownerName, itemStack, currency, tax, creationDate, deletionDate);
 
         if (startingBid <= 0) {
             throw new IllegalArgumentException("Starting bid must be positive");
@@ -76,7 +78,7 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
 
     @Override
     public StaleListing getAsStale() {
-        return new StaleListing(id, owner, ownerName, itemStack, categoryID, currencyId,
+        return new StaleListing(id, owner, ownerName, itemStack, currencyId,
                 getCurrentBid().bidAmount(), tax, creationDate, deletionDate, bids);
     }
 
@@ -101,6 +103,7 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
      */
     @Override
     public void newBid(@NotNull Player bidder, double bidAmount) {
+        if (stale) return;
         if (bidAmount <= 0) {
             Lang.sendMessage(bidder, Lang.i().getPrefix() + Lang.i().getErrors().getBidTooLow());
             return;
@@ -129,6 +132,7 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
 
             sendBidConfirmation(bidder, bidAmount);
             handlePreviousBidder(mostRecentBid, bidAmount);
+            updateListing();
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error processing new bid", e);
@@ -193,6 +197,8 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
 
     @Override
     public void completeBidding() {
+        if (stale) return;
+        stale = true;
         AwareDataService.instance.execute(Listing.class, this, this::completeBidding0);
     }
 
@@ -220,6 +226,13 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
         }
     }
 
+    @Override
+    protected void cancel0(@NotNull Player canceller) {
+        Bid lastBid = bids.first();
+        getCurrency().add(Bukkit.getOfflinePlayer(lastBid.bidder()),  lastBid.bidAmount());
+        super.cancel0(canceller);
+    }
+
     private void processSellerPayment(@NotNull Bid winningBid) {
         try {
             double taxAmount = (this.getTax() / 100.0) * winningBid.bidAmount();
@@ -239,6 +252,15 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
             DataService.getInstance().delete(Listing.class, this);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Failed to remove listing", e);
+            throw e;
+        }
+    }
+
+    private void updateListing() {
+        try {
+            DataService.getInstance().update(Listing.class, this, Map.of("bids", CommonSQLListingDao.bidToJsonString(this.getBids())));
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to update listing", e);
             throw e;
         }
     }

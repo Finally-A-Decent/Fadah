@@ -14,9 +14,9 @@ public final class StaleListing extends BaseListing {
     private final double price;
 
     public StaleListing(@NotNull UUID id, @NotNull UUID owner, @NotNull String ownerName,
-                         @NotNull ItemStack itemStack, @NotNull String categoryID, @NotNull String currency, double price, double tax,
+                         @NotNull ItemStack itemStack, @NotNull String currency, double price, double tax,
                          long creationDate, long deletionDate, ConcurrentSkipListSet<Bid> bids) {
-        super(id, owner, ownerName, itemStack, categoryID, currency, tax, creationDate, deletionDate);
+        super(id, owner, ownerName, itemStack, currency, tax, creationDate, deletionDate);
         this.bids = bids;
         this.price = price;
     }

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import info.preva1l.fadah.data.dao.Dao;
 import info.preva1l.fadah.watcher.Watching;
+import java.util.Map;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.sql.Connection;
@@ -82,7 +83,7 @@ public abstract class CommonWatchersSQLDao implements Dao<Watching> {
      * @param params   the parameters to update the object with.
      */
     @Override
-    public void update(Watching watching, String[] params) {
+    public void update(Watching watching, Map<String, ?> params) {
         throw new NotImplementedException("update");
     }
 

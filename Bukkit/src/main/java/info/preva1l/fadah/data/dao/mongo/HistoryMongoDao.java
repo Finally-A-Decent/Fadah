@@ -14,6 +14,7 @@ import info.preva1l.fadah.data.gson.BukkitSerializableAdapter;
 import info.preva1l.fadah.records.history.HistoricItem;
 import info.preva1l.fadah.records.history.History;
 import info.preva1l.fadah.records.history.ImplHistory;
+import java.util.Map;
 import org.apache.commons.lang3.NotImplementedException;
 import org.bson.Document;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -99,7 +100,7 @@ public class HistoryMongoDao implements Dao<History> {
      * @param params       the parameters to update the object with.
      */
     @Override
-    public void update(History expiredItems, String[] params) {
+    public void update(History expiredItems, Map<String, ?> params) {
         throw new NotImplementedException("update");
     }
 

@@ -6,10 +6,14 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadah.data.dao.Dao;
-import info.preva1l.fadah.records.listing.*;
+import info.preva1l.fadah.records.listing.Bid;
+import info.preva1l.fadah.records.listing.BidListing;
+import info.preva1l.fadah.records.listing.Listing;
+import info.preva1l.fadah.records.listing.ListingFactory;
 import info.preva1l.fadah.utils.serialization.ItemSerializer;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.NotImplementedException;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Type;
@@ -33,6 +37,16 @@ public abstract class CommonSQLListingDao implements Dao<Listing> {
     private final HikariDataSource dataSource;
     protected static final Gson GSON = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
     protected static final Type BIDS_TYPE = new TypeToken<ConcurrentSkipListSet<Bid>>(){}.getType();
+
+    /**
+     * Converts a set of bids to its JSON string representation.
+     *
+     * @param bids a thread-safe sorted set of bid records to be serialized into JSON.
+     * @return a JSON string representing the input set of bids.
+     */
+    public static String bidToJsonString(ConcurrentSkipListSet<Bid> bids) {
+        return GSON.toJson(bids, BIDS_TYPE);
+    }
 
     /**
      * Get a listing from the database by its id.
@@ -105,7 +119,7 @@ public abstract class CommonSQLListingDao implements Dao<Listing> {
                 statement.setString(1, listing.getId().toString());
                 statement.setString(2, listing.getOwner().toString());
                 statement.setString(3, listing.getOwnerName());
-                statement.setString(4, listing.getCategoryID() + "~" + listing.getCurrencyId());
+                statement.setString(4, listing.getCurrencyId());
                 statement.setLong(5, listing.getCreationDate());
                 statement.setLong(6, listing.getDeletionDate());
                 statement.setDouble(7, listing.getPrice());
@@ -127,8 +141,27 @@ public abstract class CommonSQLListingDao implements Dao<Listing> {
      * @param params  the parameters to update the object with.
      */
     @Override
-    public void update(Listing listing, String[] params) {
-        throw new NotImplementedException("update");
+    public void update(Listing listing, Map<String, ?> params) {
+        if (params.isEmpty()) {
+            getLogger().warning("Tried to update item listing with no parameters!");
+            return;
+        }
+        try (Connection connection = getConnection()) {
+            String sql = """
+                    UPDATE `listings` SET %s WHERE uuid = ?;
+                    """.formatted(params.keySet().stream()
+                    .map("`%s` = ?"::formatted)
+                    .collect(Collectors.joining(", ")));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                for (int i = 0; i < params.size(); i++) {
+                    statement.setObject(i + 1, params.get(params.keySet().toArray()[i]));
+                }
+                statement.setString(params.size() + 1, listing.getId().toString());
+                statement.execute();
+            }
+        } catch (SQLException e) {
+            getLogger().log(Level.SEVERE, "Failed to update item from listing!", e);
+        }
     }
 
     /**
@@ -155,14 +188,11 @@ public abstract class CommonSQLListingDao implements Dao<Listing> {
         final String ownerName = resultSet.getString("ownerName");
         String temp = resultSet.getString("category");
         String currency;
-        String categoryID;
-        if (temp.contains("~")) {
+        if (temp.contains("~")) { // support backwards compat
             String[] t2 = temp.split("~");
             currency = t2[1];
-            categoryID = t2[0];
         } else {
-            currency = "vault";
-            categoryID = temp;
+            currency = temp;
         }
         final long creationDate = resultSet.getLong("creationDate");
         final long deletionDate = resultSet.getLong("deletionDate");
@@ -178,29 +208,19 @@ public abstract class CommonSQLListingDao implements Dao<Listing> {
             bids = GSON.fromJson(bidString, BIDS_TYPE);
         }
 
-        final Listing listing;
-        if (biddable) {
-            listing = new ImplBidListing(
-                    id,
-                    ownerUUID, ownerName,
-                    itemStack,
-                    categoryID,
-                    currency, price, tax,
-                    creationDate, deletionDate,
-                    bids
-            );
-        } else {
-            listing = new ImplBinListing(
-                    id,
-                    ownerUUID, ownerName,
-                    itemStack,
-                    categoryID,
-                    currency, price, tax,
-                    creationDate, deletionDate
-            );
-        }
-
-        return listing;
+        return ListingFactory.create(
+                biddable,
+                id,
+                ownerUUID,
+                ownerName,
+                itemStack,
+                currency,
+                price,
+                tax,
+                creationDate,
+                deletionDate,
+                bids
+        );
     }
 
     protected Connection getConnection() throws SQLException {

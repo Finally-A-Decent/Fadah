@@ -9,8 +9,12 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 import info.preva1l.fadah.data.dao.Dao;
-import info.preva1l.fadah.records.listing.*;
+import info.preva1l.fadah.records.listing.Bid;
+import info.preva1l.fadah.records.listing.BidListing;
+import info.preva1l.fadah.records.listing.Listing;
+import info.preva1l.fadah.records.listing.ListingFactory;
 import info.preva1l.fadah.utils.serialization.ItemSerializer;
+import java.util.Map;
 import org.apache.commons.lang3.NotImplementedException;
 import org.bson.Document;
 import org.bukkit.inventory.ItemStack;
@@ -86,7 +90,7 @@ public class ListingMongoDao implements Dao<Listing> {
             Document document = new Document("uuid", listing.getId())
                     .append("ownerUUID", listing.getOwner())
                     .append("ownerName", listing.getOwnerName())
-                    .append("category", listing.getCategoryID() + "~" + listing.getCurrencyId())
+                    .append("category", listing.getCurrencyId())
                     .append("creationDate", listing.getCreationDate())
                     .append("deletionDate", listing.getDeletionDate())
                     .append("price", listing.getPrice())
@@ -107,7 +111,7 @@ public class ListingMongoDao implements Dao<Listing> {
      * @param params  the parameters to update the object with.
      */
     @Override
-    public void update(Listing listing, String[] params) {
+    public void update(Listing listing, Map<String, ?> params) {
         throw new NotImplementedException("update");
     }
 
@@ -130,14 +134,11 @@ public class ListingMongoDao implements Dao<Listing> {
         final String ownerName = doc.getString("ownerName");
         String temp = doc.getString("category");
         String currency;
-        String category;
-        if (temp.contains("~")) {
+        if (temp.contains("~")) { // support backwards compat
             String[] t2 = temp.split("~");
             currency = t2[1];
-            category = t2[0];
         } else {
-            currency = "vault";
-            category = temp;
+            currency = temp;
         }
         final long creationDate = doc.getLong("creationDate");
         final long deletionDate = doc.getLong("deletionDate");
@@ -153,27 +154,18 @@ public class ListingMongoDao implements Dao<Listing> {
             bids = GSON.fromJson(bidString, BIDS_TYPE);
         }
 
-        final Listing listing;
-        if (biddable) {
-            listing = new ImplBidListing(
-                    id,
-                    owner, ownerName,
-                    itemStack,
-                    category,
-                    currency, price, tax,
-                    creationDate, deletionDate,
-                    bids
-            );
-        } else {
-            listing = new ImplBinListing(
-                    id,
-                    owner, ownerName,
-                    itemStack,
-                    category,
-                    currency, price, tax,
-                    creationDate, deletionDate
-            );
-        }
-        return listing;
+        return ListingFactory.create(
+                biddable,
+                id,
+                owner,
+                ownerName,
+                itemStack,
+                currency,
+                price,
+                tax,
+                creationDate,
+                deletionDate,
+                bids
+        );
     }
 }

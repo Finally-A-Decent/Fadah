@@ -8,6 +8,7 @@ import info.preva1l.fadah.data.gson.BukkitSerializableAdapter;
 import info.preva1l.fadah.records.history.HistoricItem;
 import info.preva1l.fadah.records.history.History;
 import info.preva1l.fadah.records.history.ImplHistory;
+import java.util.Map;
 import org.apache.commons.lang3.NotImplementedException;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
@@ -76,7 +77,7 @@ public abstract class CommonHistorySQLDao implements Dao<History> {
      * @param params          the parameters to update the object with.
      */
     @Override
-    public void update(History history, String[] params) {
+    public void update(History history, Map<String, ?> params) {
         throw new NotImplementedException("update");
     }
 

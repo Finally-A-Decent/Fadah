@@ -1,7 +1,6 @@
 package info.preva1l.fadah.guis;
 
 import info.preva1l.fadah.Fadah;
-import info.preva1l.fadah.config.Categories;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.config.Menus;
@@ -114,7 +113,7 @@ public abstract class BrowseMenu extends ScrollBarFastInv {
 
     private boolean passesCategoryFilter(Listing listing) {
         if (category == null) return true;
-        return listing.getCategoryID().equals(category.id());
+        return listing.getCategory().equals(category);
     }
 
     @Override
@@ -180,7 +179,7 @@ public abstract class BrowseMenu extends ScrollBarFastInv {
         ItemBuilder itemStack = new ItemBuilder(listing.getItemStack().clone())
                 .addLore(getLang().getLore(player, "listing.lore-body",
                         Tuple.of("%seller%", listing.getOwnerName()),
-                        Tuple.of("%category%", Text.removeColorCodes(Categories.getCatName(listing.getCategoryID()))),
+                        Tuple.of("%category%", Text.removeColorCodes(listing.getCategory().name())),
                         Tuple.of("%mode%", buyMode),
                         Tuple.of("%symbol%", listing.getCurrency().getSymbol()),
                         Tuple.of("%price%", Config.i().getFormatting().numbers().format(listing.getPrice())),

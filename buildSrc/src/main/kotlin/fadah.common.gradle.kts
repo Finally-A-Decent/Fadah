@@ -11,10 +11,10 @@ plugins {
 }
 
 repositories {
-    maven("https://maven-central.storage-download.googleapis.com/maven2")
-
     finallyADecent(dev = BuildConstants.DEV_MODE)
     finallyADecent()
+
+    mavenCentral()
 }
 
 dependencies {
