@@ -14,6 +14,7 @@ import info.preva1l.fadah.records.listing.BidListing;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.records.listing.ListingFactory;
 import info.preva1l.fadah.utils.serialization.ItemSerializer;
+import java.util.Map;
 import org.apache.commons.lang3.NotImplementedException;
 import org.bson.Document;
 import org.bukkit.inventory.ItemStack;
@@ -110,7 +111,7 @@ public class ListingMongoDao implements Dao<Listing> {
      * @param params  the parameters to update the object with.
      */
     @Override
-    public void update(Listing listing, String[] params) {
+    public void update(Listing listing, Map<String, ?> params) {
         throw new NotImplementedException("update");
     }
 

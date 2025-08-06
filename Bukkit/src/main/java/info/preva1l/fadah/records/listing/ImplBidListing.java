@@ -5,6 +5,7 @@ import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.config.misc.Tuple;
 import info.preva1l.fadah.data.DataService;
+import info.preva1l.fadah.data.dao.common_sql.CommonSQLListingDao;
 import info.preva1l.fadah.multiserver.Broker;
 import info.preva1l.fadah.multiserver.Message;
 import info.preva1l.fadah.multiserver.Payload;
@@ -12,6 +13,7 @@ import info.preva1l.fadah.records.collection.CollectableItem;
 import info.preva1l.fadah.records.collection.CollectionBox;
 import info.preva1l.fadah.security.AwareDataService;
 import info.preva1l.fadah.utils.Text;
+import java.util.Map;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -130,6 +132,7 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
 
             sendBidConfirmation(bidder, bidAmount);
             handlePreviousBidder(mostRecentBid, bidAmount);
+            updateListing();
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error processing new bid", e);
@@ -249,6 +252,15 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
             DataService.getInstance().delete(Listing.class, this);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Failed to remove listing", e);
+            throw e;
+        }
+    }
+
+    private void updateListing() {
+        try {
+            DataService.getInstance().update(Listing.class, this, Map.of("bids", CommonSQLListingDao.bidToJsonString(this.getBids())));
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to update listing", e);
             throw e;
         }
     }

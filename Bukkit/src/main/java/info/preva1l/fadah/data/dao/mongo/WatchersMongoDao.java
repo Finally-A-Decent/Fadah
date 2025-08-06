@@ -11,6 +11,7 @@ import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.ReplaceOptions;
 import info.preva1l.fadah.data.dao.Dao;
 import info.preva1l.fadah.watcher.Watching;
+import java.util.Map;
 import org.apache.commons.lang3.NotImplementedException;
 import org.bson.Document;
 
@@ -100,7 +101,7 @@ public class WatchersMongoDao implements Dao<Watching> {
      * @param params   the parameters to update the object with.
      */
     @Override
-    public void update(Watching watching, String[] params) {
+    public void update(Watching watching, Map<String, ?> params) {
         throw new NotImplementedException("update");
     }
 

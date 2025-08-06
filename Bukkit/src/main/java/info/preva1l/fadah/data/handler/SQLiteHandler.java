@@ -33,24 +33,24 @@ import java.util.logging.Logger;
 
 public class SQLiteHandler implements DatabaseHandler {
     private static final String DATABASE_FILE_NAME = "FadahData.db";
-    
+
     private final Map<Class<?>, Dao<?>> daos = new HashMap<>();
     @Getter private boolean connected = false;
-    
+
     private HikariDataSource dataSource;
     @Getter private V2Fixer v2Fixer;
     @Getter private V3Fixer v3Fixer;
 
     private final Lock databaseFileLock = new ReentrantLock();
-    
+
     private final Logger logger = DataService.instance.logger;
 
     private final Fadah plugin;
-    
+
     public SQLiteHandler(Fadah plugin) {
         this.plugin = plugin;
     }
-    
+
     @Blocking
     @Override
     public void connect() {
@@ -165,7 +165,7 @@ public class SQLiteHandler implements DatabaseHandler {
     }
 
     @Override
-    public <T> void update(Class<T> clazz, T t, String[] params) {
+    public <T> void update(Class<T> clazz, T t, Map<String, ?> params) {
         databaseFileLock.lock();
         try {
             getDao(clazz).update(t, params);

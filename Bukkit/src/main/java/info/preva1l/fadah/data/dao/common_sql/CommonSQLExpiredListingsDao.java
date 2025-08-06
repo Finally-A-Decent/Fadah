@@ -8,6 +8,7 @@ import info.preva1l.fadah.data.gson.BukkitSerializableAdapter;
 import info.preva1l.fadah.records.collection.CollectableItem;
 import info.preva1l.fadah.records.collection.ExpiredItems;
 import info.preva1l.fadah.records.collection.ImplExpiredItems;
+import java.util.Map;
 import org.apache.commons.lang3.NotImplementedException;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
@@ -66,7 +67,7 @@ public abstract class CommonSQLExpiredListingsDao implements Dao<ExpiredItems> {
      * @param params          the parameters to update the object with.
      */
     @Override
-    public void update(ExpiredItems collectableItem, String[] params) {
+    public void update(ExpiredItems collectableItem, Map<String, ?> params) {
         throw new NotImplementedException("update");
     }
 

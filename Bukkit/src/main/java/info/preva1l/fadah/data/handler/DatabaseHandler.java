@@ -5,6 +5,7 @@ import info.preva1l.fadah.data.fixers.v2.V2Fixer;
 import info.preva1l.fadah.data.fixers.v3.V3Fixer;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,7 +22,7 @@ public interface DatabaseHandler {
         getDao(clazz).save(t);
     }
 
-    default <T> void update(Class<T> clazz, T t, String[] params) {
+    default <T> void update(Class<T> clazz, T t, Map<String, ?> params) {
         getDao(clazz).update(t, params);
     }
 
