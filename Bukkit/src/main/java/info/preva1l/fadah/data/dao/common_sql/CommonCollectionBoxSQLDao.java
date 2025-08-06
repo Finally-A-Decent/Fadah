@@ -8,6 +8,7 @@ import info.preva1l.fadah.data.gson.BukkitSerializableAdapter;
 import info.preva1l.fadah.records.collection.CollectableItem;
 import info.preva1l.fadah.records.collection.CollectionBox;
 import info.preva1l.fadah.records.collection.ImplCollectionBox;
+import java.util.Map;
 import org.apache.commons.lang3.NotImplementedException;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
@@ -66,7 +67,7 @@ public abstract class CommonCollectionBoxSQLDao implements Dao<CollectionBox> {
      * @param params          the parameters to update the object with.
      */
     @Override
-    public void update(CollectionBox collectableItem, String[] params) {
+    public void update(CollectionBox collectableItem, Map<String, ?> params) {
         throw new NotImplementedException("cannot update on collection box dao");
     }
 

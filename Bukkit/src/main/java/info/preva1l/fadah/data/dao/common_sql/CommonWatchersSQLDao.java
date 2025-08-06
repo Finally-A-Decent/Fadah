@@ -82,7 +82,7 @@ public abstract class CommonWatchersSQLDao implements Dao<Watching> {
      * @param params   the parameters to update the object with.
      */
     @Override
-    public void update(Watching watching, String[] params) {
+    public void update(Watching watching, Map<String, ?> params) {
         throw new NotImplementedException("update");
     }
 

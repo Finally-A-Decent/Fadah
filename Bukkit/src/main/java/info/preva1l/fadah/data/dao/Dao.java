@@ -3,6 +3,7 @@ package info.preva1l.fadah.data.dao;
 import info.preva1l.fadah.data.DataService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -35,9 +36,9 @@ public interface Dao<T> {
     /**
      * Update an object of type T in the database.
      * @param t the object to update.
-     * @param params the parameters to update the object with.
+     * @param params the parameters to update the object with (key column).
      */
-    void update(T t, String[] params);
+    void update(T t, Map<String, ?> params);
 
     /**
      * Delete an object of type T from the database.
