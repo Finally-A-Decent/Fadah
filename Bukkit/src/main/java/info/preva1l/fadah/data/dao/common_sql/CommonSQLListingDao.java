@@ -12,8 +12,8 @@ import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.records.listing.ListingFactory;
 import info.preva1l.fadah.utils.serialization.ItemSerializer;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.NotImplementedException;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Type;
@@ -37,6 +37,16 @@ public abstract class CommonSQLListingDao implements Dao<Listing> {
     private final HikariDataSource dataSource;
     protected static final Gson GSON = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
     protected static final Type BIDS_TYPE = new TypeToken<ConcurrentSkipListSet<Bid>>(){}.getType();
+
+    /**
+     * Converts a set of bids to its JSON string representation.
+     *
+     * @param bids a thread-safe sorted set of bid records to be serialized into JSON.
+     * @return a JSON string representing the input set of bids.
+     */
+    public static String bidToJsonString(ConcurrentSkipListSet<Bid> bids) {
+        return GSON.toJson(bids, BIDS_TYPE);
+    }
 
     /**
      * Get a listing from the database by its id.
@@ -132,7 +142,26 @@ public abstract class CommonSQLListingDao implements Dao<Listing> {
      */
     @Override
     public void update(Listing listing, Map<String, ?> params) {
-        throw new NotImplementedException("update");
+        if (params.isEmpty()) {
+            getLogger().warning("Tried to update item listing with no parameters!");
+            return;
+        }
+        try (Connection connection = getConnection()) {
+            String sql = """
+                    UPDATE `listings` SET %s WHERE uuid = ?;
+                    """.formatted(params.keySet().stream()
+                    .map("`%s` = ?"::formatted)
+                    .collect(Collectors.joining(", ")));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                for (int i = 0; i < params.size(); i++) {
+                    statement.setObject(i + 1, params.get(params.keySet().toArray()[i]));
+                }
+                statement.setString(params.size() + 1, listing.getId().toString());
+                statement.execute();
+            }
+        } catch (SQLException e) {
+            getLogger().log(Level.SEVERE, "Failed to update item from listing!", e);
+        }
     }
 
     /**
