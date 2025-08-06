@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import info.preva1l.fadah.data.dao.Dao;
 import info.preva1l.fadah.watcher.Watching;
+import java.util.Map;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.sql.Connection;
