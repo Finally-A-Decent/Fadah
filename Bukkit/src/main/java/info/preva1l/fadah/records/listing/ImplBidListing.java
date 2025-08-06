@@ -228,8 +228,10 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
 
     @Override
     protected void cancel0(@NotNull Player canceller) {
-        Bid lastBid = bids.first();
-        getCurrency().add(Bukkit.getOfflinePlayer(lastBid.bidder()),  lastBid.bidAmount());
+        if (ZERO_UUID.equals(this.getCurrentBid().bidder())) {
+            Bid lastBid = bids.first();
+            getCurrency().add(Bukkit.getOfflinePlayer(lastBid.bidder()),  lastBid.bidAmount());
+        }
         super.cancel0(canceller);
     }
 
