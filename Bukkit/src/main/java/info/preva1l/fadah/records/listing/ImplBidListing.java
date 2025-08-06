@@ -260,7 +260,7 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
         try {
             DataService.getInstance().update(Listing.class, this, Map.of("bids", CommonSQLListingDao.bidToJsonString(this.getBids())));
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Failed to remove listing", e);
+            LOGGER.log(Level.SEVERE, "Failed to update listing", e);
             throw e;
         }
     }
