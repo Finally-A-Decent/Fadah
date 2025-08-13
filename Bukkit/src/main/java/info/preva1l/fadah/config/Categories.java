@@ -55,10 +55,10 @@ public class Categories {
                             "&7▪ &fHoes"
                     ),
                     List.of(
-                            "%material%.endsWith(\"_AXE\")",
-                            "%material%.endsWith(\"_PICKAXE\")",
-                            "%material%.endsWith(\"_HOE\")",
-                            "%material%.endsWith(\"_SHOVEL\")"
+                            "%material% endsWith \"_AXE\"",
+                            "%material% endsWith \"_PICKAXE\"",
+                            "%material% endsWith \"_HOE\"",
+                            "%material% endsWith \"_SHOVEL\""
                     )
             ),
             new Category(
@@ -74,11 +74,11 @@ public class Categories {
                             "&7▪ &fShields"
                     ),
                     List.of(
-                            "%material%.endsWith(\"_SWORD\")",
-                            "%material%.endsWith(\"_BOOTS\")",
-                            "%material%.endsWith(\"_LEGGINGS\")",
-                            "%material%.endsWith(\"_CHESTPLATE\")",
-                            "%material%.endsWith(\"_HELMET\")",
+                            "%material% endsWith \"_SWORD\"",
+                            "%material% endsWith \"_BOOTS\"",
+                            "%material% endsWith \"_LEGGINGS\"",
+                            "%material% endsWith \"_CHESTPLATE\"",
+                            "%material% endsWith \"_HELMET\"",
                             "%material% == \"BOW\""
                     )
             ),
@@ -104,7 +104,7 @@ public class Categories {
                     ),
                     List.of(
                             "%material% == \"SPAWNER\"",
-                            "%material%.endsWith(\"_SPAWN_EGG\")"
+                            "%material% endsWith \"_SPAWN_EGG\""
                     )
             ),
             new Category(
@@ -119,13 +119,13 @@ public class Categories {
                     List.of(
                             "%material% == \"COARSE_DIRT\"",
                             "%material% == \"TERRACOTTA\"",
-                            "%material%.endsWith(\"_WOOL\")",
-                            "%material%.endsWith(\"_TERRACOTTA\")",
-                            "%material%.endsWith(\"_CONCRETE\")",
-                            "%material%.endsWith(\"_CONCRETE_POWDER\")",
+                            "%material% endsWith \"_WOOL\"",
+                            "%material% endsWith \"_TERRACOTTA\"",
+                            "%material% endsWith \"_CONCRETE\"",
+                            "%material% endsWith \"_CONCRETE_POWDER\"",
                             "%material% == \"GLASS\"",
-                            "%material%.endsWith(\"_GLASS\")",
-                            "%material%.endsWith(\"_GLASS_PANE\")"
+                            "%material% endsWith \"_GLASS\"",
+                            "%material% endsWith \"_GLASS_PANE\""
                     )
             ),
             new Category(
@@ -138,7 +138,7 @@ public class Categories {
                             "&fRedstone components."
                     ),
                     List.of(
-                            "%material%.includes(\"REDSTONE\")",
+                            "%material% contains \"REDSTONE\"",
                             "%material% == \"REPEATER\"",
                             "%material% == \"COMPARATOR\""
                     )
