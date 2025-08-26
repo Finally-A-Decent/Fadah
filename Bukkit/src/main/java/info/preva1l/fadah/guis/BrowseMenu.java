@@ -27,7 +27,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
@@ -47,6 +50,8 @@ public abstract class BrowseMenu extends ScrollBarFastInv {
     protected SortingMethod sortingMethod;
     protected SortingDirection sortingDirection;
     protected Category category;
+
+    private final Map<UUID, Long> cooldown = new HashMap<>();
 
     private final ConcurrentMap<Listing, Boolean> processingListings = new ConcurrentHashMap<>();
 
@@ -146,6 +151,16 @@ public abstract class BrowseMenu extends ScrollBarFastInv {
             Player clicker = (Player) event.getWhoClicked();
 
             if (event.isShiftClick() && canCancelListing(clicker, listing)) {
+
+                if (cooldown.containsKey(player.getUniqueId())) {
+                    int cooldownTime = 1;
+                    long timeLeft = ((cooldown.get(player.getUniqueId()) / 1000) + cooldownTime) - (System.currentTimeMillis() / 1000);
+                    if (timeLeft > 0) {
+                        return;
+                    }
+                }
+
+                cooldown.put(player.getUniqueId(), System.currentTimeMillis());
                 listing.cancel(clicker);
                 updatePagination();
                 return;
