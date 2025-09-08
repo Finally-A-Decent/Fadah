@@ -13,8 +13,6 @@ plugins {
 repositories {
     finallyADecent(dev = BuildConstants.DEV_MODE)
     finallyADecent()
-
-    mavenCentral()
 }
 
 dependencies {
