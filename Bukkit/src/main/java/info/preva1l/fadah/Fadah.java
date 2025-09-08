@@ -6,6 +6,7 @@ import info.preva1l.fadah.listeners.BombyListener;
 import info.preva1l.fadah.listeners.PlayerListener;
 import info.preva1l.fadah.utils.Text;
 import info.preva1l.fadah.utils.guis.FastInvManager;
+import info.preva1l.fadah.warnings.LeafWarning;
 import info.preva1l.trashcan.extension.BasePlugin;
 import info.preva1l.trashcan.extension.annotations.PluginEnable;
 import lombok.Getter;
@@ -22,6 +23,8 @@ public final class Fadah extends BasePlugin {
 
     @PluginEnable
     public void enable() {
+        if (Bukkit.getName().equalsIgnoreCase("leaf")) new LeafWarning().warn();
+
         AuctionHouseAPI.setInstance(new BukkitAuctionHouseAPI());
 
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);

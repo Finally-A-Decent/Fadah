@@ -4,10 +4,12 @@ import info.preva1l.fadah.utils.Text;
 import info.preva1l.trashcan.flavor.annotations.Configure;
 import info.preva1l.trashcan.flavor.annotations.Service;
 import info.preva1l.trashcan.flavor.annotations.inject.Inject;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -44,6 +46,8 @@ public final class MatcherService {
             if (lore == null) lore = new ArrayList<>();
             return String.join("\\n", lore);
         });
+
+        MatcherArgsRegistry.register(STRING, "model", item -> Objects.requireNonNullElse(item.getItemMeta().getItemModel(), NamespacedKey.fromString("empty:empty")).asString());
     }
 
     /**
@@ -79,14 +83,7 @@ public final class MatcherService {
     private boolean evaluateComparison(String processedExpression, boolean def) {
         Matcher matcher = COMPARISON_PATTERN.matcher(processedExpression);
         if (!matcher.matches()) {
-            logger.severe(
-                    """
-                    Unable to process expression: '%s'
-                    This is likely related to a category matcher or a item blacklist.
-                    DO NOT REPORT THIS TO Fadah SUPPORT, THIS IS NOT A BUG, THIS IS A CONFIGURATION PROBLEM.
-                    Refer: https://docs.preva1l.info/fadah/setup/category-filtering-and-blacklists/
-                    """.stripIndent().formatted(processedExpression)
-            );
+            error(processedExpression, "Invalid comparison expression!");
             return def;
         }
 
@@ -106,11 +103,11 @@ public final class MatcherService {
                 String operator = matcher.group(5);
                 String rightValue = matcher.group(6);
 
-                return compareNumbers(leftValue, operator, rightValue);
+                return compareNumbers(processedExpression, leftValue, operator, rightValue);
             }
 
         } catch (Exception e) {
-            logger.warning("Error evaluating comparison: " + e.getMessage());
+            error(processedExpression, e.getMessage());
         }
 
         return def;
@@ -128,7 +125,7 @@ public final class MatcherService {
         };
     }
 
-    private boolean compareNumbers(String leftStr, String operator, String rightStr) {
+    private boolean compareNumbers(String expression, String leftStr, String operator, String rightStr) {
         try {
             double left = Double.parseDouble(leftStr);
             double right = Double.parseDouble(rightStr);
@@ -143,7 +140,7 @@ public final class MatcherService {
                 default -> false;
             };
         } catch (NumberFormatException e) {
-            logger.warning("Invalid number in expression: " + leftStr + " or " + rightStr);
+            error(expression, "Invalid number: " + leftStr + " or " + rightStr);
             return false;
         }
     }
@@ -214,5 +211,18 @@ public final class MatcherService {
                 .replace("\r", "\\r")
                 .replace("`", "\\`")
                 .replaceAll("%[^%]+%", "\"UNKNOWN_VALUE\"");
+    }
+
+    private void error(String expression, String reason) {
+        logger.severe(
+                """
+                Unable to process expression: '%s'
+                (%s)
+                
+                This is likely related to a category matcher or a item blacklist.
+                DO NOT REPORT THIS TO Fadah SUPPORT, THIS IS NOT A BUG, THIS IS A CONFIGURATION PROBLEM.
+                Refer: https://docs.preva1l.info/fadah/setup/category-filtering-and-blacklists/
+                """.stripIndent().formatted(expression, reason)
+        );
     }
 }

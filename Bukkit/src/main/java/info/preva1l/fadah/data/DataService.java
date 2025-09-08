@@ -50,7 +50,7 @@ public final class DataService {
     private DatabaseHandler handler;
 
     private DataService() {
-        threadPool = Executors.newCachedThreadPool();
+        threadPool = Executors.newVirtualThreadPerTaskExecutor();
         databaseHandlers.put(DatabaseType.SQLITE, SQLiteHandler.class);
         databaseHandlers.put(DatabaseType.MARIADB, MySQLHandler.class);
         databaseHandlers.put(DatabaseType.MYSQL, MySQLHandler.class);

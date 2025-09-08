@@ -27,6 +27,7 @@ public class CurrencyConfigUpgrader implements ConfigUpgrader {
         File oldFile = new File(folder, "config.yml");
         File newFile = new File(folder, "currencies.yml");
 
+        if (!oldFile.exists()) return;
         if (newFile.exists()) return;
 
         DumperOptions options = new DumperOptions();

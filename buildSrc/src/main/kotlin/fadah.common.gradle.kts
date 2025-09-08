@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    paper("1.19.3-R0.1-SNAPSHOT")
+    paper("1.21.4-R0.1-SNAPSHOT")
 
     compileOnly("org.projectlombok:lombok:1.18.38")
     annotationProcessor("org.projectlombok:lombok:1.18.38")
@@ -34,6 +34,13 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok:1.18.38")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
 }
+
+configurations.all {
+    resolutionStrategy.capabilitiesResolution.withCapability("org.bukkit:bukkit") {
+        select("io.papermc.paper:paper-api:0")
+    }
+}
+
 tasks {
     withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
         destinationDirectory.set(file("$rootDir/target"))

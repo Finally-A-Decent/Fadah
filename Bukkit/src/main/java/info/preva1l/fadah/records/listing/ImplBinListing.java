@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Level;
 
@@ -44,30 +45,22 @@ public final class ImplBinListing extends ActiveListing implements BinListing {
 
     @Override
     public StaleListing getAsStale() {
-        return new StaleListing(id, owner, ownerName, itemStack, currencyId, price, tax, creationDate, deletionDate, new ConcurrentSkipListSet<>());
+        return new StaleListing(id, owner, ownerName, itemStack, currencyId, price, tax, creationDate, deletionDate, new ConcurrentSkipListSet<>(), categoryID);
     }
 
     @Override
-    public void purchase(@NotNull Player buyer) {
-        if (stale) return;
-        stale = true;
-        AwareDataService.instance.execute(Listing.class, this, () -> purchase0(buyer));
+    public CompletableFuture<Void> purchase(@NotNull Player buyer) {
+        return AwareDataService.instance.execute(Listing.class, this, () -> purchase0(buyer));
     }
 
     private void purchase0(@NotNull Player buyer) {
-        if (!canBuy(buyer)) {
-            stale = false;
-            return;
-        }
+        if (!canBuy(buyer)) return;
 
         double taxedAmount = (this.getTax() / 100) * this.getPrice();
         double sellerAmount = this.getPrice() - taxedAmount;
 
         try {
-            if (!transferFunds(buyer, sellerAmount)) {
-                stale = false;
-                return;
-            }
+            if (!transferFunds(buyer, sellerAmount)) return;
 
             ItemStack itemStack = this.getItemStack().clone();
             var item = new CollectableItem(itemStack, Instant.now().toEpochMilli());

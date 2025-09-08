@@ -141,34 +141,34 @@ public abstract class BrowseMenu extends ScrollBarFastInv {
     private void handleListingClick(InventoryClickEvent event, Listing listing, boolean isShulkerBox, boolean isBidListing) {
         if (processingListings.putIfAbsent(listing, true) != null) return;
 
-        try {
-            Player clicker = (Player) event.getWhoClicked();
+        Player clicker = (Player) event.getWhoClicked();
 
-            if (event.isShiftClick() && canCancelListing(clicker, listing)) {
-                listing.cancel(clicker);
+        if (event.isShiftClick() && canCancelListing(clicker, listing)) {
+            listing.cancel(clicker).thenRun(() -> {
                 updatePagination();
-                return;
-            }
-
-            if (event.isRightClick() && isShulkerBox) {
-                new ShulkerBoxPreviewMenu(listing, () -> open(player)).open(player);
-                return;
-            }
-
-            if (!listing.canBuy(player)) return;
-
-            if (isBidListing) {
-                new PlaceBidMenu((BidListing) listing, player, () -> open(player)).open(player);
-            } else {
-                new ConfirmPurchaseMenu((BinListing) listing, player, () -> open(player)).open(player);
-            }
-        } finally {
-            processingListings.remove(listing);
+                processingListings.remove(listing);
+            });
+            return;
         }
+
+        if (event.isRightClick() && isShulkerBox) {
+            new ShulkerBoxPreviewMenu(listing, () -> open(player)).open(player);
+            return;
+        }
+
+        if (!listing.canBuy(player)) return;
+
+        if (isBidListing) {
+            new PlaceBidMenu((BidListing) listing, player, () -> open(player)).open(player);
+        } else {
+            new ConfirmPurchaseMenu((BinListing) listing, player, () -> open(player)).open(player);
+        }
+
+        processingListings.remove(listing);
     }
 
     private boolean canCancelListing(Player player, Listing listing) {
-        return player.hasPermission("fadah.manage.active-listings") || listing.isOwner(player);
+        return (player.hasPermission("fadah.manage.active-listings") || listing.isOwner(player)) && listing.isActive();
     }
 
     private ItemStack buildItem(Listing listing, boolean isBidListing, boolean isShulkerBox) {

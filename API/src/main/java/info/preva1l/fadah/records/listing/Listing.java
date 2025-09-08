@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * A listing that gets posted to the auction house.
@@ -120,7 +121,7 @@ public interface Listing {
      *
      * @param canceller the player attempting to cancel the listing.
      */
-    void cancel(@NotNull Player canceller);
+    CompletableFuture<Void> cancel(@NotNull Player canceller);
 
     /**
      * Check if a player can buy the listing, or place a bid.
@@ -131,10 +132,17 @@ public interface Listing {
     boolean canBuy(@NotNull Player player);
 
     /**
+     * Check if the bidding is still active.
+     *
+     * @return true if the bidding is still active.
+     */
+    boolean isActive();
+
+    /**
      * Expire the listing.
      */
-     default void expire() {
-        expire(false);
+     default CompletableFuture<Void> expire() {
+        return expire(false);
     }
 
     /**
@@ -142,5 +150,5 @@ public interface Listing {
      *
      * @param force if false, this method will only run if the listing is meant to be expired
      */
-    void expire(boolean force);
+    CompletableFuture<Void> expire(boolean force);
 }

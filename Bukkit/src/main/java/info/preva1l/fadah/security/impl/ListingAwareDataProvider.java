@@ -6,6 +6,7 @@ import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.security.AwareDataProvider;
 import lombok.AllArgsConstructor;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -18,13 +19,13 @@ public final class ListingAwareDataProvider implements AwareDataProvider<Listing
     private final ExecutorService executor;
 
     @Override
-    public void execute(Listing listing, Runnable action) {
-        if (CacheAccess.get(Listing.class, listing.getId()).isEmpty()) return;
-        checkDatabase(listing, action);
+    public CompletableFuture<Void> execute(Listing listing, Runnable action) {
+        if (CacheAccess.get(Listing.class, listing.getId()).isEmpty()) return CompletableFuture.completedFuture(null);
+        return checkDatabase(listing, action);
     }
 
-    private void checkDatabase(Listing listing, Runnable action) {
-        DataService.instance.get(Listing.class, listing.getId()).thenAcceptAsync(it -> {
+    private CompletableFuture<Void> checkDatabase(Listing listing, Runnable action) {
+        return DataService.instance.get(Listing.class, listing.getId()).thenAcceptAsync(it -> {
             if (it.isEmpty()) {
                 CacheAccess.invalidate(Listing.class, listing);
                 return;

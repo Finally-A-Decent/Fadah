@@ -13,7 +13,6 @@ import info.preva1l.fadah.records.collection.CollectableItem;
 import info.preva1l.fadah.records.collection.CollectionBox;
 import info.preva1l.fadah.security.AwareDataService;
 import info.preva1l.fadah.utils.Text;
-import java.util.Map;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -22,7 +21,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -79,7 +80,7 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
     @Override
     public StaleListing getAsStale() {
         return new StaleListing(id, owner, ownerName, itemStack, currencyId,
-                getCurrentBid().bidAmount(), tax, creationDate, deletionDate, bids);
+                getCurrentBid().bidAmount(), tax, creationDate, deletionDate, bids, categoryID);
     }
 
     @Override
@@ -102,14 +103,13 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
      * @param bidAmount the amount of the bid
      */
     @Override
-    public void newBid(@NotNull Player bidder, double bidAmount) {
-        if (stale) return;
+    public CompletableFuture<Void> newBid(@NotNull Player bidder, double bidAmount) {
         if (bidAmount <= 0) {
             Lang.sendMessage(bidder, Lang.i().getPrefix() + Lang.i().getErrors().getBidTooLow());
-            return;
+            return CompletableFuture.completedFuture(null);
         }
 
-        AwareDataService.instance.execute(Listing.class, this, () -> newBid0(bidder, bidAmount));
+        return AwareDataService.instance.execute(Listing.class, this, () -> newBid0(bidder, bidAmount));
     }
 
     private void newBid0(@NotNull Player bidder, double bidAmount) {
@@ -196,20 +196,13 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
     }
 
     @Override
-    public void completeBidding() {
-        if (stale) return;
-        stale = true;
-        AwareDataService.instance.execute(Listing.class, this, this::completeBidding0);
+    public CompletableFuture<Void> completeBidding() {
+        return AwareDataService.instance.execute(Listing.class, this, this::completeBidding0);
     }
 
     private void completeBidding0() {
         try {
-            if (bids == null || bids.isEmpty()) {
-                expire();
-                return;
-            }
-
-            Bid winningBid = bids.first();
+            Bid winningBid = getCurrentBid();
 
             if (ZERO_UUID.equals(winningBid.bidder())) {
                 expire();
@@ -228,8 +221,10 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
 
     @Override
     protected void cancel0(@NotNull Player canceller) {
-        Bid lastBid = bids.first();
-        getCurrency().add(Bukkit.getOfflinePlayer(lastBid.bidder()),  lastBid.bidAmount());
+        Bid lastBid = getCurrentBid();
+        if (!ZERO_UUID.equals(lastBid.bidder())) {
+            getCurrency().add(Bukkit.getOfflinePlayer(lastBid.bidder()), lastBid.bidAmount());
+        }
         super.cancel0(canceller);
     }
 

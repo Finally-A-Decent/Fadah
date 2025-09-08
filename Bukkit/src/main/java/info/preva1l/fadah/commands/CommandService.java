@@ -49,7 +49,7 @@ public final class CommandService {
     }
 
     private void loadCommandManager() {
-        commandManager = LegacyPaperCommandManager.createNative(plugin, ExecutionCoordinator.simpleCoordinator());
+        commandManager = LegacyPaperCommandManager.createNative(plugin, ExecutionCoordinator.asyncCoordinator());
         parser = new AnnotationParser<>(commandManager, CommandSender.class);
 
         commandManager.captionRegistry().registerProvider((caption, recipient) -> switch (caption.key()) {

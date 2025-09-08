@@ -1,5 +1,5 @@
 name: Fadah
-api-version: 1.19
+api-version: 1.21
 version: INVALID
 main: info.preva1l.fadah.warnings.SpigotWarning
 load: POSTWORLD

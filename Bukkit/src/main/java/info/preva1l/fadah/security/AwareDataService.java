@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -45,8 +46,8 @@ public final class AwareDataService {
         getProviderCollectable(clazz).execute(obj, item, action);
     }
 
-    public <T> void execute(Class<T> clazz, T obj, Runnable action) {
-        getProvider(clazz).execute(obj, action);
+    public <T> CompletableFuture<Void> execute(Class<T> clazz, T obj, Runnable action) {
+        return getProvider(clazz).execute(obj, action);
     }
 
     private <T> AwareDataProvider<T> getProvider(Class<T> clazz) {

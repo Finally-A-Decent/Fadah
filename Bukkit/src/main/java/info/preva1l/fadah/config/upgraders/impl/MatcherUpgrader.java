@@ -27,10 +27,7 @@ public class MatcherUpgrader implements ConfigUpgrader {
     }
 
     private void migrate(File file) {
-        if (!file.exists()) {
-            logger.warning(file.getName() + " file not found, skipping matcher upgrade");
-            return;
-        }
+        if (!file.exists()) return;
 
         try {
             String content = Files.readString(file.toPath(), StandardCharsets.UTF_8);

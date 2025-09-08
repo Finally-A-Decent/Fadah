@@ -3,6 +3,8 @@ package info.preva1l.fadah.records.listing;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * Created on 31/03/2025
  *
@@ -15,5 +17,5 @@ public interface BinListing extends Listing {
      * @param buyer the player buying the listing.
      * @throws IllegalStateException if the listing is not a {@code Buy It Now} listing.
      */
-    void purchase(@NotNull Player buyer);
+    CompletableFuture<Void> purchase(@NotNull Player buyer);
 }

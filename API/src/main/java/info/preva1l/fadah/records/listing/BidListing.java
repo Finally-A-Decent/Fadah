@@ -3,6 +3,7 @@ package info.preva1l.fadah.records.listing;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
@@ -38,10 +39,10 @@ public interface BidListing extends Listing {
      * @param bidder the player placing the bid.
      * @param bidAmount the amount of the bid.
      */
-    void newBid(@NotNull Player bidder, double bidAmount);
+    CompletableFuture<Void> newBid(@NotNull Player bidder, double bidAmount);
 
     /**
      * Finish the bidding on the listing and award the item to the highest bidder.
      */
-    void completeBidding();
+    CompletableFuture<Void> completeBidding();
 }

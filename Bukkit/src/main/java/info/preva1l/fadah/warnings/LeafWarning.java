@@ -1,40 +1,27 @@
 package info.preva1l.fadah.warnings;
 
-import info.preva1l.fadah.Fadah;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import java.util.List;
 
 /**
- * Created on 1/07/2025
+ * This is a class.
  *
  * @author Preva1l
+ * @since 8/09/2025
  */
-public final class SpigotWarning extends JavaPlugin implements Warning {
+public final class LeafWarning implements Warning {
     @Override
     public List<String> message() {
         return List.of(
                 "---------------- WARNING ----------------",
-                "  Fadah does not support Spigot/Bukkit!  ",
+                "       Fadah does not support Leaf!      ",
+                " Leaf is unstable and breaks common api. ",
                 "    You must use one of the following:   ",
                 "    Paper, Pufferfish, Purpur, USpigot   ",
                 "     ASPaper, Folia or ShreddedPaper     ",
                 "     Other Paper forks may also work     ",
                 "-----------------------------------------",
-                "        Fadah will now terminate!        ",
+                "    You will not receive any support!    ",
                 "---------------- WARNING ----------------"
         );
-    }
-
-    @Override
-    public void onLoad() {
-        warn();
-    }
-
-    @Override
-    public void onEnable() {
-        warn();
-        Bukkit.getPluginManager().disablePlugin(Fadah.instance);
     }
 }

@@ -68,7 +68,7 @@ paper {
     main = rootProject.group.toString() + ".Fadah"
     loader = "info.preva1l.fadah.trashcan.extension.libloader.BaseLibraryLoader"
     foliaSupported = true
-    apiVersion = "1.19"
+    apiVersion = "1.21"
 
     load = PluginLoadOrder.POSTWORLD
 
