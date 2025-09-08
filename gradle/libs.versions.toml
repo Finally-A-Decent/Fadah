@@ -7,7 +7,7 @@ mariadb = "3.5.5"
 mongo = "5.5.1"
 
 
-redisson = "3.50.0"
+redisson = "3.51.0"
 adventure = "4.24.0"
 influxdb = "7.3.0"
 multilib = "1.2.4"
