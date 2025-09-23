@@ -1,6 +1,5 @@
 package info.preva1l.fadah.currency;
 
-import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.utils.Text;
 import info.preva1l.trashcan.flavor.annotations.Configure;
 import info.preva1l.trashcan.flavor.annotations.Service;
@@ -28,12 +27,11 @@ public final class CurrencyService {
 
         if (CurrencyRegistry.getAll().isEmpty()) {
             Text.list(List.of(
-                    "&4&l-------------------------------",
-                    "&c  No Economy Plugin Installed!",
-                    "&c    Plugin will now disable!",
-                    "&4&l-------------------------------")
+                    "&4&l---------------------------------------",
+                    "&c      No Economy Plugin Installed!",
+                    "&cPlugin will not work without custom hook!",
+                    "&4&l---------------------------------------")
             ).forEach(Bukkit.getConsoleSender()::sendMessage);
-            Bukkit.getPluginManager().disablePlugin(Fadah.instance);
         }
     }
 }
