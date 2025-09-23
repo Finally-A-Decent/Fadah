@@ -13,7 +13,10 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MenuType;
+import org.bukkit.inventory.view.builder.InventoryViewBuilder;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -71,7 +74,7 @@ public class FastInv implements InventoryHolder {
     protected void onClick(InventoryClickEvent event) {
     }
 
-    protected void onClose(InventoryCloseEvent event) {
+    protected void onClose(@Nullable InventoryCloseEvent event) {
     }
 
     protected void fillers() {
@@ -171,7 +174,14 @@ public class FastInv implements InventoryHolder {
      * @param player The player to open the menu.
      */
     public void open(Player player) {
-        Tasks.sync(Fadah.getInstance(), player, () -> player.openInventory(this.inventory));
+        Tasks.sync(Fadah.getInstance(), player, () -> {
+            if (player.isSleeping() || !player.isValid()) {
+                handleClose(null);
+                return;
+            }
+
+            player.openInventory(this.inventory);
+        }, () -> handleClose(null));
     }
 
     /**
@@ -201,12 +211,12 @@ public class FastInv implements InventoryHolder {
         this.openHandlers.forEach(c -> c.accept(e));
     }
 
-    boolean handleClose(InventoryCloseEvent e) {
+    boolean handleClose(@Nullable InventoryCloseEvent e) {
         onClose(e);
 
         this.closeHandlers.forEach(c -> c.accept(e));
 
-        return this.closeFilter != null && this.closeFilter.test((Player) e.getPlayer());
+        return this.closeFilter != null && (e != null && this.closeFilter.test((Player) e.getPlayer()));
     }
 
     void handleClick(InventoryClickEvent e) {

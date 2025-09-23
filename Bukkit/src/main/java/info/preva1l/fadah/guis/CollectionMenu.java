@@ -109,7 +109,7 @@ public class CollectionMenu extends PaginatedFastInv {
             getCurrentItems().remove(item);
             logItemClaim(item);
             updatePagination();
-        });
+        }, () -> Lang.sendMessage(player, Lang.i().getPrefix() + Lang.i().getErrors().getOther().replace("%ex%", "Ticking Issue")));
     }
 
     private boolean tryAddToInventory(Player player, ItemStack item) {

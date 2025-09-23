@@ -19,7 +19,7 @@ public abstract class PaginatedFastInv extends FastInv {
     private List<Integer> paginationMappings;
     private final List<PaginatedItem> paginatedItems = new ArrayList<>();
     protected boolean needsClearing = false;
-    private final ScheduledFuture<?> updateTask;
+    protected final ScheduledFuture<?> updateTask;
 
     protected PaginatedFastInv(int size, @NotNull Component title, @NotNull Player player, LayoutService.MenuType menuType) {
         this(size, title, player, menuType, List.of(

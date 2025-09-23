@@ -32,8 +32,8 @@ public class Tasks {
      * @param plugin   The current plugin
      * @param runnable The runnable
      */
-    public RegionizedTask sync(Plugin plugin, Entity entity, Runnable runnable) {
-        return MultiLib.getEntityScheduler(entity).run(plugin, t -> runnable.run(), () -> sync(plugin, runnable));
+    public RegionizedTask sync(Plugin plugin, Entity entity, Runnable runnable, Runnable fail) {
+        return MultiLib.getEntityScheduler(entity).run(plugin, t -> runnable.run(), fail);
     }
 
     /**
