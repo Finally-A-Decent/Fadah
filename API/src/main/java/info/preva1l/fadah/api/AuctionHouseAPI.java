@@ -2,7 +2,7 @@ package info.preva1l.fadah.api;
 
 import info.preva1l.fadah.api.managers.CategoryManager;
 import info.preva1l.fadah.api.managers.ListingManager;
-import info.preva1l.fadah.filters.MatcherArgsRegistry;
+import info.preva1l.fadah.api.menus.MenuManager;
 import info.preva1l.fadah.records.Category;
 import info.preva1l.fadah.records.collection.CollectableItem;
 import info.preva1l.fadah.records.collection.CollectionBox;
@@ -10,7 +10,6 @@ import info.preva1l.fadah.records.collection.ExpiredItems;
 import info.preva1l.fadah.records.history.HistoricItem;
 import info.preva1l.fadah.records.history.History;
 import info.preva1l.fadah.records.listing.Listing;
-import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
@@ -36,27 +35,13 @@ public abstract class AuctionHouseAPI {
     AuctionHouseAPI() {}
 
     /**
-     * Get the custom item filtering namespacedkey
+     * Get the menu manager.
+     * This manager allows you to open menus for players.
      *
-     * @return namespacedkey
-     * @deprecated replaced with {@link MatcherArgsRegistry} and category matchers
+     * @return the instance of the menu manager.
+     * @since 3.2.2
      */
-    @Deprecated(since = "2.9", forRemoval = true)
-    public NamespacedKey getCustomItemNameSpacedKey() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Set the custom item filtering namespacedkey
-     *
-     * @param key namespacedkey
-     * @since 1.0
-     * @deprecated replaced with {@link MatcherArgsRegistry} and category matchers
-     */
-    @Deprecated(since = "2.9", forRemoval = true)
-    public void setCustomItemNameSpacedKey(NamespacedKey key) {
-        throw new UnsupportedOperationException();
-    }
+    public abstract MenuManager menuManager();
 
     /**
      * Get a listing

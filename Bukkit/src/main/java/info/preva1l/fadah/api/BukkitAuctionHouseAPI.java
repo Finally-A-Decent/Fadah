@@ -1,9 +1,7 @@
 package info.preva1l.fadah.api;
 
-import info.preva1l.fadah.api.managers.CategoryManager;
-import info.preva1l.fadah.api.managers.ImplCategoryManager;
-import info.preva1l.fadah.api.managers.ImplListingManager;
-import info.preva1l.fadah.api.managers.ListingManager;
+import info.preva1l.fadah.api.managers.*;
+import info.preva1l.fadah.api.menus.MenuManager;
 import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.data.DataService;
@@ -21,6 +19,12 @@ import java.util.concurrent.CompletableFuture;
 public final class BukkitAuctionHouseAPI extends AuctionHouseAPI {
     private final CategoryManager categoryManager = new ImplCategoryManager();
     private final ListingManager listingManager = new ImplListingManager();
+    private final MenuManager menuManager = new ImplMenuManager();
+
+    @Override
+    public MenuManager menuManager() {
+        return menuManager;
+    }
 
     @Override
     public ListingManager listingManager() {
