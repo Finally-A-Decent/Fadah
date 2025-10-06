@@ -4,7 +4,7 @@ hikari = "7.0.2"
 sqlite = "3.50.3.0"
 mysql = "9.4.0"
 mariadb = "3.5.5"
-mongo = "5.5.1"
+mongo = "5.6.1"
 
 
 redisson = "3.50.0"
