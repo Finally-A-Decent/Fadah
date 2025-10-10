@@ -26,7 +26,7 @@ public final class PriceParser<C> extends NumberParser<C, Double, DoubleRange> {
 
     @Override
     public boolean hasMax() {
-        return true;
+        return false;
     }
 
     @Override
