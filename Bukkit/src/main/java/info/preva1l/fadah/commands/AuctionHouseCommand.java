@@ -296,7 +296,7 @@ public class AuctionHouseCommand implements InspectSubCommand, AboutSubCommand, 
                             OfflinePlayer finalOwner = owner;
                             DataService.instance.loadPlayerData(owner.getUniqueId())
                                     .thenRun(() ->
-                                            new CollectionMenu(cmd.sender(), finalOwner, LayoutService.MenuType.COLLECTION_BOX)
+                                            new CollectionMenu(cmd.sender(), finalOwner, LayoutService.MenuType.EXPIRED_LISTINGS)
                                                     .open(cmd.sender()));
                         })
         );
