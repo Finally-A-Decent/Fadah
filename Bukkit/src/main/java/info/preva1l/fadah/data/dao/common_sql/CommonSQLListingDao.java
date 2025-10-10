@@ -11,8 +11,6 @@ import info.preva1l.fadah.records.listing.BidListing;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.records.listing.ListingFactory;
 import info.preva1l.fadah.utils.serialization.ItemSerializer;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.bukkit.inventory.ItemStack;
 
@@ -22,10 +20,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * Created on 19/03/2025
@@ -198,7 +198,7 @@ public abstract class CommonSQLListingDao implements Dao<Listing> {
         final long deletionDate = resultSet.getLong("deletionDate");
         final double price = resultSet.getDouble("price");
         final double tax = resultSet.getDouble("tax");
-        final ItemStack itemStack = ItemSerializer.deserialize(resultSet.getString("itemStack"))[0];
+        final ItemStack itemStack = ItemSerializer.deserialize(resultSet.getString("itemStack"));
         final boolean biddable = resultSet.getBoolean("biddable");
         final String bidString = resultSet.getString("bids");
         final ConcurrentSkipListSet<Bid> bids;

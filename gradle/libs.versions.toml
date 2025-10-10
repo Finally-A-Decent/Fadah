@@ -3,15 +3,15 @@
 hikari = "7.0.2"
 sqlite = "3.50.3.0"
 mysql = "9.4.0"
-mariadb = "3.5.5"
-mongo = "5.5.1"
+mariadb = "3.5.6"
+mongo = "5.6.1"
 
 
-redisson = "3.50.0"
+redisson = "3.52.0"
 adventure = "4.24.0"
 influxdb = "7.3.0"
-multilib = "1.2.4"
-anvilgui = "1.10.6-SNAPSHOT"
+multilib = "1.2.5"
+anvilgui = "1.10.9-SNAPSHOT"
 
 placeholderapi = "2.11.6"
 luckperms = "5.5"

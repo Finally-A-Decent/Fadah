@@ -14,16 +14,12 @@ import info.preva1l.fadah.records.listing.BidListing;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.records.listing.ListingFactory;
 import info.preva1l.fadah.utils.serialization.ItemSerializer;
-import java.util.Map;
 import org.apache.commons.lang3.NotImplementedException;
 import org.bson.Document;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Level;
 
@@ -144,7 +140,7 @@ public class ListingMongoDao implements Dao<Listing> {
         final long deletionDate = doc.getLong("deletionDate");
         final double price = doc.getDouble("price");
         final double tax = doc.getDouble("tax");
-        final ItemStack itemStack = ItemSerializer.deserialize(doc.getString("itemStack"))[0];
+        final ItemStack itemStack = ItemSerializer.deserialize(doc.getString("itemStack"));
         final boolean biddable = doc.getBoolean("biddable");
         final String bidString = doc.getString("bids");
         final ConcurrentSkipListSet<Bid> bids;

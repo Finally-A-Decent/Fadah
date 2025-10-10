@@ -8,7 +8,7 @@ import java.lang.reflect.Type;
 public class ItemStackTypeAdapter implements JsonSerializer<ItemStack>, JsonDeserializer<ItemStack> {
     @Override
     public ItemStack deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        return ItemSerializer.deserialize(json.getAsJsonPrimitive().getAsString())[0];
+        return ItemSerializer.deserialize(json.getAsJsonPrimitive().getAsString());
     }
 
     @Override

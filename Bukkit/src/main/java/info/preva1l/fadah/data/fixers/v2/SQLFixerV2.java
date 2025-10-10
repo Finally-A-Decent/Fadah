@@ -30,7 +30,7 @@ public class SQLFixerV2 implements V2Fixer {
                 final ResultSet resultSet = statement.executeQuery();
                 ExpiredItems expiredItems = ImplExpiredItems.empty(player);
                 while (resultSet.next()) {
-                    final ItemStack itemStack = ItemSerializer.deserialize(resultSet.getString("itemStack"))[0];
+                    final ItemStack itemStack = ItemSerializer.deserialize(resultSet.getString("itemStack"));
                     final long dateAdded = resultSet.getLong("dateAdded");
                     expiredItems.add(new CollectableItem(itemStack, dateAdded));
                 }
@@ -61,7 +61,7 @@ public class SQLFixerV2 implements V2Fixer {
                 final ResultSet resultSet = statement.executeQuery();
                 CollectionBox box = ImplCollectionBox.empty(player);
                 while (resultSet.next()) {
-                    final ItemStack itemStack = ItemSerializer.deserialize(resultSet.getString("itemStack"))[0];
+                    final ItemStack itemStack = ItemSerializer.deserialize(resultSet.getString("itemStack"));
                     final long dateAdded = resultSet.getLong("dateAdded");
                     box.add(new CollectableItem(itemStack, dateAdded));
                 }
