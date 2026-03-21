@@ -11,6 +11,18 @@ plugins {
 }
 
 repositories {
+    mavenLocal()
+    mavenCentral()
+    maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.loohpjames.com/repository/")
+    maven("https://repo.clojars.org/")
+    maven("https://jitpack.io")
+    maven("https://repo.codemc.io/repository/maven-snapshots/")
+    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+    maven("https://mvn-repo.arim.space/lesser-gpl3/")
+    maven("https://repo.rosewooddev.io/repository/public/")
+    maven("https://repo.auxilor.io/repository/maven-public/")
+    maven("https://nexus.neetgames.com/repository/maven-public")
     finallyADecent(dev = BuildConstants.DEV_MODE)
     finallyADecent()
 }
