@@ -7,7 +7,7 @@ import info.preva1l.trashcan.trashcan
 import info.preva1l.trashcan.description.paper.PaperDependencyDefinition.RelativeLoadOrder as RLO
 
 plugins {
-    fadah.common
+    id("fadah.common")
 }
 
 trashcan {
@@ -22,37 +22,79 @@ repositories {
     maven(url = "https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven(url = "https://mvn-repo.arim.space/lesser-gpl3/")
     maven(url = "https://repo.rosewooddev.io/repository/public/")
-    maven(url = "https://nexus.neetgames.com/repository/maven-releases/")
+    maven(url = "https://nexus.neetgames.com/repository/maven-public")
 }
 
 dependencies {
     implementation(project(":API"))
     trashcan()
-
     library(libs.bundles.databases)
     library(libs.redisson)
-
     library(libs.multilib)
     library(libs.anvilgui) { setRemapped(true) }
     library(libs.adventure.gson)
     library(libs.influxdb)
 
-    dependency(libs.placeholderapi(), "PlaceholderAPI") { load = RLO.BEFORE ; required = false }
-    dependency(libs.luckperms(), "LuckPerms") { load = RLO.BEFORE ; required = false }
-    compileOnly(libs.mcmmo) { isTransitive = false }
+    dependency(libs.placeholderapi(), "PlaceholderAPI") {
+        load = RLO.BEFORE
+        required = false
+    }
 
-    // Currency
-    dependency(libs.vault(), "Vault") { load = RLO.BEFORE ; required = false }
-    dependency(libs.rediseconomy(), "RedisEconomy") { load = RLO.BEFORE ; required = false }
-    dependency(files("../libs/CoinsEngine-2.3.5.jar"), "CoinsEngine") { load = RLO.BEFORE ; required = false }
-    dependency(libs.playerpoints(), "PlayerPoints") { load = RLO.BEFORE ; required = false }
+    dependency(libs.luckperms(), "LuckPerms") {
+        load = RLO.BEFORE
+        required = false
+    }
+
+    compileOnly(libs.mcmmo) {
+        isTransitive = false
+    }
+
+    dependency(libs.vault(), "Vault") {
+        load = RLO.BEFORE
+        required = false
+    }
+
+    dependency(libs.rediseconomy(), "RedisEconomy") {
+        load = RLO.BEFORE
+        required = false
+    }
+
+    dependency(files("../libs/CoinsEngine-2.3.5.jar"), "CoinsEngine") {
+        load = RLO.BEFORE
+        required = false
+    }
+
+    dependency(libs.playerpoints(), "PlayerPoints") {
+        load = RLO.BEFORE
+        required = false
+    }
 
     // Eco Items
-    compileOnly(libs.bundles.eco) { isTransitive = false }
-    dependency(libs.eco.items(), "EcoItems") { load = RLO.BEFORE ; required = false }
+    compileOnly(libs.libreforge) {
+        isTransitive = false
+    }
 
-    dependency(libs.zauctionhouse(), "zAuctionHouseV3") { required = false }
-    dependency(files("../libs/AuctionHouse-1.20.4-3.7.1.jar"), "AuctionHouse") { required = false }
+    compileOnly(libs.eco) {
+        isTransitive = false
+    }
+
+    compileOnly(libs.eco.items) {
+        isTransitive = false
+    }
+
+    dependency(libs.eco.items(), "EcoItems") {
+        load = RLO.BEFORE
+        required = false
+    }
+
+    dependency(libs.zauctionhouse(), "zAuctionHouseV3") {
+        required = false
+    }
+
+    dependency(files("../libs/AuctionHouse-1.20.4-3.7.1.jar"), "AuctionHouse") {
+        required = false
+    }
+
     compileOnly(files("../libs/AkarianAuctionHouse-1.3.1-b6.jar"))
 }
 
@@ -69,23 +111,25 @@ paper {
     loader = "info.preva1l.fadah.trashcan.extension.libloader.BaseLibraryLoader"
     foliaSupported = true
     apiVersion = "1.21"
-
     load = PluginLoadOrder.POSTWORLD
 
     dependencies {
-        serverDependencies.register("mcMMO") { load = RLO.BEFORE ; required = false }
+        serverDependencies.register("mcMMO") {
+            load = RLO.BEFORE
+            required = false
+        }
     }
 
     permissions {
-        register("fadah.max-listings.<amount>") {
+        register("fadah.max-listings.") {
             description = "The amount of items a player can list at any one time."
         }
 
-        register("fadah.listing-tax.<amount>") {
+        register("fadah.listing-tax.") {
             description = "The percentage a player will get taxed when creating a listing."
         }
 
-        register("fadah.advert-price.<amount>") {
+        register("fadah.advert-price.") {
             description = "The cost of a listing advertisement."
             default = Permission.Default.TRUE
         }
