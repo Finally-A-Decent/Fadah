@@ -6,7 +6,6 @@ mysql = "9.4.0"
 mariadb = "3.5.6"
 mongo = "5.6.1"
 
-
 redisson = "3.52.0"
 adventure = "4.24.0"
 influxdb = "7.3.0"
@@ -23,9 +22,9 @@ rediseconomy = "4.3.9"
 playerpoints = "3.2.0"
 
 # eco
-libreforge = "4.58.1"
-eco = "6.56.0"
-eco-items = "5.43.1"
+libreforge = "4.79.0"
+eco = "6.77.0"
+eco-items = "5.66.0"
 
 # migrators
 zauctionhouse = "3.2.1.9"
