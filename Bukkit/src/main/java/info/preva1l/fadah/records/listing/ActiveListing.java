@@ -147,7 +147,7 @@ public abstract class ActiveListing extends BaseListing {
 
     @Override
     public CompletableFuture<Void> cancel(@NotNull Player canceller) {
-        return AwareDataService.instance.execute(Listing.class, this, () -> cancel0(canceller));
+        return AwareDataService.instance.execute(canceller, Listing.class, this, () -> cancel0(canceller));
     }
 
     protected void cancel0(@NotNull Player canceller) {
@@ -301,7 +301,8 @@ public abstract class ActiveListing extends BaseListing {
         try {
             Player seller = Bukkit.getPlayer(this.getOwner());
             if (seller != null && seller.isOnline()) {
-                seller.sendMessage(message);
+                Tasks.sync(Fadah.getInstance(), seller, () -> seller.sendMessage(message),
+                        () -> sendSellerNotificationViaNetwork(message));
             } else {
                 sendSellerNotificationViaNetwork(message);
             }

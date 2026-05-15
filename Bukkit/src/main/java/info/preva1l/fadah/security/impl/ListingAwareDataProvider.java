@@ -4,33 +4,29 @@ import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.data.DataService;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.security.AwareDataProvider;
-import lombok.AllArgsConstructor;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
+import java.util.function.Supplier;
 
 /**
  * Created on 16/06/2025
  *
  * @author Preva1l
  */
-@AllArgsConstructor
 public final class ListingAwareDataProvider implements AwareDataProvider<Listing> {
-    private final ExecutorService executor;
-
     @Override
-    public CompletableFuture<Void> execute(Listing listing, Runnable action) {
+    public CompletableFuture<Void> execute(Listing listing, Supplier<CompletableFuture<Void>> action) {
         if (CacheAccess.get(Listing.class, listing.getId()).isEmpty()) return CompletableFuture.completedFuture(null);
         return checkDatabase(listing, action);
     }
 
-    private CompletableFuture<Void> checkDatabase(Listing listing, Runnable action) {
-        return DataService.instance.get(Listing.class, listing.getId()).thenAcceptAsync(it -> {
+    private CompletableFuture<Void> checkDatabase(Listing listing, Supplier<CompletableFuture<Void>> action) {
+        return DataService.instance.get(Listing.class, listing.getId()).thenCompose(it -> {
             if (it.isEmpty()) {
                 CacheAccess.invalidate(Listing.class, listing);
-                return;
+                return CompletableFuture.completedFuture(null);
             }
-            action.run();
-        }, executor);
+            return action.get();
+        });
     }
 }

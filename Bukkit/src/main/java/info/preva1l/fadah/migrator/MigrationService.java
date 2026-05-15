@@ -3,9 +3,7 @@ package info.preva1l.fadah.migrator;
 import info.preva1l.fadah.migrator.impl.AkarianAuctionHouseMigrator;
 import info.preva1l.fadah.migrator.impl.AuctionHouseMigrator;
 import info.preva1l.fadah.migrator.impl.zAuctionHouseMigrator;
-import info.preva1l.trashcan.flavor.annotations.Configure;
-import info.preva1l.trashcan.flavor.annotations.Service;
-import info.preva1l.trashcan.flavor.annotations.inject.Inject;
+import info.preva1l.fadah.Fadah;
 import org.bukkit.Bukkit;
 
 import java.util.HashMap;
@@ -14,15 +12,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-@Service
 public final class MigrationService {
     public static final MigrationService instance = new MigrationService();
 
-    @Inject public Logger logger;
+    public Logger logger;
 
     private static final Map<String, Migrator> migrators = new HashMap<>();
 
-    @Configure
+    public MigrationService init(Fadah plugin) {
+        this.logger = plugin.getLogger();
+        return this;
+    }
+
     public void loadMigrators() {
         logger.info("Loading migrators...");
 

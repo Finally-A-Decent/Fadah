@@ -1,5 +1,5 @@
 rootProject.name = "Fadah"
-include("Bukkit", "API")
+include("API", "Bukkit")
 
 pluginManagement {
     repositories {

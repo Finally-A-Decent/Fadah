@@ -1,5 +1,6 @@
 package info.preva1l.fadah.records.listing;
 
+import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
@@ -13,6 +14,7 @@ import info.preva1l.fadah.records.collection.CollectableItem;
 import info.preva1l.fadah.records.collection.CollectionBox;
 import info.preva1l.fadah.security.AwareDataService;
 import info.preva1l.fadah.utils.Text;
+import info.preva1l.fadah.utils.Tasks;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -109,7 +111,7 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
             return CompletableFuture.completedFuture(null);
         }
 
-        return AwareDataService.instance.execute(Listing.class, this, () -> newBid0(bidder, bidAmount));
+        return AwareDataService.instance.execute(bidder, Listing.class, this, () -> newBid0(bidder, bidAmount));
     }
 
     private void newBid0(@NotNull Player bidder, double bidAmount) {
@@ -183,12 +185,10 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
 
             Player onlinePlayer = Bukkit.getPlayer(outbidBid.bidder());
             if (onlinePlayer != null && onlinePlayer.isOnline()) {
-                onlinePlayer.sendMessage(outbidMessage);
+                Tasks.sync(Fadah.getInstance(), onlinePlayer, () -> onlinePlayer.sendMessage(outbidMessage),
+                        () -> sendNetworkNotification(outbidBid.bidder(), outbidMessage));
             } else if (Broker.getInstance() != null && Broker.getInstance().isConnected()) {
-                Message.builder()
-                        .type(Message.Type.NOTIFICATION)
-                        .payload(Payload.withNotification(outbidBid.bidder(), outbidMessage))
-                        .build().send(Broker.getInstance());
+                sendNetworkNotification(outbidBid.bidder(), outbidMessage);
             }
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Failed to send outbid notification", e);
@@ -296,16 +296,22 @@ public final class ImplBidListing extends ActiveListing implements BidListing {
 
             Player onlineBuyer = Bukkit.getPlayer(winningBid.bidder());
             if (onlineBuyer != null && onlineBuyer.isOnline()) {
-                onlineBuyer.sendMessage(newItemMessage);
+                Tasks.sync(Fadah.getInstance(), onlineBuyer, () -> onlineBuyer.sendMessage(newItemMessage),
+                        () -> sendNetworkNotification(winningBid.bidder(), newItemMessage));
             } else if (Broker.getInstance() != null && Broker.getInstance().isConnected()) {
-                Message.builder()
-                        .type(Message.Type.NOTIFICATION)
-                        .payload(Payload.withNotification(winningBid.bidder(), newItemMessage))
-                        .build().send(Broker.getInstance());
+                sendNetworkNotification(winningBid.bidder(), newItemMessage);
             }
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Failed to send buyer notification", e);
         }
+    }
+
+    private void sendNetworkNotification(UUID uuid, Component message) {
+        if (Broker.getInstance() == null || !Broker.getInstance().isConnected()) return;
+        Message.builder()
+                .type(Message.Type.NOTIFICATION)
+                .payload(Payload.withNotification(uuid, message))
+                .build().send(Broker.getInstance());
     }
 
     private void sendSellerNotification(@NotNull Bid winningBid) {

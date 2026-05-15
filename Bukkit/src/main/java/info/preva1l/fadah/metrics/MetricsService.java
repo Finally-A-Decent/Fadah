@@ -4,25 +4,25 @@ import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.records.listing.Listing;
-import info.preva1l.trashcan.flavor.annotations.Close;
-import info.preva1l.trashcan.flavor.annotations.Configure;
-import info.preva1l.trashcan.flavor.annotations.Service;
-import info.preva1l.trashcan.flavor.annotations.inject.Inject;
 
 import java.util.logging.Logger;
 
-@Service
 public final class MetricsService {
     public static final MetricsService instance = new MetricsService();
 
     private static final int METRICS_ID = 21651;
 
-    @Inject private Fadah plugin;
-    @Inject private Logger logger;
+    private Fadah plugin;
+    private Logger logger;
 
     private Metrics metrics;
 
-    @Configure
+    public MetricsService init(Fadah plugin) {
+        this.plugin = plugin;
+        this.logger = plugin.getLogger();
+        return this;
+    }
+
     public void configure() {
         logger.info("Starting Metrics...");
 
@@ -38,7 +38,6 @@ public final class MetricsService {
         logger.info("Metrics Logging Started!");
     }
 
-    @Close
     public void close() {
         if (metrics != null) {
             metrics.shutdown();

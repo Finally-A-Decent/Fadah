@@ -8,9 +8,6 @@ import info.preva1l.fadah.hooks.impl.permissions.PermissionsHook;
 import info.preva1l.fadah.records.collection.CollectionBox;
 import info.preva1l.fadah.records.collection.ExpiredItems;
 import info.preva1l.fadah.records.listing.Listing;
-import info.preva1l.hooker.annotation.Hook;
-import info.preva1l.hooker.annotation.OnStart;
-import info.preva1l.hooker.annotation.Require;
 import lombok.Getter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -24,10 +21,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-@Hook(id = "placeholders")
-@Require("PlaceholderAPI")
 public class PapiHook {
-    @OnStart
     public boolean onEnable() {
         return new Expansion().register();
     }

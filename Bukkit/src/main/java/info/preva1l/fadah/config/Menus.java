@@ -6,7 +6,6 @@ import de.exlll.configlib.YamlConfigurationProperties;
 import de.exlll.configlib.YamlConfigurations;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.misc.ConfigurableItem;
-import info.preva1l.trashcan.extension.annotations.ExtensionReload;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -90,7 +89,6 @@ public class Menus {
             List.of()
     );
 
-    @ExtensionReload
     public static void reload() {
         instance = YamlConfigurations.load(new File(Fadah.getInstance().getDataFolder(), "menus/misc.yml").toPath(), Menus.class, PROPERTIES);
     }

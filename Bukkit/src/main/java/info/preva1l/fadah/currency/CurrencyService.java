@@ -1,22 +1,23 @@
 package info.preva1l.fadah.currency;
 
 import info.preva1l.fadah.utils.Text;
-import info.preva1l.trashcan.flavor.annotations.Configure;
-import info.preva1l.trashcan.flavor.annotations.Service;
-import info.preva1l.trashcan.flavor.annotations.inject.Inject;
+import info.preva1l.fadah.Fadah;
 import org.bukkit.Bukkit;
 
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-@Service
 public final class CurrencyService {
     public static final CurrencyService instance = new CurrencyService();
 
-    @Inject public Logger logger;
+    public Logger logger;
 
-    @Configure
+    public CurrencyService init(Fadah plugin) {
+        this.logger = plugin.getLogger();
+        return this;
+    }
+
     public void loadCurrencies() {
         Stream.of(
                 new VaultCurrency(),

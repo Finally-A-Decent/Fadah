@@ -20,12 +20,12 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerListener implements Listener {
-    private final Map<UUID, RegionizedTask> invalidateIfNoJoin = new HashMap<>();
+    private final Map<UUID, RegionizedTask> invalidateIfNoJoin = new ConcurrentHashMap<>();
 
     @EventHandler
     public void joinListener(AsyncPlayerPreLoginEvent e) {

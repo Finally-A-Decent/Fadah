@@ -6,10 +6,6 @@ import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.data.DataService;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.utils.Text;
-import info.preva1l.hooker.annotation.Hook;
-import info.preva1l.hooker.annotation.OnStart;
-import info.preva1l.hooker.annotation.Reloadable;
-import info.preva1l.hooker.annotation.Require;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,18 +23,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-@Hook(id = "discord")
-@Reloadable
-@Require(type = "config", value = "discord")
 @Getter
 public class DiscordHook {
     private Config.Hooks.Discord conf = Config.i().getHooks().getDiscord();
     private DecimalFormat df = Config.i().getFormatting().numbers();
 
-    @OnStart
-    public void onStart() {
+    public boolean onStart() {
         conf = Config.i().getHooks().getDiscord();
         df = Config.i().getFormatting().numbers();
+        return true;
     }
 
     public void send(Listing listing) {

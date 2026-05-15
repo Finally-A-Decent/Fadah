@@ -19,10 +19,6 @@ import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.utils.Tasks;
 import info.preva1l.fadah.watcher.AuctionWatcher;
 import info.preva1l.fadah.watcher.Watching;
-import info.preva1l.trashcan.flavor.annotations.Close;
-import info.preva1l.trashcan.flavor.annotations.Configure;
-import info.preva1l.trashcan.flavor.annotations.Service;
-import info.preva1l.trashcan.flavor.annotations.inject.Inject;
 import lombok.Getter;
 
 import java.util.*;
@@ -38,12 +34,11 @@ import java.util.logging.Logger;
  * There should be no case where this is modified.
  * Access this class via {@link DataService#instance)}
  */
-@Service(priority = 3)
 public final class DataService {
     @Getter public static final DataService instance = new DataService();
 
-    @Inject private Fadah plugin;
-    @Inject public Logger logger;
+    private Fadah plugin;
+    public Logger logger;
 
     @Getter private final ExecutorService threadPool;
     private final Map<DatabaseType, Class<? extends DatabaseHandler>> databaseHandlers = new HashMap<>();
@@ -57,7 +52,12 @@ public final class DataService {
         databaseHandlers.put(DatabaseType.MONGO, MongoHandler.class);
     }
 
-    @Configure
+    public DataService init(Fadah plugin) {
+        this.plugin = plugin;
+        this.logger = plugin.getLogger();
+        return this;
+    }
+
     public void configure() {
         handler = initHandler();
         handler.connect();
@@ -67,12 +67,7 @@ public final class DataService {
 
         Broker.getInstance().load();
 
-        Tasks.getLoopDeLoop().scheduleAtFixedRate(
-                listingExpiryTask(),
-                0L,
-                1L,
-                TimeUnit.SECONDS
-        );
+        Tasks.syncRepeating(plugin, listingExpiryTask(), 1L, 20L);
     }
 
     public <T> CompletableFuture<List<T>> getAll(Class<T> clazz) {
@@ -174,8 +169,8 @@ public final class DataService {
         return handler.isConnected();
     }
 
-    @Close
     public void shutdown() {
+        if (handler == null) return;
         try {
             threadPool.shutdown();
             boolean success = threadPool.awaitTermination(10, TimeUnit.SECONDS);

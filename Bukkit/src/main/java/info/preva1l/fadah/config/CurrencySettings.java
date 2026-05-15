@@ -3,7 +3,6 @@ package info.preva1l.fadah.config;
 import de.exlll.configlib.*;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.misc.SubEconomy;
-import info.preva1l.trashcan.extension.annotations.ExtensionReload;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -90,7 +89,6 @@ public class CurrencySettings {
         YamlConfigurations.save(new File(Fadah.getInstance().getDataFolder(), "currencies.yml").toPath(), CurrencySettings.class, this);
     }
 
-    @ExtensionReload
     public static void reload() {
         instance = YamlConfigurations.load(new File(Fadah.getInstance().getDataFolder(), "currencies.yml").toPath(), CurrencySettings.class, PROPERTIES);
     }

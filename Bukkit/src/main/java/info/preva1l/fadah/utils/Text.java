@@ -2,8 +2,8 @@ package info.preva1l.fadah.utils;
 
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.misc.Tuple;
+import info.preva1l.fadah.hooks.HookService;
 import info.preva1l.fadah.hooks.impl.PapiHook;
-import info.preva1l.hooker.Hooker;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -47,7 +47,7 @@ public class Text {
 
     @SafeVarargs
     public Component text(@Nullable Player player, @NotNull String message, Tuple<String, Object>... args) {
-        Optional<PapiHook> hook = Hooker.getHook(PapiHook.class);
+        Optional<PapiHook> hook = HookService.getHook(PapiHook.class);
         if (hook.isPresent()) message = hook.get().format(player, message);
         return replace(miniMessage.deserialize(unescape(miniMessage.serialize(legacySerializer.deserialize("<!italic>" + message)))), args);
     }

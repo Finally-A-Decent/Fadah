@@ -1,10 +1,8 @@
 package info.preva1l.fadah.config.upgraders;
 
+import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.upgraders.impl.CurrencyConfigUpgrader;
 import info.preva1l.fadah.config.upgraders.impl.MatcherUpgrader;
-import info.preva1l.trashcan.flavor.annotations.Configure;
-import info.preva1l.trashcan.flavor.annotations.Service;
-import info.preva1l.trashcan.flavor.annotations.inject.Inject;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -16,14 +14,17 @@ import java.util.stream.Stream;
  *
  * @author Preva1l
  */
-@Service(priority = 100)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ConfigUpgraderService {
     public static final ConfigUpgraderService instance = new ConfigUpgraderService();
 
-    @Inject private Logger logger;
+    private Logger logger;
 
-    @Configure
+    public ConfigUpgraderService init(Fadah plugin) {
+        this.logger = plugin.getLogger();
+        return this;
+    }
+
     public void configure() {
         Stream.of(
                 new CurrencyConfigUpgrader(logger),

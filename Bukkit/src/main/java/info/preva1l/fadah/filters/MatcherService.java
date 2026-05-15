@@ -1,9 +1,7 @@
 package info.preva1l.fadah.filters;
 
+import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.utils.Text;
-import info.preva1l.trashcan.flavor.annotations.Configure;
-import info.preva1l.trashcan.flavor.annotations.Service;
-import info.preva1l.trashcan.flavor.annotations.inject.Inject;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +21,6 @@ import static info.preva1l.fadah.filters.MatcherArgType.STRING;
  *
  * @author Preva1l
  */
-@Service(priority = 20)
 public final class MatcherService {
     public static final MatcherService instance = new MatcherService();
 
@@ -31,9 +28,13 @@ public final class MatcherService {
             "\"([^\"]*?)\"\\s*(==|!=|contains|startsWith|endsWith|matches)\\s*\"([^\"]*?)\"|(\\d+(?:\\.\\d+)?)\\s*(==|!=|>|<|>=|<=)\\s*(\\d+(?:\\.\\d+)?)"
     );
 
-    @Inject private Logger logger;
+    private Logger logger;
 
-    @Configure
+    public MatcherService init(Fadah plugin) {
+        this.logger = plugin.getLogger();
+        return this;
+    }
+
     public void configure() {
         MatcherArgsRegistry.register(STRING, "material", item -> item.getType().toString());
 

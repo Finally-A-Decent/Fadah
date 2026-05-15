@@ -12,6 +12,7 @@ import info.preva1l.fadah.records.listing.BidListing;
 import info.preva1l.fadah.records.listing.BinListing;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.utils.CooldownManager;
+import info.preva1l.fadah.utils.Tasks;
 import info.preva1l.fadah.utils.Text;
 import info.preva1l.fadah.utils.TimeUtil;
 import info.preva1l.fadah.utils.guis.ItemBuilder;
@@ -144,19 +145,24 @@ public abstract class BrowseMenu extends ScrollBarFastInv {
         Player clicker = (Player) event.getWhoClicked();
 
         if (event.isShiftClick() && canCancelListing(clicker, listing)) {
-            listing.cancel(clicker).thenRun(() -> {
-                updatePagination();
-                processingListings.remove(listing);
-            });
+            listing.cancel(clicker).whenComplete((ignored, throwable) ->
+                    Tasks.sync(Fadah.getInstance(), clicker, () -> {
+                        updatePagination();
+                        processingListings.remove(listing);
+                    }, () -> processingListings.remove(listing)));
             return;
         }
 
         if (event.isRightClick() && isShulkerBox) {
             new ShulkerBoxPreviewMenu(listing, () -> open(player)).open(player);
+            processingListings.remove(listing);
             return;
         }
 
-        if (!listing.canBuy(player)) return;
+        if (!listing.canBuy(player)) {
+            processingListings.remove(listing);
+            return;
+        }
 
         if (isBidListing) {
             new PlaceBidMenu((BidListing) listing, player, () -> open(player)).open(player);

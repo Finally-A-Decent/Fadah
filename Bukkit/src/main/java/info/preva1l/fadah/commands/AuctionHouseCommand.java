@@ -17,6 +17,7 @@ import info.preva1l.fadah.records.Category;
 import info.preva1l.fadah.records.listing.BidListing;
 import info.preva1l.fadah.records.listing.BinListing;
 import info.preva1l.fadah.records.listing.Listing;
+import info.preva1l.fadah.utils.Tasks;
 import info.preva1l.fadah.utils.Text;
 import info.preva1l.fadah.utils.guis.LayoutService;
 import net.kyori.adventure.text.format.TextColor;
@@ -70,13 +71,13 @@ public class AuctionHouseCommand implements InspectSubCommand, AboutSubCommand, 
         manager.command(
                 builder.senderType(Player.class)
                         .permission("fadah.use")
-                        .handler(cmd -> new MainMenu(
+                        .handler(cmd -> openFor(cmd.sender(), () -> new MainMenu(
                                 null,
                                 cmd.sender(),
                                 null,
                                 null,
                                 null
-                        ).open(cmd.sender()))
+                        ).open(cmd.sender())))
         );
 
         registerSubCommands();
@@ -195,7 +196,7 @@ public class AuctionHouseCommand implements InspectSubCommand, AboutSubCommand, 
                                 return;
                             }
 
-                            new MainMenu(category, cmd.sender(), cmd.get("search"), sort, direction).open(cmd.sender());
+                            openFor(cmd.sender(), () -> new MainMenu(category, cmd.sender(), cmd.get("search"), sort, direction).open(cmd.sender()));
                         })
         );
     }
@@ -218,9 +219,12 @@ public class AuctionHouseCommand implements InspectSubCommand, AboutSubCommand, 
                                 owner = cmd.sender();
                             }
 
-                            DataService.instance.loadPlayerData(owner.getUniqueId()).join();
-
-                            new ProfileMenu(cmd.sender(), owner).open(cmd.sender());
+                            Player sender = cmd.sender();
+                            OfflinePlayer finalOwner = owner;
+                            DataService.instance.loadPlayerData(owner.getUniqueId())
+                                    .thenRun(() -> Tasks.sync(plugin, sender,
+                                            () -> new ProfileMenu(sender, finalOwner).open(sender),
+                                            () -> {}));
                         })
         );
     }
@@ -268,9 +272,10 @@ public class AuctionHouseCommand implements InspectSubCommand, AboutSubCommand, 
 
                             OfflinePlayer finalOwner = owner;
                             DataService.instance.loadPlayerData(owner.getUniqueId())
-                                    .thenRun(() ->
-                                            new CollectionMenu(cmd.sender(), finalOwner, LayoutService.MenuType.COLLECTION_BOX)
-                                                    .open(cmd.sender()));
+                                    .thenRun(() -> Tasks.sync(plugin, cmd.sender(),
+                                            () -> new CollectionMenu(cmd.sender(), finalOwner, LayoutService.MenuType.COLLECTION_BOX)
+                                                    .open(cmd.sender()),
+                                            () -> {}));
                         })
         );
     }
@@ -295,9 +300,10 @@ public class AuctionHouseCommand implements InspectSubCommand, AboutSubCommand, 
 
                             OfflinePlayer finalOwner = owner;
                             DataService.instance.loadPlayerData(owner.getUniqueId())
-                                    .thenRun(() ->
-                                            new CollectionMenu(cmd.sender(), finalOwner, LayoutService.MenuType.EXPIRED_LISTINGS)
-                                                    .open(cmd.sender()));
+                                    .thenRun(() -> Tasks.sync(plugin, cmd.sender(),
+                                            () -> new CollectionMenu(cmd.sender(), finalOwner, LayoutService.MenuType.EXPIRED_LISTINGS)
+                                                    .open(cmd.sender()),
+                                            () -> {}));
                         })
         );
     }
@@ -320,9 +326,12 @@ public class AuctionHouseCommand implements InspectSubCommand, AboutSubCommand, 
                                 owner = cmd.sender();
                             }
 
-                            DataService.instance.loadPlayerData(owner.getUniqueId()).join();
-
-                            new HistoryMenu(cmd.sender(), owner, null).open(cmd.sender());
+                            Player sender = cmd.sender();
+                            OfflinePlayer finalOwner = owner;
+                            DataService.instance.loadPlayerData(owner.getUniqueId())
+                                    .thenRun(() -> Tasks.sync(plugin, sender,
+                                            () -> new HistoryMenu(sender, finalOwner, null).open(sender),
+                                            () -> {}));
                         })
         );
     }
@@ -354,7 +363,7 @@ public class AuctionHouseCommand implements InspectSubCommand, AboutSubCommand, 
                         .meta(aliasMeta, alias)
                         .senderType(Player.class)
                         .permission("fadah.watch")
-                        .handler(cmd -> new WatchMenu(cmd.sender()).open(cmd.sender()))
+                        .handler(cmd -> openFor(cmd.sender(), () -> new WatchMenu(cmd.sender()).open(cmd.sender())))
         );
     }
 
@@ -450,12 +459,16 @@ public class AuctionHouseCommand implements InspectSubCommand, AboutSubCommand, 
                                     }
 
                                     if (listing instanceof BinListing bin) {
-                                        new ConfirmPurchaseMenu(bin, player, player::closeInventory).open(player);
+                                        openFor(player, () -> new ConfirmPurchaseMenu(bin, player, player::closeInventory).open(player));
                                     } else if (listing instanceof BidListing bid) {
-                                        new PlaceBidMenu(bid, player, player::closeInventory).open(player);
+                                        openFor(player, () -> new PlaceBidMenu(bid, player, player::closeInventory).open(player));
                                     }
                                 }, () -> cmd.sender().sendMessage(Text.text(Lang.i().getPrefix() + Lang.i().getErrors().getDoesNotExist())))
                         )
         );
+    }
+
+    private void openFor(Player player, Runnable action) {
+        Tasks.sync(plugin, player, action, () -> {});
     }
 }

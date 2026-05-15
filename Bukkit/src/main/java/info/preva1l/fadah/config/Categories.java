@@ -5,7 +5,6 @@ import de.exlll.configlib.*;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.filters.MatcherService;
 import info.preva1l.fadah.records.Category;
-import info.preva1l.trashcan.extension.annotations.ExtensionReload;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -208,7 +207,6 @@ public class Categories {
         return i().sortedCache.removeIf(category -> category.id().equals(id));
     }
 
-    @ExtensionReload
     public static void reload() {
         instance = YamlConfigurations.load(new File(Fadah.getInstance().getDataFolder(), "categories.yml").toPath(), Categories.class, PROPERTIES);
         instance.categories.add(NONE_CATEGORY);

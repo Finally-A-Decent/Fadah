@@ -2,19 +2,14 @@ package info.preva1l.fadah.utils;
 
 import com.github.puregero.multilib.MultiLib;
 import com.github.puregero.multilib.regionized.RegionizedTask;
-import lombok.Getter;
 import lombok.experimental.UtilityClass;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.CompletableFuture;
 
 @UtilityClass
 public class Tasks {
-    @Getter
-    private final ScheduledExecutorService loopDeLoop = Executors.newSingleThreadScheduledExecutor();
-
     /**
      * Run a synchronous task once. Helpful when needing to sync some sync code in an async loop
      *
@@ -45,5 +40,39 @@ public class Tasks {
      */
     public RegionizedTask syncDelayed(Plugin plugin, Runnable runnable, long delay) {
         return MultiLib.getGlobalRegionScheduler().runDelayed(plugin, t -> runnable.run(), delay);
+    }
+
+    public RegionizedTask syncRepeating(Plugin plugin, Runnable runnable, long delay, long period) {
+        return MultiLib.getGlobalRegionScheduler().runAtFixedRate(plugin, t -> runnable.run(), delay, period);
+    }
+
+    public RegionizedTask syncRepeating(Plugin plugin, Entity entity, Runnable runnable, Runnable fail, long delay, long period) {
+        return MultiLib.getEntityScheduler(entity).runAtFixedRate(plugin, t -> runnable.run(), fail, delay, period);
+    }
+
+    public CompletableFuture<Void> syncFuture(Plugin plugin, Runnable runnable) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        sync(plugin, () -> completeFuture(future, runnable));
+        return future;
+    }
+
+    public CompletableFuture<Void> syncFuture(Plugin plugin, Entity entity, Runnable runnable) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        sync(
+                plugin,
+                entity,
+                () -> completeFuture(future, runnable),
+                () -> sync(plugin, () -> completeFuture(future, runnable))
+        );
+        return future;
+    }
+
+    private void completeFuture(CompletableFuture<Void> future, Runnable runnable) {
+        try {
+            runnable.run();
+            future.complete(null);
+        } catch (Throwable throwable) {
+            future.completeExceptionally(throwable);
+        }
     }
 }

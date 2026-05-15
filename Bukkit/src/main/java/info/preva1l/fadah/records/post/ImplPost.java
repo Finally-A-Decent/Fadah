@@ -1,5 +1,6 @@
 package info.preva1l.fadah.records.post;
 
+import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.api.ListingCreateEvent;
 import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.config.Config;
@@ -7,6 +8,7 @@ import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.config.misc.Tuple;
 import info.preva1l.fadah.data.DataService;
 import info.preva1l.fadah.filters.MatcherService;
+import info.preva1l.fadah.hooks.HookService;
 import info.preva1l.fadah.hooks.impl.DiscordHook;
 import info.preva1l.fadah.hooks.impl.permissions.Permission;
 import info.preva1l.fadah.hooks.impl.permissions.PermissionsHook;
@@ -16,10 +18,10 @@ import info.preva1l.fadah.multiserver.Payload;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.records.listing.ListingBuilder;
 import info.preva1l.fadah.utils.Text;
+import info.preva1l.fadah.utils.Tasks;
 import info.preva1l.fadah.utils.TimeUtil;
 import info.preva1l.fadah.utils.logging.TransactionLogger;
 import info.preva1l.fadah.watcher.AuctionWatcher;
-import info.preva1l.hooker.Hooker;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -77,7 +79,7 @@ public final class ImplPost extends Post {
         if (notifyPlayer) notifyPlayer(listing);
         if (submitLog) TransactionLogger.listingCreated(listing);
 
-        Hooker.getHook(DiscordHook.class).ifPresent(hook -> {
+        HookService.getHook(DiscordHook.class).ifPresent(hook -> {
             if (!(hook.getConf().isOnlySendOnAdvert() && postAdvert)) hook.send(listing);
         });
 
@@ -134,7 +136,7 @@ public final class ImplPost extends Post {
                 Tuple.of("%listing_id%", listing.getId())
         );
 
-        Bukkit.broadcast(advertMessage);
+        Tasks.sync(Fadah.getInstance(), () -> Bukkit.broadcast(advertMessage));
 
         if (Broker.getInstance().isConnected()) {
             Message.builder()

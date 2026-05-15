@@ -1,8 +1,19 @@
 name: Fadah
 api-version: 1.21
-version: INVALID
-main: info.preva1l.fadah.warnings.SpigotWarning
+version: ${version}
+main: info.preva1l.fadah.Fadah
 load: POSTWORLD
 author: Preva1l
 website: https://docs.preva1l.info/
 folia-supported: true
+softdepend:
+  - PlaceholderAPI
+  - LuckPerms
+  - mcMMO
+  - Vault
+  - RedisEconomy
+  - CoinsEngine
+  - PlayerPoints
+  - EcoItems
+  - zAuctionHouseV3
+  - AuctionHouse

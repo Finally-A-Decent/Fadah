@@ -3,10 +3,6 @@ package info.preva1l.fadah.utils.guis;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.utils.config.BasicConfig;
 import info.preva1l.fadah.utils.config.LanguageConfig;
-import info.preva1l.trashcan.extension.annotations.ExtensionReload;
-import info.preva1l.trashcan.flavor.annotations.Configure;
-import info.preva1l.trashcan.flavor.annotations.Service;
-import info.preva1l.trashcan.flavor.annotations.inject.Inject;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,17 +12,22 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-@Service
 public final class LayoutService {
     public static final LayoutService instance = new LayoutService();
 
-    @Inject private Fadah plugin;
-    @Inject private Logger logger;
+    private Fadah plugin;
+    private Logger logger;
     
     private final List<GuiLayout> guiLayouts = new ArrayList<>();
 
-    @ExtensionReload
+    public LayoutService init(Fadah plugin) {
+        this.plugin = plugin;
+        this.logger = plugin.getLogger();
+        return this;
+    }
+
     public void reload() {
+        guiLayouts.clear();
         Stream.of(
                 MenuType.MAIN,
                 MenuType.NEW_LISTING,
@@ -41,7 +42,6 @@ public final class LayoutService {
         ).forEach(this::reloadLayout);
     }
 
-    @Configure
     public void load() {
         Stream.of(
                 new BasicConfig(plugin, "menus/main.yml"),

@@ -1,8 +1,5 @@
 package info.preva1l.fadah.hooks.impl.permissions;
 
-import info.preva1l.hooker.annotation.Hook;
-import info.preva1l.hooker.annotation.OnStart;
-import info.preva1l.hooker.annotation.Require;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.Node;
@@ -21,8 +18,6 @@ import java.util.Optional;
  *
  * @author Preva1l
  */
-@Hook(id = "luckperms")
-@Require("LuckPerms")
 public class LuckPermsHook extends PermissionsHook {
     private LuckPerms luckPerms;
 
@@ -34,7 +29,6 @@ public class LuckPermsHook extends PermissionsHook {
      *
      * @return true if luckperms api was successful
      */
-    @OnStart
     public boolean onStart() {
         RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
         if (provider == null) return false;

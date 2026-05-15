@@ -3,10 +3,6 @@ package info.preva1l.fadah.commands;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.commands.parsers.ColoringFormatter;
 import info.preva1l.fadah.config.Lang;
-import info.preva1l.trashcan.extension.annotations.ExtensionReload;
-import info.preva1l.trashcan.flavor.annotations.Configure;
-import info.preva1l.trashcan.flavor.annotations.Service;
-import info.preva1l.trashcan.flavor.annotations.inject.Inject;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.util.ComponentMessageThrowable;
 import org.bukkit.command.CommandSender;
@@ -21,26 +17,28 @@ import org.incendo.cloud.minecraft.extras.caption.ComponentCaptionFormatter;
 import org.incendo.cloud.minecraft.extras.caption.RichVariable;
 import org.incendo.cloud.paper.LegacyPaperCommandManager;
 
-@Service(priority = 2)
 public final class CommandService {
     public static final CommandService instance = new CommandService();
 
-    @Inject private Fadah plugin;
+    private Fadah plugin;
 
     private LegacyPaperCommandManager<CommandSender> commandManager;
     private AnnotationParser<CommandSender> parser;
 
     private AuctionHouseCommand mainCommand;
 
-    @Configure
+    public CommandService init(Fadah plugin) {
+        this.plugin = plugin;
+        return this;
+    }
+
     public void configure() {
         loadCommandManager();
         registerCommands();
     }
 
-    @ExtensionReload
     public void reload() {
-        mainCommand.reload();
+        if (mainCommand != null) mainCommand.reload();
     }
 
     private void registerCommands() {
@@ -49,7 +47,7 @@ public final class CommandService {
     }
 
     private void loadCommandManager() {
-        commandManager = LegacyPaperCommandManager.createNative(plugin, ExecutionCoordinator.asyncCoordinator());
+        commandManager = LegacyPaperCommandManager.createNative(plugin, ExecutionCoordinator.simpleCoordinator());
         parser = new AnnotationParser<>(commandManager, CommandSender.class);
 
         commandManager.captionRegistry().registerProvider((caption, recipient) -> switch (caption.key()) {

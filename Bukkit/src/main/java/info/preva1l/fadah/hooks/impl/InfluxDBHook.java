@@ -8,20 +8,15 @@ import com.influxdb.client.write.Point;
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.data.DataService;
-import info.preva1l.hooker.annotation.*;
 
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
-@Hook(id = "influxdb")
-@Reloadable(async = true)
-@Require(type = "config", value = "influxdb")
 public class InfluxDBHook {
     private InfluxDBClient client;
     private WriteApiBlocking writeApi;
 
-    @OnStart
     public boolean onStart() {
         Config.Hooks.InfluxDB conf = Config.i().getHooks().getInfluxdb();
         try {
@@ -47,7 +42,6 @@ public class InfluxDBHook {
         }, DataService.getInstance().getThreadPool());
     }
 
-    @OnStop
     public void onStop() {
         if (client == null) return;
         client.close();

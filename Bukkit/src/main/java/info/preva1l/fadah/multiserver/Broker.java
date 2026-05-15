@@ -7,6 +7,7 @@ import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.data.DatabaseType;
+import info.preva1l.fadah.utils.Tasks;
 import info.preva1l.fadah.utils.guis.FastInvManager;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,30 +40,34 @@ public abstract class Broker {
             case NOTIFICATION -> message.getPayload()
                     .getNotification().ifPresentOrElse(notification -> {
                         if (notification.getTarget() == null) {
-                            Bukkit.broadcast(notification.getMessage());
+                            Tasks.sync(plugin, () -> Bukkit.broadcast(notification.getMessage()));
                             return;
                         }
                         Player player = Bukkit.getPlayer(notification.getTarget());
                         if (player == null) return;
 
-                        player.sendMessage(notification.getMessage());
+                        Tasks.sync(plugin, player, () -> player.sendMessage(notification.getMessage()), () -> {});
                     }, () -> {
                         throw new IllegalStateException("Notification message received with no notification info!");
                     });
 
             case RELOAD -> {
-                Fadah.getInstance().reload();
-                Lang.sendMessage(Bukkit.getConsoleSender(), Lang.i().getPrefix() + Lang.i().getCommands().getReload().getRemote());
+                Tasks.sync(plugin, () -> {
+                    Fadah.getInstance().reload();
+                    Lang.sendMessage(Bukkit.getConsoleSender(), Lang.i().getPrefix() + Lang.i().getCommands().getReload().getRemote());
+                });
             }
 
             case TOGGLE -> {
-                FastInvManager.closeAll();
-                boolean enabled = Config.i().isEnabled();
-                Config.i().setEnabled(!enabled);
+                Tasks.sync(plugin, () -> {
+                    FastInvManager.closeAll();
+                    boolean enabled = Config.i().isEnabled();
+                    Config.i().setEnabled(!enabled);
 
-                String toggle = enabled ? Lang.i().getCommands().getToggle().getDisabled() : Lang.i().getCommands().getToggle().getEnabled();
-                Lang.sendMessage(Bukkit.getConsoleSender(), Lang.i().getPrefix() + Lang.i().getCommands().getToggle().getRemote()
-                        .replace("%status%", toggle));
+                    String toggle = enabled ? Lang.i().getCommands().getToggle().getDisabled() : Lang.i().getCommands().getToggle().getEnabled();
+                    Lang.sendMessage(Bukkit.getConsoleSender(), Lang.i().getPrefix() + Lang.i().getCommands().getToggle().getRemote()
+                            .replace("%status%", toggle));
+                });
             }
 
             default -> throw new IllegalStateException("Unexpected value: " + message.getType());

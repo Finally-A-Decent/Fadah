@@ -1,8 +1,10 @@
 package info.preva1l.fadah.commands;
 
+import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.migrator.MigrationService;
 import info.preva1l.fadah.migrator.Migrator;
+import info.preva1l.fadah.utils.Tasks;
 import info.preva1l.fadah.utils.Text;
 import org.bukkit.entity.Player;
 import org.incendo.cloud.annotations.Command;
@@ -26,8 +28,10 @@ public class MigrateCommand {
                 .formatted(migrator.getMigratorName())));
 
         migrator.startMigration().thenRun(() ->
-                player.sendMessage(Text.text(Lang.i().getPrefix() + "&aMigration from %s complete! &7(Took: %sms)"
-                        .formatted(migrator.getMigratorName(), Instant.now().toEpochMilli() - start))));
+                Tasks.sync(Fadah.getInstance(), player,
+                        () -> player.sendMessage(Text.text(Lang.i().getPrefix() + "&aMigration from %s complete! &7(Took: %sms)"
+                                .formatted(migrator.getMigratorName(), Instant.now().toEpochMilli() - start))),
+                        () -> {}));
     }
 
     @Parser

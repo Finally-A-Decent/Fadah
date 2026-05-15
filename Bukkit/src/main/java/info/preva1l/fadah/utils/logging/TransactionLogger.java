@@ -2,6 +2,7 @@ package info.preva1l.fadah.utils.logging;
 
 import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.data.DataService;
+import info.preva1l.fadah.hooks.HookService;
 import info.preva1l.fadah.hooks.impl.InfluxDBHook;
 import info.preva1l.fadah.records.history.HistoricItem;
 import info.preva1l.fadah.records.history.History;
@@ -9,7 +10,6 @@ import info.preva1l.fadah.records.history.ImplHistory;
 import info.preva1l.fadah.records.listing.BidListing;
 import info.preva1l.fadah.records.listing.BinListing;
 import info.preva1l.fadah.records.listing.Listing;
-import info.preva1l.hooker.Hooker;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -54,7 +54,7 @@ public class TransactionLogger {
 
         LoggingService.instance.transactionLogger.info(logMessage);
 
-        Hooker.getHook(InfluxDBHook.class).ifPresent(hook -> hook.log(logMessage));
+        HookService.getHook(InfluxDBHook.class).ifPresent(hook -> hook.log(logMessage));
     }
 
     public void listingSold(Listing listing, OfflinePlayer buyer) {
@@ -114,7 +114,7 @@ public class TransactionLogger {
 
         LoggingService.instance.transactionLogger.info(logMessage);
 
-        Hooker.getHook(InfluxDBHook.class).ifPresent(hook -> hook.log(logMessage));
+        HookService.getHook(InfluxDBHook.class).ifPresent(hook -> hook.log(logMessage));
     }
 
     public void listingRemoval(Listing listing, boolean isAdmin) {
@@ -130,7 +130,7 @@ public class TransactionLogger {
 
         LoggingService.instance.transactionLogger.info(logMessage);
 
-        Hooker.getHook(InfluxDBHook.class).ifPresent(hook -> hook.log(logMessage));
+        HookService.getHook(InfluxDBHook.class).ifPresent(hook -> hook.log(logMessage));
     }
 
     public void listingExpired(Listing listing) {
@@ -146,7 +146,7 @@ public class TransactionLogger {
 
         LoggingService.instance.transactionLogger.info(logMessage);
 
-        Hooker.getHook(InfluxDBHook.class).ifPresent(hook -> hook.log(logMessage));
+        HookService.getHook(InfluxDBHook.class).ifPresent(hook -> hook.log(logMessage));
     }
 
     private void listingInGame(Listing listing, HistoricItem.LoggedAction loggedAction) {

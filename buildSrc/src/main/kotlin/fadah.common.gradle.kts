@@ -1,22 +1,16 @@
-import info.preva1l.fadah.BuildConstants
-import info.preva1l.trashcan.finallyADecent
-import info.preva1l.trashcan.paper
-import org.gradle.kotlin.dsl.support.uppercaseFirstChar
-
 plugins {
     java
-    id("fadah.publishing")
-    id("info.preva1l.trashcan")
+    `maven-publish`
     id("com.gradleup.shadow")
 }
 
 repositories {
-    finallyADecent(dev = BuildConstants.DEV_MODE)
-    finallyADecent()
+    mavenCentral()
+    maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
-    paper("1.21.4-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
 
     compileOnly("org.projectlombok:lombok:1.18.38")
     annotationProcessor("org.projectlombok:lombok:1.18.38")
@@ -42,7 +36,7 @@ configurations.all {
 tasks {
     withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
         destinationDirectory.set(file("$rootDir/target"))
-        archiveFileName.set("${rootProject.name}-${project.name.uppercaseFirstChar()}-$version.jar")
+        archiveFileName.set("${rootProject.name}-${project.name.replaceFirstChar { it.uppercase() }}-$version.jar")
     }
 
     withType<JavaCompile> {

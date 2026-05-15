@@ -5,7 +5,6 @@ import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.misc.TimeLength;
 import info.preva1l.fadah.data.DatabaseType;
 import info.preva1l.fadah.hooks.impl.DiscordHook;
-import info.preva1l.trashcan.extension.annotations.ExtensionReload;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -225,7 +224,6 @@ public class Config {
         YamlConfigurations.save(new File(Fadah.getInstance().getDataFolder(), "config.yml").toPath(), Config.class, this);
     }
 
-    @ExtensionReload
     public static void reload() {
         instance = YamlConfigurations.load(new File(Fadah.getInstance().getDataFolder(), "config.yml").toPath(), Config.class, PROPERTIES);
     }

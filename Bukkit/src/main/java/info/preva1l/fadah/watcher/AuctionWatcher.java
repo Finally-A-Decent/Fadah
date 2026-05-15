@@ -1,5 +1,6 @@
 package info.preva1l.fadah.watcher;
 
+import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Config;
 import info.preva1l.fadah.config.Lang;
 import info.preva1l.fadah.config.misc.Tuple;
@@ -8,6 +9,7 @@ import info.preva1l.fadah.multiserver.Message;
 import info.preva1l.fadah.multiserver.Payload;
 import info.preva1l.fadah.records.listing.Listing;
 import info.preva1l.fadah.utils.Text;
+import info.preva1l.fadah.utils.Tasks;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
@@ -21,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @UtilityClass
@@ -37,7 +38,7 @@ public class AuctionWatcher {
     }
 
     public void alertWatchers(@NotNull Listing listing) {
-        CompletableFuture.runAsync(() -> {
+        Tasks.sync(Fadah.getInstance(), () -> {
             for (Map.Entry<UUID, Watching> entry : watchingListings.entrySet()) {
                 Watching watching = entry.getValue();
                 if (watching.getSearch() != null) {
@@ -84,7 +85,15 @@ public class AuctionWatcher {
             return;
         }
 
-        player.sendMessage(alertMessage);
+        Tasks.sync(Fadah.getInstance(), player, () -> player.sendMessage(alertMessage),
+                () -> {
+                    if (Broker.getInstance().isConnected()) {
+                        Message.builder()
+                                .type(Message.Type.NOTIFICATION)
+                                .payload(Payload.withNotification(uuid, alertMessage))
+                                .build().send(Broker.getInstance());
+                    }
+                });
     }
 
     private boolean checkForEnchantmentOnBook(String enchant, ItemStack enchantedBook) {

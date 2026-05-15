@@ -1,23 +1,24 @@
 package info.preva1l.fadah.security.impl;
 
+import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.cache.CacheAccess;
 import info.preva1l.fadah.data.DataService;
 import info.preva1l.fadah.records.collection.CollectableItem;
 import info.preva1l.fadah.records.collection.ExpiredItems;
 import info.preva1l.fadah.security.AwareCollectableDataProvider;
-import lombok.AllArgsConstructor;
+import info.preva1l.fadah.utils.Tasks;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
-import java.util.concurrent.ExecutorService;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created on 16/06/2025
  *
  * @author Preva1l
  */
-@AllArgsConstructor
 public final class ExpiredListingsAwareDataProvider implements AwareCollectableDataProvider<ExpiredItems> {
-    private final ExecutorService executor;
-
     @Override
     public void execute(ExpiredItems box, CollectableItem item, Runnable action) {
         CacheAccess.get(ExpiredItems.class, box.owner())
@@ -29,12 +30,22 @@ public final class ExpiredListingsAwareDataProvider implements AwareCollectableD
 
     private void checkDatabase(ExpiredItems box, CollectableItem item, Runnable action) {
         DataService.instance.get(ExpiredItems.class, box.owner())
-                .thenAcceptAsync(it -> it.ifPresent(b -> {
+                .thenCompose(it -> {
+                    if (it.isEmpty()) return CompletableFuture.completedFuture(null);
+                    ExpiredItems b = it.get();
                     if (!b.contains(item)) {
                         box.remove(item);
-                        return;
+                        return CompletableFuture.completedFuture(null);
                     }
-                    action.run();
-                }), executor);
+                    return runOwnerAware(box.owner(), action);
+                });
+    }
+
+    private CompletableFuture<Void> runOwnerAware(UUID owner, Runnable action) {
+        Player player = Bukkit.getPlayer(owner);
+        if (player != null && player.isOnline()) {
+            return Tasks.syncFuture(Fadah.getInstance(), player, action);
+        }
+        return Tasks.syncFuture(Fadah.getInstance(), action);
     }
 }

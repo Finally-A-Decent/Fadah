@@ -50,7 +50,7 @@ public final class ImplBinListing extends ActiveListing implements BinListing {
 
     @Override
     public CompletableFuture<Void> purchase(@NotNull Player buyer) {
-        return AwareDataService.instance.execute(Listing.class, this, () -> purchase0(buyer));
+        return AwareDataService.instance.execute(buyer, Listing.class, this, () -> purchase0(buyer));
     }
 
     private void purchase0(@NotNull Player buyer) {

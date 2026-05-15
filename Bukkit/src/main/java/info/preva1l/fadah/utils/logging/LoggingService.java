@@ -2,9 +2,6 @@ package info.preva1l.fadah.utils.logging;
 
 import info.preva1l.fadah.Fadah;
 import info.preva1l.fadah.config.Config;
-import info.preva1l.trashcan.flavor.annotations.Configure;
-import info.preva1l.trashcan.flavor.annotations.Service;
-import info.preva1l.trashcan.flavor.annotations.inject.Inject;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,16 +12,20 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
-@Service
 public class LoggingService {
     public static final LoggingService instance = new LoggingService();
 
-    @Inject private Fadah plugin;
-    @Inject private Logger logger;
+    private Fadah plugin;
+    private Logger logger;
     
     final Logger transactionLogger = Logger.getLogger("AuctionHouse-Transactions");
 
-    @Configure
+    public LoggingService init(Fadah plugin) {
+        this.plugin = plugin;
+        this.logger = plugin.getLogger();
+        return this;
+    }
+
     public void initLogger() {
         if (!Config.i().isLogToFile()) return;
         try {
